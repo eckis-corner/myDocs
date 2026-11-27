@@ -60,6 +60,8 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 **M2.3 Startseite ✅ (27.11.2026, lokal):** fünf Blöcke mit „Meins“/„Haushalt“: fällig, Fristen, Zahlungen je Monat, Posteingang, Zustand des Bestands (126–128). 130 Tests grün.
 
+**M2.4 Benachrichtigungen und Einstellungen ✅ (27.11.2026, lokal):** Seite „Einstellungen“ für SMTP, ntfy, Adresse, Dateigröße und Sicherung; Mail-Outbox; Seite „Benachrichtigungen“ je Person; tägliche Zusammenfassung, sofortige Meldung bei Stufe 3, Aktivierungslink per Mail (129–135). 138 Tests grün. **Damit ist M2 fertig.**
+
 1. Lebenszyklus mit drei Mustern und Folgevorgängen
 2. Vorgänge (alle Arten, manuell und automatisch), Kommentare
 3. Prüfregeln aus dem Katalog und je Objekt, `ReviewService`, Eskalation, „überfällig“

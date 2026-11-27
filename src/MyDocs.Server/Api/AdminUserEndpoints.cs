@@ -5,6 +5,8 @@ using Microsoft.EntityFrameworkCore;
 using MyDocs.Server.Data;
 using MyDocs.Server.Infrastructure.Audit;
 using MyDocs.Server.Infrastructure.Auth;
+using MyDocs.Server.Infrastructure.Mail;
+using MyDocs.Server.Infrastructure.Settings;
 using MyDocs.Shared.Audit;
 using MyDocs.Shared.Admin;
 using MyDocs.Shared.Household;
@@ -41,7 +43,8 @@ internal static class AdminUserEndpoints
     }
 
     private static async Task<IResult> CreateAsync(CreateUserRequest request, MyDocsDbContext db, UserManager<AppUser> users,
-        RoleManager<IdentityRole<Guid>> roles, OneTimeTokens tokens, AuditLog audit, TimeProvider time, CancellationToken ct)
+        RoleManager<IdentityRole<Guid>> roles, OneTimeTokens tokens, AuditLog audit, TimeProvider time, HttpRequest http, SettingsStore settings,
+        MailOutbox outbox, CancellationToken ct)
     {
         if (!MailAddress.TryCreate(request.Email?.Trim(), out var email))
         {
@@ -83,7 +86,24 @@ internal static class AdminUserEndpoints
         audit.Add(AuditActions.UserCreated, title: user.DisplayName, details: $"{user.Email}, {request.Role}{(request.IsAdmin ? ", admin" : string.Empty)}");
         await db.SaveChangesAsync(ct);
         var (token, expires) = await tokens.IssueAsync(user.Id, TokenPurposes.Activation, OneTimeTokens.ActivationLifetime, ct);
-        return TypedResults.Ok(new ActivationLinkDto(user.Id, token, expires));
+        var mailed = await MailLinkAsync(user, token, MailTemplate.Activation, http, settings, outbox, db, ct);
+        return TypedResults.Ok(new ActivationLinkDto(user.Id, token, expires) { Mailed = mailed });
+    }
+
+    /// <summary>Mit eingerichtetem SMTP geht der Aktivierungslink zusätzlich per Mail an das Konto (86).</summary>
+    private static async Task<bool> MailLinkAsync(AppUser user, string token, string template, HttpRequest http, SettingsStore settings,
+        MailOutbox outbox, MyDocsDbContext db, CancellationToken ct)
+    {
+        var stored = await settings.GetAsync(ct);
+        if (!SettingsStore.IsMailConfigured(stored) || user.Email is null)
+        {
+            return false;
+        }
+
+        var origin = stored.PublicUrl ?? $"{http.Scheme}://{http.Host}";
+        outbox.Enqueue(user, template, new Dictionary<string, string>(StringComparer.Ordinal) { ["link"] = $"{origin}/activate#{token}" });
+        await db.SaveChangesAsync(ct);
+        return true;
     }
 
     private static async Task<IResult> UpdateAsync(Guid id, UpdateUserRequest request, ClaimsPrincipal principal, MyDocsDbContext db,
@@ -174,7 +194,8 @@ internal static class AdminUserEndpoints
     }
 
     /// <summary>Zugang zurücksetzen: Passwort und zweiter Faktor entfallen, alle Sitzungen enden, es gibt einen neuen Aktivierungslink.</summary>
-    private static async Task<IResult> ResetAsync(Guid id, ClaimsPrincipal principal, UserManager<AppUser> users, OneTimeTokens tokens, AuditLog audit, CancellationToken ct)
+    private static async Task<IResult> ResetAsync(Guid id, ClaimsPrincipal principal, UserManager<AppUser> users, OneTimeTokens tokens, AuditLog audit,
+        MyDocsDbContext db, HttpRequest http, SettingsStore settings, MailOutbox outbox, CancellationToken ct)
     {
         if (await users.FindByIdAsync(id.ToString()) is not { } user)
         {
@@ -202,7 +223,8 @@ internal static class AdminUserEndpoints
         await users.UpdateSecurityStampAsync(user);
         audit.Add(AuditActions.UserReset, title: user.DisplayName);
         var (token, expires) = await tokens.IssueAsync(user.Id, TokenPurposes.Activation, OneTimeTokens.ActivationLifetime, ct);
-        return TypedResults.Ok(new ActivationLinkDto(user.Id, token, expires));
+        var mailed = await MailLinkAsync(user, token, MailTemplate.Reset, http, settings, outbox, db, ct);
+        return TypedResults.Ok(new ActivationLinkDto(user.Id, token, expires) { Mailed = mailed });
     }
 
     private static bool IsSelf(ClaimsPrincipal principal, AppUser user) =>

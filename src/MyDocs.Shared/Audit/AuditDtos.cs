@@ -33,6 +33,8 @@ public static class AuditActions
     public const string PasskeyRemoved = "passkey-removed";
     public const string TaskCreated = "task-created";
     public const string TaskClosed = "task-closed";
+    public const string SettingsChanged = "settings-changed";
+    public const string MailFailed = "mail-failed";
 }
 
 /// <summary>Ein Eintrag im Audit-Log. Details ohne Inhalte, höchstens Titel.</summary>

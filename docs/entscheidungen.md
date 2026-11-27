@@ -242,6 +242,18 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 127 | Meins | „Meins“ heißt: Vorgänge, für die ich zuständig bin, und Einträge, bei denen ich zuständig oder Eigentümer bin. „Haushalt“ zeigt alles, was ich sehen darf; private Einträge anderer zählen nie mit, auch nicht in den Summen. Vorgänge, die auf Dritte warten, erscheinen erst wieder an ihrem Datum. |
 | 128 | Zahlungen | Umgerechnet auf den Monat: monatlich ×1, vierteljährlich ÷3, halbjährlich ÷6, jährlich ÷12; nur aktive Einträge. Die Veränderung zum Vorjahr folgt, sobald es eine Historie der Beträge gibt. Posteingang zeigt bis M3 null, der Abgleich mit myLife bis M5. Fällt die Übersicht aus, bleiben die Bereiche nutzbar. |
 
+## Runde 15 (27.11.2026, M2.4 Benachrichtigungen und Einstellungen)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 129 | Einstellungsseite | **Verwaltung → Einstellungen**: Adresse der Instanz, SMTP (eigenes Konto, getrennt von myLife), ntfy, größte Datei, Uhrzeit und Generationen der Sicherung. Gespeichert in `system_settings`, SMTP-Passwort und ntfy-Token mit Data Protection verschlüsselt; sie gehen nie an den Browser. Bis zum ersten Speichern gelten die Umgebungsvariablen. Die Dateigröße lässt sich nur bis zur Grenze aus der Umgebung einstellen, weil diese beim Start die Größe der Anfragen festlegt (Nginx: 110m). Der Sicherungsschlüssel bleibt in der `.env`. Die Knöpfe zum Testen speichern zuerst und senden sofort, damit ein Fehler gleich zu sehen ist. |
+| 130 | Mail-Outbox | Wie myLife: Die Mail wird in derselben Transaktion wie ihr Anlass gespeichert und im Hintergrund verschickt. Bei Fehlern wiederholt myDocs mit wachsendem Abstand (1 Minute bis 1 Tag, 10 Versuche, gut zwei Tage) und gibt dann auf, mit Eintrag „Mail nicht zustellbar“ im Protokoll. Die Parameter liegen verschlüsselt und werden nach dem Versand gelöscht. Die Texte stehen in den Sprachdateien der Oberfläche (`Mail_*`), die Sprache gilt je Konto. |
+| 131 | Eigene Benachrichtigungen | **Benutzermenü → Benachrichtigungen**: Sprache der Mails, Zusammenfassung an oder aus und ihre Stunde, dazu ein eigenes ntfy-Thema (Knopf „Zufällig“). Voreingestellt ist 7 Uhr, auch für bestehende Konten; neue Konten bekommen Deutsch. |
+| 132 | Tägliche Zusammenfassung | Einmal am Tag ab der gewählten Stunde in Ortszeit (`TZ`), geprüft alle 5 Minuten. Inhalt: eigene Vorgänge und, für Mitglieder, Vorgänge ohne Zuständigen, jeweils überfällig oder in den nächsten 7 Tagen fällig; dazu Vorgänge anderer ab Stufe 2, also seit 7 Tagen überfällig (14). Vorgänge, die auf Dritte warten, fehlen. Ist nichts fällig, kommt keine Mail. Mails nennen die Titel von Vorgang und Eintrag, aber keine Feldwerte und keine Dokumente. |
+| 133 | Sofort bei Stufe 3 | Erreicht ein Vorgang Stufe 3 (14 Tage überfällig), geht sofort eine Mail und eine Push-Nachricht an alle Mitglieder mit Konto, die ihn sehen dürfen. Bei privaten Einträgen sind das nur der Eigentümer und wer eine Freigabe hat. Gäste bekommen nichts. Je Vorgang nur einmal. |
+| 134 | ntfy | Push-Nachrichten enthalten nur Zahlen und einen Link, keine Titel: Wer den Namen eines Themas kennt, kann es lesen. Ein Fehler beim Push landet im Protokoll des Containers und wird nicht wiederholt. |
+| 135 | Aktivierung per Mail | Ist SMTP eingerichtet, geht der Aktivierungslink beim Anlegen und beim Zurücksetzen zusätzlich per Mail an das Konto (86); der Administrator sieht ihn weiterhin. Der Link beginnt mit der Adresse der Instanz, ohne sie mit der Adresse der Anfrage. |
+
 ## Offen
 
 | Thema | Was fehlt |
@@ -249,3 +261,4 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | Zusatztypen (7) | Felder, Bereich und Lebenszyklus-Muster je Typ |
 | Aufbewahrung (28) | Dauer und Bezugspunkt je Dokumentart |
 | Posteingang (20) | Wert für „X Tage“, bis ein Eintrag fällig wird |
+| Meldungen an Administratoren | Fehlgeschlagene Sicherung oder unzustellbare Mails per Mail melden (bisher: Seite „Sicherung“ und Protokoll) |

@@ -1,4 +1,4 @@
-@* Aktivierungslink zum Weitergeben (bis der Mailversand kommt): einmal gültig, sieben Tage. *@
+@* Aktivierungslink zum Weitergeben: einmal gültig, sieben Tage. Mit eingerichtetem SMTP geht er zusätzlich per Mail an das Konto. *@
 @inject IStringLocalizer<SharedResource> L
 @inject IJSRuntime Js
 
@@ -6,6 +6,10 @@
     <DialogContent>
         <MudStack Spacing="3">
             <MudText>@L["ActivationLinkText", Name, Expires.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)]</MudText>
+            @if (Mailed)
+            {
+                <MudAlert Severity="Severity.Success" Variant="Variant.Outlined" Dense data-testid="activation-mailed">@L["ActivationLinkMailed"]</MudAlert>
+            }
             <MudTextField T="string" Value="@Link" ReadOnly Variant="Variant.Outlined" Lines="3" UserAttributes="@(new() { ["data-testid"] = "activation-link" })" />
             @if (_copied)
             {
@@ -29,6 +33,8 @@
     [Parameter] public string Name { get; set; } = string.Empty;
 
     [Parameter] public DateTimeOffset Expires { get; set; }
+
+    [Parameter] public bool Mailed { get; set; }
 
     private async Task CopyAsync() => _copied = await Js.InvokeAsync<bool>("myDocs.copyText", Link);
 }

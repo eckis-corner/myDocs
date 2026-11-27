@@ -20,6 +20,13 @@ internal static class ApiCalls
         return (await response.Content.ReadFromJsonAsync<TResponse>(ct))!;
     }
 
+    public static async Task SendAsync<TRequest>(this HttpClient http, HttpMethod method, string path, TRequest request, CancellationToken ct)
+    {
+        using var message = new HttpRequestMessage(method, new Uri(path, UriKind.Relative)) { Content = JsonContent.Create(request) };
+        using var response = await http.SendAsync(message, ct);
+        await ApiException.EnsureSuccessAsync(response, ct);
+    }
+
     public static async Task<TResponse> PostForAsync<TResponse>(this HttpClient http, string path, CancellationToken ct)
     {
         using var message = new HttpRequestMessage(HttpMethod.Post, new Uri(path, UriKind.Relative));

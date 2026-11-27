@@ -110,6 +110,17 @@ builder.Services.AddSingleton<TrashPurge>();
 builder.Services.AddHostedService(services => services.GetRequiredService<TrashPurge>());
 builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Backup.BackupService>();
 builder.Services.AddHostedService(services => services.GetRequiredService<MyDocs.Server.Infrastructure.Backup.BackupService>());
+// Einstellungen, Mail und ntfy (M2.4)
+builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Settings.SettingsStore>();
+builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Mail.MailSignal>();
+builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Mail.IMailTransport, MyDocs.Server.Infrastructure.Mail.SmtpMailTransport>();
+builder.Services.AddScoped<MyDocs.Server.Infrastructure.Mail.MailOutbox>();
+builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Mail.MailOutboxService>();
+builder.Services.AddHostedService(services => services.GetRequiredService<MyDocs.Server.Infrastructure.Mail.MailOutboxService>());
+builder.Services.AddHttpClient(MyDocs.Server.Infrastructure.Mail.NtfyPushSender.HttpClientName, client => client.Timeout = TimeSpan.FromSeconds(15));
+builder.Services.AddScoped<MyDocs.Server.Infrastructure.Mail.IPushSender, MyDocs.Server.Infrastructure.Mail.NtfyPushSender>();
+builder.Services.AddScoped<MyDocs.Server.Infrastructure.Notifications.Notifier>();
+builder.Services.AddHostedService<MyDocs.Server.Infrastructure.Notifications.NotificationService>();
 // Uploads bis zur Grenze aus den Einstellungen (78) plus Platz für den Multipart-Rahmen.
 var maxRequestBytes = (options.MaxFileSizeMegabytes + 1) * 1024L * 1024L;
 builder.Services.AddAuthorizationBuilder()
@@ -169,6 +180,7 @@ app.MapAccountEndpoints();
 app.MapTaskEndpoints();
 app.MapDashboardEndpoints();
 app.MapAdminBackupEndpoints();
+app.MapSettingsEndpoints();
 
 app.MapStaticAssets();
 // Die Seiten sind nur die leere Hülle (kein Prerendering); [Authorize] prüft der Client. Geschützt sind die Daten:
@@ -179,6 +191,8 @@ app.MapRazorComponents<App>()
     .AllowAnonymous();
 
 await DatabaseMigrator.MigrateAsync(app.Services);
+// Gespeicherte Einstellungen gelten ab dem Start, auch für Upload und Sicherung.
+await app.Services.GetRequiredService<MyDocs.Server.Infrastructure.Settings.SettingsStore>().GetAsync();
 // Hauptschlüssel beim Start anlegen bzw. prüfen, nicht erst beim ersten Upload.
 app.Services.GetRequiredService<MyDocs.Server.Infrastructure.Files.MasterKey>();
 await MyDocs.Server.Infrastructure.Search.SearchIndex.BackfillAsync(app.Services);

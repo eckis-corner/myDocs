@@ -28,6 +28,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<AuditClient>();
         services.AddScoped<TaskClient>();
         services.AddScoped<DashboardClient>();
+        services.AddScoped<NotificationClient>();
         return services;
     }
 }

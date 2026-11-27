@@ -1,0 +1,140 @@
+@page "/account/notifications"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@using MyDocs.Shared.Admin
+@using MyDocs.Shared.Notifications
+@using System.Security.Cryptography
+@inject IStringLocalizer<SharedResource> L
+@inject NotificationClient Notifications
+@inject ISnackbar Snackbar
+
+<PageTitle>@L["AppName"] – @L["NotificationsTitle"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h4" HtmlTag="h1">@L["NotificationsTitle"]</MudText>
+
+    @if (_settings is null)
+    {
+        <MudProgressLinear Indeterminate Color="Color.Primary" />
+    }
+    else
+    {
+        @if (!_settings.MailConfigured && !_settings.NtfyConfigured)
+        {
+            <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" data-testid="nothing-configured">@L["NotificationsNothingConfigured"]</MudAlert>
+        }
+
+        <MudPaper Class="pa-4" Elevation="1">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["NotificationsDigest"]</b></MudText>
+                <MudText Typo="Typo.body2" Class="mydocs-muted">@L["NotificationsDigestIntro"]</MudText>
+                <MudSwitch T="bool" @bind-Value="_digest" Color="Color.Primary" Label="@L["NotificationsDigestOn"]" data-testid="digest-on" />
+                @if (_digest)
+                {
+                    <MudSelect T="int" @bind-Value="_hour" Label="@L["NotificationsDigestHour"]" Variant="Variant.Outlined" Style="max-width: 12rem" data-testid="digest-hour">
+                        @for (var hour = 0; hour < 24; hour++)
+                        {
+                            var value = hour;
+                            <MudSelectItem Value="value">@($"{value:00}:00")</MudSelectItem>
+                        }
+                    </MudSelect>
+                }
+                <MudSelect T="string" @bind-Value="_language" Label="@L["NotificationsLanguage"]" Variant="Variant.Outlined" Style="max-width: 12rem">
+                    <MudSelectItem Value="@MailLanguages.German">Deutsch</MudSelectItem>
+                    <MudSelectItem Value="@MailLanguages.English">English</MudSelectItem>
+                </MudSelect>
+            </MudStack>
+        </MudPaper>
+
+        <MudPaper Class="pa-4" Elevation="1">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["SettingsNtfy"]</b></MudText>
+                <MudText Typo="Typo.body2" Class="mydocs-muted">@L["NotificationsNtfyIntro"]</MudText>
+                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                    <MudTextField @bind-Value="_topic" Label="@L["NotificationsTopic"]" Variant="Variant.Outlined" Disabled="@(!_settings.NtfyConfigured)"
+                                  Error="@_topicInvalid" ErrorText="@L["SettingsError_settings-topic"]" UserAttributes="@(new() { ["data-testid"] = "ntfy-topic" })" />
+                    <MudButton Variant="Variant.Text" OnClick="RandomTopic" Disabled="@(!_settings.NtfyConfigured)">@L["NotificationsTopicRandom"]</MudButton>
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+
+        <MudStack Row Spacing="2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save" OnClick="SaveAsync" Disabled="_busy" data-testid="notifications-save">@L["Save"]</MudButton>
+            <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Outlined.Send" OnClick="TestAsync" Disabled="@(_busy || (!_settings.MailConfigured && !_settings.NtfyConfigured))">@L["NotificationsTest"]</MudButton>
+        </MudStack>
+    }
+</MudStack>
+
+@code {
+    private NotificationSettingsDto? _settings;
+    private bool _digest = true;
+    private int _hour = 7;
+    private string _language = MailLanguages.German;
+    private string? _topic;
+    private bool _topicInvalid;
+    private bool _busy;
+
+    protected override async Task OnInitializedAsync() => Show(await Notifications.GetAsync());
+
+    private void Show(NotificationSettingsDto settings)
+    {
+        _settings = settings;
+        _digest = settings.DigestHour is not null;
+        _hour = settings.DigestHour ?? 7;
+        _language = settings.Language;
+        _topic = settings.NtfyTopic;
+    }
+
+    /// <summary>Themen bei ntfy sind für jeden lesbar, der ihren Namen kennt: lieber lang und zufällig.</summary>
+    private void RandomTopic() => _topic = "mydocs-" + Convert.ToHexStringLower(RandomNumberGenerator.GetBytes(12));
+
+    private async Task<bool> SaveAsync()
+    {
+        var topic = string.IsNullOrWhiteSpace(_topic) ? null : _topic.Trim();
+        _topicInvalid = topic is not null && !AdminSettingsValidation.IsTopic(topic);
+        if (_topicInvalid)
+        {
+            return false;
+        }
+
+        _busy = true;
+        try
+        {
+            Show(await Notifications.SaveAsync(new NotificationSettingsRequest(_language, _digest ? _hour : null, topic)));
+            Snackbar.Add(L["Saved"], Severity.Success);
+            return true;
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"SettingsError_{exception.Code}"], Severity.Error);
+            return false;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task TestAsync()
+    {
+        if (!await SaveAsync())
+        {
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            await Notifications.TestAsync();
+            Snackbar.Add(L["NotificationsTestSent"], Severity.Success);
+        }
+        catch (ApiException exception)
+        {
+            var text = L[$"SettingsError_{exception.Code}"].Value;
+            Snackbar.Add(exception.Detail is { } detail ? $"{text} {detail}" : text, Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

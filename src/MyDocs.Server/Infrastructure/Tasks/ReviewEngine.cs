@@ -10,7 +10,7 @@ namespace MyDocs.Server.Infrastructure.Tasks;
 /// übernehmen, „wartet auf Dritte“ wieder vorlegen, Eskalation fortschreiben und „überfällig“ setzen. Jeder Schritt ist
 /// idempotent; ein zweiter Durchlauf am selben Tag ändert nichts.
 /// </summary>
-public sealed class ReviewEngine(MyDocsDbContext db, TimeProvider time)
+public sealed class ReviewEngine(MyDocsDbContext db, Notifications.Notifier notifier, TimeProvider time)
 {
     /// <summary>Was ein Durchlauf getan hat (für Tests und das Protokoll des Containers).</summary>
     public sealed record Result(int Reviews, int Deadlines, int Lifecycle, int Resumed, int Escalated, int Overdue);
@@ -74,6 +74,7 @@ public sealed class ReviewEngine(MyDocsDbContext db, TimeProvider time)
 
         // Eskalation (14): Stufe 1 am Fälligkeitstag, 2 nach 7 Tagen, 3 nach 14 Tagen; bei Prüfungen danach „überfällig“.
         var open = await db.Tasks.Where(t => (t.State == TaskStates.Open || t.State == TaskStates.InProgress) && t.DueOn != null && t.DueOn <= today).ToListAsync(ct);
+        var urgent = new List<Guid>();
         foreach (var task in open)
         {
             var days = today.DayNumber - task.DueOn!.Value.DayNumber;
@@ -82,6 +83,10 @@ public sealed class ReviewEngine(MyDocsDbContext db, TimeProvider time)
             {
                 task.EscalationLevel = level;
                 escalated++;
+                if (level == 3)
+                {
+                    urgent.Add(task.Id);
+                }
             }
 
             if (level == 3 && task.Kind == TaskKinds.Review)
@@ -96,6 +101,8 @@ public sealed class ReviewEngine(MyDocsDbContext db, TimeProvider time)
         }
 
         await db.SaveChangesAsync(ct);
+        // Sofort nur Stufe 3 (47); alles andere bringt die tägliche Zusammenfassung.
+        await notifier.UrgentAsync(urgent, ct);
         return new Result(reviews, deadlines, lifecycle, resumed, escalated, overdue);
     }
 

@@ -9,6 +9,7 @@
   <data name="ActivateFinish" xml:space="preserve"><value>Konto aktivieren</value></data>
   <data name="ActivateIntro" xml:space="preserve"><value>Hallo {0}, der Administrator hat ein Konto für dich angelegt. Lege jetzt dein Passwort fest und richte danach die Authenticator-App ein.</value></data>
   <data name="ActivateTitle" xml:space="preserve"><value>Konto aktivieren</value></data>
+  <data name="ActivationLinkMailed" xml:space="preserve"><value>Der Link ging zusätzlich per Mail an das Konto.</value></data>
   <data name="ActivationLinkText" xml:space="preserve"><value>Gib diesen Link an {0} weiter. Er gilt einmal und bis {1}. Wer ihn hat, kann das Konto aktivieren, also nur auf sicherem Weg verschicken.</value></data>
   <data name="ActivationLinkTitle" xml:space="preserve"><value>Aktivierungslink</value></data>
   <data name="AdminAuditIntro" xml:space="preserve"><value>Alle Ereignisse der Instanz. IP-Adressen sind gekürzt.</value></data>
@@ -40,6 +41,7 @@
   <data name="Audit_login" xml:space="preserve"><value>Angemeldet</value></data>
   <data name="Audit_login-failed" xml:space="preserve"><value>Anmeldung fehlgeschlagen</value></data>
   <data name="Audit_logout" xml:space="preserve"><value>Abgemeldet</value></data>
+  <data name="Audit_mail-failed" xml:space="preserve"><value>Mail nicht zustellbar</value></data>
   <data name="Audit_master-key-shown" xml:space="preserve"><value>Hauptschlüssel angezeigt</value></data>
   <data name="Audit_object-changed" xml:space="preserve"><value>Eintrag geändert</value></data>
   <data name="Audit_object-created" xml:space="preserve"><value>Eintrag angelegt</value></data>
@@ -49,6 +51,7 @@
   <data name="Audit_object-viewed" xml:space="preserve"><value>Eintrag angesehen (Freigabe)</value></data>
   <data name="Audit_passkey-added" xml:space="preserve"><value>Passkey hinzugefügt</value></data>
   <data name="Audit_passkey-removed" xml:space="preserve"><value>Passkey entfernt</value></data>
+  <data name="Audit_settings-changed" xml:space="preserve"><value>Einstellungen geändert</value></data>
   <data name="Audit_setup-completed" xml:space="preserve"><value>myDocs eingerichtet</value></data>
   <data name="Audit_task-closed" xml:space="preserve"><value>Vorgang abgeschlossen</value></data>
   <data name="Audit_task-created" xml:space="preserve"><value>Vorgang angelegt</value></data>
@@ -193,6 +196,42 @@
   <data name="LoginUseRecovery" xml:space="preserve"><value>Kein Zugriff auf die App? Wiederherstellungscode verwenden</value></data>
   <data name="LoginUseTotp" xml:space="preserve"><value>Code aus der Authenticator-App verwenden</value></data>
   <data name="Logout" xml:space="preserve"><value>Abmelden</value></data>
+  <data name="Mail_activation_body" xml:space="preserve"><value>Hallo {name},
+
+für dich ist ein Konto bei myDocs angelegt. Über diesen Link legst du Passwort und zweiten Faktor fest. Er gilt einmal und 7 Tage lang:
+
+{link}</value></data>
+  <data name="Mail_activation_subject" xml:space="preserve"><value>Dein Konto bei myDocs</value></data>
+  <data name="Mail_digest_body" xml:space="preserve"><value>Hallo {name},
+
+hier ist, was in myDocs ansteht:
+
+{list}
+
+{link}</value></data>
+  <data name="Mail_digest_others" xml:space="preserve"><value>Bei anderen seit über einer Woche überfällig:</value></data>
+  <data name="Mail_digest_overdue" xml:space="preserve"><value>Überfällig:</value></data>
+  <data name="Mail_digest_subject" xml:space="preserve"><value>myDocs: {count} Vorgänge stehen an</value></data>
+  <data name="Mail_digest_upcoming" xml:space="preserve"><value>In den nächsten 7 Tagen:</value></data>
+  <data name="Mail_footer" xml:space="preserve"><value>Diese Mail kommt von myDocs. Benachrichtigungen lassen sich unter Benutzermenü → Benachrichtigungen ändern.</value></data>
+  <data name="Mail_reset_body" xml:space="preserve"><value>Hallo {name},
+
+der Administrator hat deinen Zugang zu myDocs zurückgesetzt. Über diesen Link legst du Passwort und zweiten Faktor neu fest. Er gilt einmal und 7 Tage lang:
+
+{link}</value></data>
+  <data name="Mail_reset_subject" xml:space="preserve"><value>myDocs: Zugang zurückgesetzt</value></data>
+  <data name="Mail_test_body" xml:space="preserve"><value>Hallo {name},
+
+der Mailversand von myDocs funktioniert.</value></data>
+  <data name="Mail_test_subject" xml:space="preserve"><value>myDocs: Testmail</value></data>
+  <data name="Mail_urgent_body" xml:space="preserve"><value>Hallo {name},
+
+diese Vorgänge sind seit 14 Tagen überfällig und gehen jetzt an den ganzen Haushalt:
+
+{list}
+
+{link}</value></data>
+  <data name="Mail_urgent_subject" xml:space="preserve"><value>myDocs: {count} Vorgänge seit 14 Tagen überfällig</value></data>
   <data name="MasterKeyHide" xml:space="preserve"><value>Ausblenden</value></data>
   <data name="MasterKeyIntro" xml:space="preserve"><value>Mit dem Hauptschlüssel sind alle Dokumente verschlüsselt. Ohne ihn lassen sie sich nicht mehr öffnen, auch nicht aus einer Sicherung. Drucke ihn als 24 Wörter aus und bewahre ihn getrennt von der Synology auf, etwa beim Notfallordner. Zum Anzeigen brauchst du einen Code aus deiner Authenticator-App.</value></data>
   <data name="MasterKeyRestoreHint" xml:space="preserve"><value>Wiederherstellen: docker compose run --rm app master-key restore "wort1 … wort24" --confirm (siehe Installationsanleitung).</value></data>
@@ -209,6 +248,18 @@
   <data name="NotFoundTitle" xml:space="preserve"><value>Seite nicht gefunden</value></data>
   <data name="Note" xml:space="preserve"><value>Notiz</value></data>
   <data name="Notes" xml:space="preserve"><value>Notizen</value></data>
+  <data name="NotificationsDigest" xml:space="preserve"><value>Tägliche Zusammenfassung</value></data>
+  <data name="NotificationsDigestHour" xml:space="preserve"><value>Uhrzeit</value></data>
+  <data name="NotificationsDigestIntro" xml:space="preserve"><value>Einmal am Tag: deine überfälligen Vorgänge, was in den nächsten 7 Tagen fällig ist und was bei anderen seit über einer Woche liegt. Ist nichts fällig, kommt nichts. Sofort kommt nur, was seit 14 Tagen überfällig ist.</value></data>
+  <data name="NotificationsDigestOn" xml:space="preserve"><value>Zusammenfassung schicken</value></data>
+  <data name="NotificationsLanguage" xml:space="preserve"><value>Sprache der Mails</value></data>
+  <data name="NotificationsNothingConfigured" xml:space="preserve"><value>Der Administrator hat noch weder Mailversand noch ntfy eingerichtet. Bis dahin bekommst du keine Benachrichtigungen.</value></data>
+  <data name="NotificationsNtfyIntro" xml:space="preserve"><value>Dein Thema bei ntfy. Wer den Namen kennt, kann mitlesen; nimm deshalb einen langen, zufälligen Namen und abonniere ihn in der ntfy-App.</value></data>
+  <data name="NotificationsTest" xml:space="preserve"><value>Speichern und testen</value></data>
+  <data name="NotificationsTestSent" xml:space="preserve"><value>Test verschickt.</value></data>
+  <data name="NotificationsTitle" xml:space="preserve"><value>Benachrichtigungen</value></data>
+  <data name="NotificationsTopic" xml:space="preserve"><value>Thema</value></data>
+  <data name="NotificationsTopicRandom" xml:space="preserve"><value>Zufällig</value></data>
   <data name="ObjectCommon" xml:space="preserve"><value>Allgemein</value></data>
   <data name="ObjectDeleteConfirm" xml:space="preserve"><value>„{0}“ in den Papierkorb legen?</value></data>
   <data name="ObjectDeleted" xml:space="preserve"><value>In den Papierkorb gelegt.</value></data>
@@ -252,6 +303,12 @@
   <data name="PersonLogin" xml:space="preserve"><value>Konto</value></data>
   <data name="PersonNameFromAccount" xml:space="preserve"><value>Der Name kommt aus dem Konto; ändern kann ihn der Administrator.</value></data>
   <data name="Print" xml:space="preserve"><value>Drucken</value></data>
+  <data name="Push_digest_body" xml:space="preserve"><value>{0} überfällig, {1} in den nächsten 7 Tagen</value></data>
+  <data name="Push_digest_title" xml:space="preserve"><value>myDocs: {0} Vorgänge</value></data>
+  <data name="Push_test_body" xml:space="preserve"><value>Push-Nachrichten von myDocs kommen an.</value></data>
+  <data name="Push_test_title" xml:space="preserve"><value>myDocs: Test</value></data>
+  <data name="Push_urgent_body" xml:space="preserve"><value>{0} Vorgänge gehen jetzt an den ganzen Haushalt.</value></data>
+  <data name="Push_urgent_title" xml:space="preserve"><value>myDocs: {0} Vorgänge seit 14 Tagen überfällig</value></data>
   <data name="RecoveryCode" xml:space="preserve"><value>Wiederherstellungscode</value></data>
   <data name="RecoveryCodesLeft" xml:space="preserve"><value>Noch {0} von 10 Wiederherstellungscodes übrig.</value></data>
   <data name="RecoveryCodesTitle" xml:space="preserve"><value>Wiederherstellungscodes</value></data>
@@ -277,6 +334,7 @@
   <data name="Role_member" xml:space="preserve"><value>Mitglied</value></data>
   <data name="RowsPerPage" xml:space="preserve"><value>Zeilen je Seite</value></data>
   <data name="Save" xml:space="preserve"><value>Speichern</value></data>
+  <data name="Saved" xml:space="preserve"><value>Gespeichert.</value></data>
   <data name="ScopeHousehold" xml:space="preserve"><value>Haushalt</value></data>
   <data name="ScopeMine" xml:space="preserve"><value>Meine</value></data>
   <data name="SearchDocumentIn" xml:space="preserve"><value>Dokument bei {0}</value></data>
@@ -286,6 +344,49 @@
   <data name="SearchPlaceholder" xml:space="preserve"><value>Suchen …</value></data>
   <data name="SearchTitle" xml:space="preserve"><value>Suche</value></data>
   <data name="SecurityTitle" xml:space="preserve"><value>Sicherheit</value></data>
+  <data name="SettingsBackupHour" xml:space="preserve"><value>Uhrzeit (Stunde)</value></data>
+  <data name="SettingsError_mail-not-configured" xml:space="preserve"><value>Der Mailversand ist nicht eingerichtet.</value></data>
+  <data name="SettingsError_notifications-invalid" xml:space="preserve"><value>Die Angaben sind ungültig.</value></data>
+  <data name="SettingsError_notifications-nothing-configured" xml:space="preserve"><value>Weder Mail noch ntfy sind eingerichtet.</value></data>
+  <data name="SettingsError_ntfy-not-configured" xml:space="preserve"><value>ntfy ist nicht eingerichtet.</value></data>
+  <data name="SettingsError_send-failed" xml:space="preserve"><value>Versand fehlgeschlagen:</value></data>
+  <data name="SettingsError_settings-email" xml:space="preserve"><value>Die E-Mail-Adresse ist ungültig.</value></data>
+  <data name="SettingsError_settings-range" xml:space="preserve"><value>Der Wert liegt außerhalb des erlaubten Bereichs.</value></data>
+  <data name="SettingsError_settings-required" xml:space="preserve"><value>Bitte ausfüllen.</value></data>
+  <data name="SettingsError_settings-too-long" xml:space="preserve"><value>Zu lang.</value></data>
+  <data name="SettingsError_settings-topic" xml:space="preserve"><value>Nur Buchstaben, Ziffern, - und _, höchstens 64 Zeichen.</value></data>
+  <data name="SettingsError_settings-url" xml:space="preserve"><value>Bitte eine vollständige Adresse eingeben.</value></data>
+  <data name="SettingsFromAddress" xml:space="preserve"><value>Absenderadresse</value></data>
+  <data name="SettingsFromName" xml:space="preserve"><value>Absendername</value></data>
+  <data name="SettingsIncludeDocuments" xml:space="preserve"><value>Dokumente mitsichern</value></data>
+  <data name="SettingsInstance" xml:space="preserve"><value>Instanz</value></data>
+  <data name="SettingsKeepDaily" xml:space="preserve"><value>Tage aufbewahren</value></data>
+  <data name="SettingsKeepMonthly" xml:space="preserve"><value>Monate aufbewahren</value></data>
+  <data name="SettingsKeepWeekly" xml:space="preserve"><value>Wochen aufbewahren</value></data>
+  <data name="SettingsLimits" xml:space="preserve"><value>Dateien</value></data>
+  <data name="SettingsMail" xml:space="preserve"><value>Mailversand</value></data>
+  <data name="SettingsMailIntro" xml:space="preserve"><value>Eigenes SMTP-Konto für myDocs, getrennt von myLife. Ohne Server verschickt myDocs keine Mails.</value></data>
+  <data name="SettingsMaxFileSize" xml:space="preserve"><value>Größte Datei (MB)</value></data>
+  <data name="SettingsMaxFileSizeHelp" xml:space="preserve"><value>Höchstens {0} MB (Grenze der Installation)</value></data>
+  <data name="SettingsNtfy" xml:space="preserve"><value>Push-Nachrichten (ntfy)</value></data>
+  <data name="SettingsNtfyIntro" xml:space="preserve"><value>Optional. Jede Person wählt unter „Benachrichtigungen“ ihr eigenes Thema. Push-Nachrichten enthalten nur Zahlen, keine Titel.</value></data>
+  <data name="SettingsNtfyTestTopic" xml:space="preserve"><value>Thema für den Test</value></data>
+  <data name="SettingsNtfyToken" xml:space="preserve"><value>Zugangstoken</value></data>
+  <data name="SettingsNtfyUrl" xml:space="preserve"><value>ntfy-Server</value></data>
+  <data name="SettingsPublicUrl" xml:space="preserve"><value>Adresse von myDocs</value></data>
+  <data name="SettingsPublicUrlHelp" xml:space="preserve"><value>Für Links in Mails und Push-Nachrichten, etwa https://mydocs.example.org</value></data>
+  <data name="SettingsSecretStored" xml:space="preserve"><value>Hinterlegt. Leer lassen, um es zu behalten.</value></data>
+  <data name="SettingsSmtpHost" xml:space="preserve"><value>SMTP-Server</value></data>
+  <data name="SettingsSmtpNone" xml:space="preserve"><value>keine</value></data>
+  <data name="SettingsSmtpPassword" xml:space="preserve"><value>Passwort</value></data>
+  <data name="SettingsSmtpPort" xml:space="preserve"><value>Port</value></data>
+  <data name="SettingsSmtpSecurity" xml:space="preserve"><value>Verschlüsselung</value></data>
+  <data name="SettingsSmtpUser" xml:space="preserve"><value>Benutzername</value></data>
+  <data name="SettingsTestMail" xml:space="preserve"><value>Speichern und Testmail an mich</value></data>
+  <data name="SettingsTestMailSent" xml:space="preserve"><value>Testmail verschickt.</value></data>
+  <data name="SettingsTestNtfy" xml:space="preserve"><value>Speichern und testen</value></data>
+  <data name="SettingsTestNtfySent" xml:space="preserve"><value>Push-Nachricht verschickt.</value></data>
+  <data name="SettingsTitle" xml:space="preserve"><value>Einstellungen</value></data>
   <data name="SetupCode" xml:space="preserve"><value>Einrichtungscode</value></data>
   <data name="SetupCodeHelp" xml:space="preserve"><value>Steht im Protokoll des Containers, etwa im Container Manager unter mydocs-app → Protokoll. Nach jedem Neustart gilt ein neuer Code.</value></data>
   <data name="SetupDone" xml:space="preserve"><value>Zu myDocs</value></data>

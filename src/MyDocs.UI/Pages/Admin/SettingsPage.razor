@@ -1,0 +1,244 @@
+@page "/admin/settings"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = HouseholdRoles.Admin)]
+@using MyDocs.Shared.Admin
+@inject IStringLocalizer<SharedResource> L
+@inject AdminClient Admin
+@inject ISnackbar Snackbar
+
+<PageTitle>@L["AppName"] – @L["SettingsTitle"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h4" HtmlTag="h1">@L["SettingsTitle"]</MudText>
+
+    @if (_loaded is null)
+    {
+        <MudProgressLinear Indeterminate Color="Color.Primary" />
+    }
+    else
+    {
+        <MudPaper Class="pa-4" Elevation="1">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["SettingsInstance"]</b></MudText>
+                <MudTextField @bind-Value="_publicUrl" Label="@L["SettingsPublicUrl"]" HelperText="@L["SettingsPublicUrlHelp"]" Variant="Variant.Outlined"
+                              Error="@Has("publicUrl")" ErrorText="@ErrorOf("publicUrl")" UserAttributes="@(new() { ["data-testid"] = "public-url" })" />
+            </MudStack>
+        </MudPaper>
+
+        <MudPaper Class="pa-4" Elevation="1">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["SettingsMail"]</b></MudText>
+                <MudText Typo="Typo.body2" Class="mydocs-muted">@L["SettingsMailIntro"]</MudText>
+                <MudGrid Spacing="2">
+                    <MudItem xs="12" sm="8">
+                        <MudTextField @bind-Value="_smtpHost" Label="@L["SettingsSmtpHost"]" Variant="Variant.Outlined" Error="@Has("smtp.host")" ErrorText="@ErrorOf("smtp.host")"
+                                      UserAttributes="@(new() { ["data-testid"] = "smtp-host" })" />
+                    </MudItem>
+                    <MudItem xs="6" sm="2">
+                        <MudNumericField @bind-Value="_smtpPort" Label="@L["SettingsSmtpPort"]" Variant="Variant.Outlined" Min="1" Max="65535" Error="@Has("smtp.port")" ErrorText="@ErrorOf("smtp.port")" />
+                    </MudItem>
+                    <MudItem xs="6" sm="2">
+                        <MudSelect T="SmtpSecurity" @bind-Value="_smtpSecurity" Label="@L["SettingsSmtpSecurity"]" Variant="Variant.Outlined">
+                            <MudSelectItem Value="SmtpSecurity.StartTls">STARTTLS</MudSelectItem>
+                            <MudSelectItem Value="SmtpSecurity.SslOnConnect">SSL/TLS</MudSelectItem>
+                            <MudSelectItem Value="SmtpSecurity.None">@L["SettingsSmtpNone"]</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_smtpUser" Label="@L["SettingsSmtpUser"]" Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_smtpPassword" Label="@L["SettingsSmtpPassword"]" InputType="InputType.Password" Variant="Variant.Outlined"
+                                      HelperText="@(_loaded.Smtp.HasPassword ? L["SettingsSecretStored"].Value : null)" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_fromAddress" Label="@L["SettingsFromAddress"]" Variant="Variant.Outlined" Error="@Has("smtp.fromAddress")" ErrorText="@ErrorOf("smtp.fromAddress")"
+                                      UserAttributes="@(new() { ["data-testid"] = "from-address" })" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_fromName" Label="@L["SettingsFromName"]" Variant="Variant.Outlined" Error="@Has("smtp.fromName")" ErrorText="@ErrorOf("smtp.fromName")" />
+                    </MudItem>
+                </MudGrid>
+                <div>
+                    <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Outlined.Send" OnClick="TestMailAsync" Disabled="_busy" data-testid="test-mail">@L["SettingsTestMail"]</MudButton>
+                </div>
+            </MudStack>
+        </MudPaper>
+
+        <MudPaper Class="pa-4" Elevation="1">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["SettingsNtfy"]</b></MudText>
+                <MudText Typo="Typo.body2" Class="mydocs-muted">@L["SettingsNtfyIntro"]</MudText>
+                <MudGrid Spacing="2">
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_ntfyUrl" Label="@L["SettingsNtfyUrl"]" Placeholder="https://ntfy.sh" Variant="Variant.Outlined" Error="@Has("ntfy.serverUrl")" ErrorText="@ErrorOf("ntfy.serverUrl")" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_ntfyToken" Label="@L["SettingsNtfyToken"]" InputType="InputType.Password" Variant="Variant.Outlined"
+                                      HelperText="@(_loaded.Ntfy.HasAccessToken ? L["SettingsSecretStored"].Value : null)" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_testTopic" Label="@L["SettingsNtfyTestTopic"]" Variant="Variant.Outlined" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6" Class="d-flex align-center">
+                        <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Outlined.NotificationsActive" OnClick="TestNtfyAsync" Disabled="@(_busy || string.IsNullOrWhiteSpace(_testTopic))">@L["SettingsTestNtfy"]</MudButton>
+                    </MudItem>
+                </MudGrid>
+            </MudStack>
+        </MudPaper>
+
+        <MudPaper Class="pa-4" Elevation="1">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["SettingsLimits"]</b></MudText>
+                <MudGrid Spacing="2">
+                    <MudItem xs="12" sm="4">
+                        <MudNumericField @bind-Value="_maxFileSize" Label="@L["SettingsMaxFileSize"]" HelperText="@L["SettingsMaxFileSizeHelp", _loaded.FileSizeCeilingMegabytes]" Variant="Variant.Outlined"
+                                         Min="1" Max="_loaded.FileSizeCeilingMegabytes" Error="@Has("maxFileSize")" ErrorText="@ErrorOf("maxFileSize")" UserAttributes="@(new() { ["data-testid"] = "max-file-size" })" />
+                    </MudItem>
+                </MudGrid>
+                <MudText Typo="Typo.subtitle1" HtmlTag="h2" Class="mt-2"><b>@L["BackupDaily"]</b></MudText>
+                <MudGrid Spacing="2">
+                    <MudItem xs="6" sm="3">
+                        <MudNumericField @bind-Value="_backupHour" Label="@L["SettingsBackupHour"]" Variant="Variant.Outlined" Min="0" Max="23" Error="@Has("backup.hour")" ErrorText="@ErrorOf("backup.hour")" />
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudNumericField @bind-Value="_keepDaily" Label="@L["SettingsKeepDaily"]" Variant="Variant.Outlined" Min="1" Max="60" Error="@Has("backup.keep")" ErrorText="@ErrorOf("backup.keep")" />
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudNumericField @bind-Value="_keepWeekly" Label="@L["SettingsKeepWeekly"]" Variant="Variant.Outlined" Min="0" Max="52" />
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudNumericField @bind-Value="_keepMonthly" Label="@L["SettingsKeepMonthly"]" Variant="Variant.Outlined" Min="0" Max="120" />
+                    </MudItem>
+                </MudGrid>
+                <MudSwitch T="bool" @bind-Value="_includeDocuments" Color="Color.Primary" Label="@L["SettingsIncludeDocuments"]" />
+            </MudStack>
+        </MudPaper>
+
+        <div>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save" OnClick="SaveAsync" Disabled="_busy" data-testid="settings-save">@L["Save"]</MudButton>
+        </div>
+    }
+</MudStack>
+
+@code {
+    private AdminSettingsDto? _loaded;
+    private Dictionary<string, string> _errors = [];
+    private bool _busy;
+    private string? _publicUrl, _smtpHost, _smtpUser, _smtpPassword, _fromAddress, _fromName, _ntfyUrl, _ntfyToken, _testTopic;
+    private int _smtpPort = 587, _maxFileSize = 100, _backupHour = 3, _keepDaily = 7, _keepWeekly = 4, _keepMonthly = 6;
+    private SmtpSecurity _smtpSecurity;
+    private bool _includeDocuments = true;
+
+    protected override async Task OnInitializedAsync() => Show(await Admin.GetSettingsAsync());
+
+    private void Show(AdminSettingsDto settings)
+    {
+        _loaded = settings;
+        _publicUrl = settings.PublicUrl;
+        _smtpHost = settings.Smtp.Host;
+        _smtpPort = settings.Smtp.Port;
+        _smtpSecurity = settings.Smtp.Security;
+        _smtpUser = settings.Smtp.Username;
+        _smtpPassword = null;
+        _fromAddress = settings.Smtp.FromAddress;
+        _fromName = settings.Smtp.FromName;
+        _ntfyUrl = settings.Ntfy.ServerUrl;
+        _ntfyToken = null;
+        _maxFileSize = settings.MaxFileSizeMegabytes;
+        _backupHour = settings.Backup.Hour;
+        _keepDaily = settings.Backup.KeepDaily;
+        _keepWeekly = settings.Backup.KeepWeekly;
+        _keepMonthly = settings.Backup.KeepMonthly;
+        _includeDocuments = settings.Backup.IncludeDocuments;
+    }
+
+    private bool Has(string field) => _errors.ContainsKey(field);
+
+    private string? ErrorOf(string field) => _errors.TryGetValue(field, out var code) ? L[$"SettingsError_{code}"].Value : null;
+
+    /// <summary>Leere Geheimnisfelder behalten den hinterlegten Wert.</summary>
+    private AdminSettingsDto Collect() => new()
+    {
+        PublicUrl = _publicUrl,
+        Smtp = new SmtpSettingsDto
+        {
+            Host = _smtpHost ?? string.Empty,
+            Port = _smtpPort,
+            Security = _smtpSecurity,
+            Username = _smtpUser,
+            Password = string.IsNullOrEmpty(_smtpPassword) ? null : _smtpPassword,
+            FromAddress = _fromAddress ?? string.Empty,
+            FromName = _fromName ?? string.Empty,
+        },
+        Ntfy = new NtfySettingsDto { ServerUrl = _ntfyUrl, AccessToken = string.IsNullOrEmpty(_ntfyToken) ? null : _ntfyToken },
+        MaxFileSizeMegabytes = _maxFileSize,
+        Backup = new BackupSettingsDto { Hour = _backupHour, KeepDaily = _keepDaily, KeepWeekly = _keepWeekly, KeepMonthly = _keepMonthly, IncludeDocuments = _includeDocuments },
+    };
+
+    private async Task<bool> SaveAsync()
+    {
+        var settings = Collect();
+        _errors = AdminSettingsValidation.Validate(settings, _loaded!.FileSizeCeilingMegabytes);
+        if (_errors.Count > 0)
+        {
+            return false;
+        }
+
+        _busy = true;
+        try
+        {
+            Show(await Admin.SaveSettingsAsync(settings));
+            Snackbar.Add(L["Saved"], Severity.Success);
+            return true;
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"SettingsError_{exception.Code}"], Severity.Error);
+            return false;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    /// <summary>Speichert zuerst, damit der Test mit den angezeigten Werten läuft.</summary>
+    private async Task TestMailAsync()
+    {
+        if (!await SaveAsync())
+        {
+            return;
+        }
+
+        await RunTestAsync(() => Admin.TestMailAsync(), L["SettingsTestMailSent"]);
+    }
+
+    private async Task TestNtfyAsync()
+    {
+        if (!await SaveAsync())
+        {
+            return;
+        }
+
+        await RunTestAsync(() => Admin.TestNtfyAsync(_testTopic!.Trim()), L["SettingsTestNtfySent"]);
+    }
+
+    private async Task RunTestAsync(Func<Task> test, string success)
+    {
+        _busy = true;
+        try
+        {
+            await test();
+            Snackbar.Add(success, Severity.Success);
+        }
+        catch (ApiException exception)
+        {
+            var text = L[$"SettingsError_{exception.Code}"].Value;
+            Snackbar.Add(exception.Detail is { } detail ? $"{text} {detail}" : text, Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

@@ -154,6 +154,7 @@
             { d => d.Link, $"{Navigation.BaseUri}activate#{link.Token}" },
             { d => d.Name, name },
             { d => d.Expires, link.ExpiresAt },
+            { d => d.Mailed, link.Mailed },
         };
         await Dialogs.ShowAsync<ActivationLinkDialog>(L["ActivationLinkTitle"], parameters, new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
     }

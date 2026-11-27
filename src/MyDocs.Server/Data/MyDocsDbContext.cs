@@ -16,6 +16,8 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
 {
     public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
 
+    public DbSet<MailOutboxEntry> MailOutbox => Set<MailOutboxEntry>();
+
     public DbSet<Person> Persons => Set<Person>();
 
     public DbSet<OneTimeToken> OneTimeTokens => Set<OneTimeToken>();
@@ -52,6 +54,8 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
         {
             entity.ToTable("users");
             entity.Property(x => x.DisplayName).HasMaxLength(200);
+            entity.Property(x => x.Language).HasMaxLength(5).HasDefaultValue("de");
+            entity.Property(x => x.NtfyTopic).HasMaxLength(64);
         });
         builder.Entity<IdentityRole<Guid>>().ToTable("roles");
         builder.Entity<IdentityUserRole<Guid>>().ToTable("user_roles");
@@ -201,6 +205,16 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
             entity.ToTable("system_settings");
             entity.HasKey(x => x.Key);
             entity.Property(x => x.Key).HasMaxLength(200);
+        });
+
+        builder.Entity<MailOutboxEntry>(entity =>
+        {
+            entity.ToTable("mail_outbox");
+            entity.Property(x => x.Recipient).HasMaxLength(254);
+            entity.Property(x => x.Language).HasMaxLength(5);
+            entity.Property(x => x.Template).HasMaxLength(50);
+            entity.Property(x => x.LastError).HasMaxLength(300);
+            entity.HasIndex(x => x.NextAttemptAt).HasFilter("sent_at IS NULL AND failed_at IS NULL");
         });
     }
 

@@ -9,6 +9,7 @@
   <data name="ActivateFinish" xml:space="preserve"><value>Activate account</value></data>
   <data name="ActivateIntro" xml:space="preserve"><value>Hello {0}, the administrator has created an account for you. Choose your password now and set up the authenticator app afterwards.</value></data>
   <data name="ActivateTitle" xml:space="preserve"><value>Activate account</value></data>
+  <data name="ActivationLinkMailed" xml:space="preserve"><value>The link was also sent to the account by email.</value></data>
   <data name="ActivationLinkText" xml:space="preserve"><value>Pass this link on to {0}. It works once and until {1}. Whoever has it can activate the account, so send it only through a safe channel.</value></data>
   <data name="ActivationLinkTitle" xml:space="preserve"><value>Activation link</value></data>
   <data name="AdminAuditIntro" xml:space="preserve"><value>All events of this instance. IP addresses are shortened.</value></data>
@@ -40,6 +41,7 @@
   <data name="Audit_login" xml:space="preserve"><value>Logged in</value></data>
   <data name="Audit_login-failed" xml:space="preserve"><value>Login failed</value></data>
   <data name="Audit_logout" xml:space="preserve"><value>Logged out</value></data>
+  <data name="Audit_mail-failed" xml:space="preserve"><value>Email could not be delivered</value></data>
   <data name="Audit_master-key-shown" xml:space="preserve"><value>Master key shown</value></data>
   <data name="Audit_object-changed" xml:space="preserve"><value>Entry changed</value></data>
   <data name="Audit_object-created" xml:space="preserve"><value>Entry created</value></data>
@@ -49,6 +51,7 @@
   <data name="Audit_object-viewed" xml:space="preserve"><value>Entry viewed (shared)</value></data>
   <data name="Audit_passkey-added" xml:space="preserve"><value>Passkey added</value></data>
   <data name="Audit_passkey-removed" xml:space="preserve"><value>Passkey removed</value></data>
+  <data name="Audit_settings-changed" xml:space="preserve"><value>Settings changed</value></data>
   <data name="Audit_setup-completed" xml:space="preserve"><value>myDocs set up</value></data>
   <data name="Audit_task-closed" xml:space="preserve"><value>Task closed</value></data>
   <data name="Audit_task-created" xml:space="preserve"><value>Task created</value></data>
@@ -193,6 +196,42 @@
   <data name="LoginUseRecovery" xml:space="preserve"><value>No access to the app? Use a recovery code</value></data>
   <data name="LoginUseTotp" xml:space="preserve"><value>Use a code from the authenticator app</value></data>
   <data name="Logout" xml:space="preserve"><value>Log out</value></data>
+  <data name="Mail_activation_body" xml:space="preserve"><value>Hello {name},
+
+an account at myDocs has been created for you. Use this link to set your password and second factor. It works once and for 7 days:
+
+{link}</value></data>
+  <data name="Mail_activation_subject" xml:space="preserve"><value>Your myDocs account</value></data>
+  <data name="Mail_digest_body" xml:space="preserve"><value>Hello {name},
+
+here is what needs attention in myDocs:
+
+{list}
+
+{link}</value></data>
+  <data name="Mail_digest_others" xml:space="preserve"><value>Overdue with others for over a week:</value></data>
+  <data name="Mail_digest_overdue" xml:space="preserve"><value>Overdue:</value></data>
+  <data name="Mail_digest_subject" xml:space="preserve"><value>myDocs: {count} tasks need attention</value></data>
+  <data name="Mail_digest_upcoming" xml:space="preserve"><value>In the next 7 days:</value></data>
+  <data name="Mail_footer" xml:space="preserve"><value>This email comes from myDocs. Notifications can be changed under user menu → Notifications.</value></data>
+  <data name="Mail_reset_body" xml:space="preserve"><value>Hello {name},
+
+the administrator has reset your access to myDocs. Use this link to set your password and second factor again. It works once and for 7 days:
+
+{link}</value></data>
+  <data name="Mail_reset_subject" xml:space="preserve"><value>myDocs: access reset</value></data>
+  <data name="Mail_test_body" xml:space="preserve"><value>Hello {name},
+
+sending email from myDocs works.</value></data>
+  <data name="Mail_test_subject" xml:space="preserve"><value>myDocs: test email</value></data>
+  <data name="Mail_urgent_body" xml:space="preserve"><value>Hello {name},
+
+these tasks have been overdue for 14 days and now go to the whole household:
+
+{list}
+
+{link}</value></data>
+  <data name="Mail_urgent_subject" xml:space="preserve"><value>myDocs: {count} tasks overdue for 14 days</value></data>
   <data name="MasterKeyHide" xml:space="preserve"><value>Hide</value></data>
   <data name="MasterKeyIntro" xml:space="preserve"><value>All documents are encrypted with the master key. Without it they can no longer be opened, not even from a backup. Print it as 24 words and keep it away from the Synology, for example with your emergency folder. To show it you need a code from your authenticator app.</value></data>
   <data name="MasterKeyRestoreHint" xml:space="preserve"><value>Restore: docker compose run --rm app master-key restore “word1 … word24” --confirm (see installation guide).</value></data>
@@ -209,6 +248,18 @@
   <data name="NotFoundTitle" xml:space="preserve"><value>Page not found</value></data>
   <data name="Note" xml:space="preserve"><value>Note</value></data>
   <data name="Notes" xml:space="preserve"><value>Notes</value></data>
+  <data name="NotificationsDigest" xml:space="preserve"><value>Daily summary</value></data>
+  <data name="NotificationsDigestHour" xml:space="preserve"><value>Time</value></data>
+  <data name="NotificationsDigestIntro" xml:space="preserve"><value>Once a day: your overdue tasks, what is due in the next 7 days and what has been lying with others for over a week. If nothing is due, nothing is sent. Only tasks overdue for 14 days are sent right away.</value></data>
+  <data name="NotificationsDigestOn" xml:space="preserve"><value>Send summary</value></data>
+  <data name="NotificationsLanguage" xml:space="preserve"><value>Language of emails</value></data>
+  <data name="NotificationsNothingConfigured" xml:space="preserve"><value>The administrator has not set up email or ntfy yet. Until then you will not receive notifications.</value></data>
+  <data name="NotificationsNtfyIntro" xml:space="preserve"><value>Your ntfy topic. Anyone who knows the name can read along, so use a long random name and subscribe to it in the ntfy app.</value></data>
+  <data name="NotificationsTest" xml:space="preserve"><value>Save and test</value></data>
+  <data name="NotificationsTestSent" xml:space="preserve"><value>Test sent.</value></data>
+  <data name="NotificationsTitle" xml:space="preserve"><value>Notifications</value></data>
+  <data name="NotificationsTopic" xml:space="preserve"><value>Topic</value></data>
+  <data name="NotificationsTopicRandom" xml:space="preserve"><value>Random</value></data>
   <data name="ObjectCommon" xml:space="preserve"><value>General</value></data>
   <data name="ObjectDeleteConfirm" xml:space="preserve"><value>Move “{0}” to the trash?</value></data>
   <data name="ObjectDeleted" xml:space="preserve"><value>Moved to the trash.</value></data>
@@ -252,6 +303,12 @@
   <data name="PersonLogin" xml:space="preserve"><value>Account</value></data>
   <data name="PersonNameFromAccount" xml:space="preserve"><value>The name comes from the account; the administrator can change it.</value></data>
   <data name="Print" xml:space="preserve"><value>Print</value></data>
+  <data name="Push_digest_body" xml:space="preserve"><value>{0} overdue, {1} in the next 7 days</value></data>
+  <data name="Push_digest_title" xml:space="preserve"><value>myDocs: {0} tasks</value></data>
+  <data name="Push_test_body" xml:space="preserve"><value>Push messages from myDocs arrive.</value></data>
+  <data name="Push_test_title" xml:space="preserve"><value>myDocs: test</value></data>
+  <data name="Push_urgent_body" xml:space="preserve"><value>{0} tasks now go to the whole household.</value></data>
+  <data name="Push_urgent_title" xml:space="preserve"><value>myDocs: {0} tasks overdue for 14 days</value></data>
   <data name="RecoveryCode" xml:space="preserve"><value>Recovery code</value></data>
   <data name="RecoveryCodesLeft" xml:space="preserve"><value>{0} of 10 recovery codes left.</value></data>
   <data name="RecoveryCodesTitle" xml:space="preserve"><value>Recovery codes</value></data>
@@ -277,6 +334,7 @@
   <data name="Role_member" xml:space="preserve"><value>Member</value></data>
   <data name="RowsPerPage" xml:space="preserve"><value>Rows per page</value></data>
   <data name="Save" xml:space="preserve"><value>Save</value></data>
+  <data name="Saved" xml:space="preserve"><value>Saved.</value></data>
   <data name="ScopeHousehold" xml:space="preserve"><value>Household</value></data>
   <data name="ScopeMine" xml:space="preserve"><value>Mine</value></data>
   <data name="SearchDocumentIn" xml:space="preserve"><value>Document of {0}</value></data>
@@ -286,6 +344,49 @@
   <data name="SearchPlaceholder" xml:space="preserve"><value>Search …</value></data>
   <data name="SearchTitle" xml:space="preserve"><value>Search</value></data>
   <data name="SecurityTitle" xml:space="preserve"><value>Security</value></data>
+  <data name="SettingsBackupHour" xml:space="preserve"><value>Time (hour)</value></data>
+  <data name="SettingsError_mail-not-configured" xml:space="preserve"><value>Sending email is not set up.</value></data>
+  <data name="SettingsError_notifications-invalid" xml:space="preserve"><value>The details are invalid.</value></data>
+  <data name="SettingsError_notifications-nothing-configured" xml:space="preserve"><value>Neither email nor ntfy is set up.</value></data>
+  <data name="SettingsError_ntfy-not-configured" xml:space="preserve"><value>ntfy is not set up.</value></data>
+  <data name="SettingsError_send-failed" xml:space="preserve"><value>Sending failed:</value></data>
+  <data name="SettingsError_settings-email" xml:space="preserve"><value>The email address is invalid.</value></data>
+  <data name="SettingsError_settings-range" xml:space="preserve"><value>The value is outside the allowed range.</value></data>
+  <data name="SettingsError_settings-required" xml:space="preserve"><value>Please fill in.</value></data>
+  <data name="SettingsError_settings-too-long" xml:space="preserve"><value>Too long.</value></data>
+  <data name="SettingsError_settings-topic" xml:space="preserve"><value>Only letters, digits, - and _, at most 64 characters.</value></data>
+  <data name="SettingsError_settings-url" xml:space="preserve"><value>Please enter a complete address.</value></data>
+  <data name="SettingsFromAddress" xml:space="preserve"><value>Sender address</value></data>
+  <data name="SettingsFromName" xml:space="preserve"><value>Sender name</value></data>
+  <data name="SettingsIncludeDocuments" xml:space="preserve"><value>Include documents</value></data>
+  <data name="SettingsInstance" xml:space="preserve"><value>Instance</value></data>
+  <data name="SettingsKeepDaily" xml:space="preserve"><value>Days to keep</value></data>
+  <data name="SettingsKeepMonthly" xml:space="preserve"><value>Months to keep</value></data>
+  <data name="SettingsKeepWeekly" xml:space="preserve"><value>Weeks to keep</value></data>
+  <data name="SettingsLimits" xml:space="preserve"><value>Files</value></data>
+  <data name="SettingsMail" xml:space="preserve"><value>Sending email</value></data>
+  <data name="SettingsMailIntro" xml:space="preserve"><value>A separate SMTP account for myDocs, independent of myLife. Without a server myDocs sends no email.</value></data>
+  <data name="SettingsMaxFileSize" xml:space="preserve"><value>Largest file (MB)</value></data>
+  <data name="SettingsMaxFileSizeHelp" xml:space="preserve"><value>At most {0} MB (limit of the installation)</value></data>
+  <data name="SettingsNtfy" xml:space="preserve"><value>Push messages (ntfy)</value></data>
+  <data name="SettingsNtfyIntro" xml:space="preserve"><value>Optional. Everyone picks their own topic under “Notifications”. Push messages contain only numbers, no titles.</value></data>
+  <data name="SettingsNtfyTestTopic" xml:space="preserve"><value>Topic for the test</value></data>
+  <data name="SettingsNtfyToken" xml:space="preserve"><value>Access token</value></data>
+  <data name="SettingsNtfyUrl" xml:space="preserve"><value>ntfy server</value></data>
+  <data name="SettingsPublicUrl" xml:space="preserve"><value>Address of myDocs</value></data>
+  <data name="SettingsPublicUrlHelp" xml:space="preserve"><value>For links in emails and push messages, e.g. https://mydocs.example.org</value></data>
+  <data name="SettingsSecretStored" xml:space="preserve"><value>Stored. Leave empty to keep it.</value></data>
+  <data name="SettingsSmtpHost" xml:space="preserve"><value>SMTP server</value></data>
+  <data name="SettingsSmtpNone" xml:space="preserve"><value>none</value></data>
+  <data name="SettingsSmtpPassword" xml:space="preserve"><value>Password</value></data>
+  <data name="SettingsSmtpPort" xml:space="preserve"><value>Port</value></data>
+  <data name="SettingsSmtpSecurity" xml:space="preserve"><value>Encryption</value></data>
+  <data name="SettingsSmtpUser" xml:space="preserve"><value>User name</value></data>
+  <data name="SettingsTestMail" xml:space="preserve"><value>Save and send me a test email</value></data>
+  <data name="SettingsTestMailSent" xml:space="preserve"><value>Test email sent.</value></data>
+  <data name="SettingsTestNtfy" xml:space="preserve"><value>Save and test</value></data>
+  <data name="SettingsTestNtfySent" xml:space="preserve"><value>Push message sent.</value></data>
+  <data name="SettingsTitle" xml:space="preserve"><value>Settings</value></data>
   <data name="SetupCode" xml:space="preserve"><value>Setup code</value></data>
   <data name="SetupCodeHelp" xml:space="preserve"><value>Shown in the container log, for example in Container Manager under mydocs-app → Log. After every restart a new code applies.</value></data>
   <data name="SetupDone" xml:space="preserve"><value>Go to myDocs</value></data>

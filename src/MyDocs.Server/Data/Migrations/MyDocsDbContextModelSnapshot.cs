@@ -230,6 +230,10 @@ namespace MyDocs.Server.Data.Migrations
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
 
+                    b.Property<int?>("DigestHour")
+                        .HasColumnType("integer")
+                        .HasColumnName("digest_hour");
+
                     b.Property<string>("DisplayName")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -244,6 +248,18 @@ namespace MyDocs.Server.Data.Migrations
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("boolean")
                         .HasColumnName("email_confirmed");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)")
+                        .HasDefaultValue("de")
+                        .HasColumnName("language");
+
+                    b.Property<DateOnly?>("LastDigestOn")
+                        .HasColumnType("date")
+                        .HasColumnName("last_digest_on");
 
                     b.Property<long>("LastTotpStep")
                         .HasColumnType("bigint")
@@ -266,6 +282,11 @@ namespace MyDocs.Server.Data.Migrations
                         .HasMaxLength(256)
                         .HasColumnType("character varying(256)")
                         .HasColumnName("normalized_user_name");
+
+                    b.Property<string>("NtfyTopic")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("ntfy_topic");
 
                     b.Property<string>("PasswordHash")
                         .HasColumnType("text")
@@ -728,6 +749,70 @@ namespace MyDocs.Server.Data.Migrations
                         .HasDatabaseName("ix_document_versions_document_id_number");
 
                     b.ToTable("document_versions", (string)null);
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.MailOutboxEntry", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempts");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("FailedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("failed_at");
+
+                    b.Property<string>("Language")
+                        .IsRequired()
+                        .HasMaxLength(5)
+                        .HasColumnType("character varying(5)")
+                        .HasColumnName("language");
+
+                    b.Property<string>("LastError")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("last_error");
+
+                    b.Property<DateTimeOffset>("NextAttemptAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("next_attempt_at");
+
+                    b.Property<string>("Parameters")
+                        .HasColumnType("text")
+                        .HasColumnName("parameters");
+
+                    b.Property<string>("Recipient")
+                        .IsRequired()
+                        .HasMaxLength(254)
+                        .HasColumnType("character varying(254)")
+                        .HasColumnName("recipient");
+
+                    b.Property<DateTimeOffset?>("SentAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("sent_at");
+
+                    b.Property<string>("Template")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("template");
+
+                    b.HasKey("Id")
+                        .HasName("pk_mail_outbox");
+
+                    b.HasIndex("NextAttemptAt")
+                        .HasDatabaseName("ix_mail_outbox_next_attempt_at")
+                        .HasFilter("sent_at IS NULL AND failed_at IS NULL");
+
+                    b.ToTable("mail_outbox", (string)null);
                 });
 
             modelBuilder.Entity("MyDocs.Server.Data.ObjectHistoryEntry", b =>

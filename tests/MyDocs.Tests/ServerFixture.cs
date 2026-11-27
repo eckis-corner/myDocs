@@ -1,3 +1,4 @@
+using System.Collections.Concurrent;
 using System.Net.Http.Json;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -5,6 +6,7 @@ using Microsoft.AspNetCore.TestHost;
 using Microsoft.Extensions.DependencyInjection;
 using MyDocs.Server.Infrastructure;
 using MyDocs.Server.Infrastructure.Auth;
+using MyDocs.Server.Infrastructure.Mail;
 using MyDocs.Shared;
 using MyDocs.Shared.Auth;
 using Testcontainers.PostgreSql;
@@ -26,6 +28,12 @@ public sealed class ServerFixture : WebApplicationFactory<Program>, IAsyncLifeti
 
     /// <summary>Uhr des Servers; Tests stellen sie vor, etwa für den nächsten TOTP-Schritt.</summary>
     public TestClock Clock { get; } = new();
+
+    /// <summary>Verschickte Mails; SMTP gibt es in den Tests nicht.</summary>
+    public RecordingMailTransport Mail { get; } = new();
+
+    /// <summary>Verschickte Push-Nachrichten an ntfy.</summary>
+    public RecordingPushSender Push { get; } = new();
 
     /// <summary>Zugangsdaten des Administrators aus <see cref="EnsureAdminAsync"/>.</summary>
     public const string AdminEmail = "admin@example.test";
@@ -91,7 +99,12 @@ public sealed class ServerFixture : WebApplicationFactory<Program>, IAsyncLifeti
         builder.UseSetting("MyDocs:BackupKey", BackupKey);
         // Die Tests melden sich viel öfter an als ein Mensch; das Limit gegen Durchprobieren würde sonst greifen.
         builder.UseSetting("MyDocs:AuthRequestsPerMinute", "10000");
-        builder.ConfigureTestServices(services => services.AddSingleton<TimeProvider>(Clock));
+        builder.ConfigureTestServices(services =>
+        {
+            services.AddSingleton<TimeProvider>(Clock);
+            services.AddSingleton<IMailTransport>(Mail);
+            services.AddSingleton<IPushSender>(Push);
+        });
     }
 
     public override async ValueTask DisposeAsync()
@@ -121,4 +134,30 @@ public sealed class TestClock : TimeProvider
     public override DateTimeOffset GetUtcNow() => _now;
 
     public void Advance(TimeSpan by) => _now = _now.Add(by);
+}
+
+public sealed record SentMail(string To, string Subject, string Text, string Html);
+
+public sealed class RecordingMailTransport : IMailTransport
+{
+    public ConcurrentQueue<SentMail> Sent { get; } = new();
+
+    public Task SendAsync(SmtpConfig config, MimeKit.MimeMessage message, CancellationToken ct)
+    {
+        Sent.Enqueue(new SentMail(message.To.Mailboxes.First().Address, message.Subject ?? "", message.TextBody ?? "", message.HtmlBody ?? ""));
+        return Task.CompletedTask;
+    }
+}
+
+public sealed record SentPush(string Topic, string Title, string Message, string? Click);
+
+public sealed class RecordingPushSender : IPushSender
+{
+    public ConcurrentQueue<SentPush> Sent { get; } = new();
+
+    public Task SendAsync(string topic, string title, string message, string? click, CancellationToken ct)
+    {
+        Sent.Enqueue(new SentPush(topic, title, message, click));
+        return Task.CompletedTask;
+    }
 }

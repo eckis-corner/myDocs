@@ -1,8 +1,8 @@
-# Abnahme von M1 auf der Synology
+# Abnahme von M1 und M2 auf der Synology
 
-Checkliste für den Meilenstein M1 auf der DS1520+ ([meilensteine.md](../meilensteine.md)). Erst danach kommen echte Daten (67), und zwar nach M2. Zum Abhaken: `[ ]` durch `[x]` ersetzen. Wenn etwas nicht wie beschrieben funktioniert: notieren, was du getan hast und was passiert ist, dann weiter mit dem nächsten Punkt.
+Checkliste für die Meilensteine M1 (Teil 1–8) und M2 (Teil 9–12) auf der DS1520+ ([meilensteine.md](../meilensteine.md)). Erst danach kommen echte Daten (67). Zum Abhaken: `[ ]` durch `[x]` ersetzen. Wenn etwas nicht wie beschrieben funktioniert: notieren, was du getan hast und was passiert ist, dann weiter mit dem nächsten Punkt.
 
-Gebraucht werden drei Konten mit eigenen Mail-Adressen: **A** (Administrator), **B** (Mitglied) und **C** (Gast). Die Adressen müssen nicht echt sein, Mails verschickt myDocs erst ab M2.
+Gebraucht werden drei Konten mit eigenen Mail-Adressen: **A** (Administrator), **B** (Mitglied) und **C** (Gast). Für Teil 1–8 müssen die Adressen nicht echt sein; für die Abnahme von M2 (Teil 9–12) brauchen A und B echte Postfächer.
 
 ## 1. Installation
 
@@ -74,6 +74,35 @@ Gebraucht werden drei Konten mit eigenen Mail-Adressen: **A** (Administrator), *
 - [ ] Am nächsten Morgen: Sicherung um 3 Uhr ist da
 - [ ] **Rücksicherung geprobt:** einen Testeintrag löschen, Projekt stoppen, `restore … --confirm` wie in [installation.md](installation.md), Abschnitt 7, Projekt starten – der Eintrag und sein Dokument sind wieder da
 - [ ] `/volume1/docker/mydocs` ist in Hyper Backup aufgenommen
+
+## 9. Einstellungen und Mail (M2, als A)
+
+- [ ] Verwaltung → Einstellungen: Adresse `https://mydocs.eckis-corner.de`, eigenes SMTP-Konto, **Speichern und Testmail an mich** kommt an
+- [ ] Neu laden: beim Passwort steht „Hinterlegt“, das Passwort selbst ist nicht zu sehen
+- [ ] Optional ntfy: Server eingetragen, Test an ein abonniertes Thema kommt in der App an
+- [ ] Ein neues Konto D anlegen: Der Aktivierungslink kommt zusätzlich per Mail, der Link darin funktioniert
+- [ ] Größte Datei auf 10 MB gesetzt: Eine Datei mit 20 MB wird abgelehnt; danach wieder 100 MB
+
+## 10. Vorgänge und Wiedervorlage (M2)
+
+- [ ] Ein Eintrag wird gekündigt (Lebenszyklus): Die Folgevorgänge erscheinen unter „Vorgänge“ und auf der Objektseite
+- [ ] Bei einer Versicherung Hauptfälligkeit in zwei Monaten und Kündigungsfrist „1 Monat“ eingetragen: Spätestens nach 15 Minuten steht unter „Vorgänge“ die Frist „Kündigen oder verlängern?“
+- [ ] Eine Prüfung mit Ergebnis abgeschlossen: „zuletzt geprüft“ am Eintrag ist heute
+- [ ] Eine Prüfung zurückgestellt: nur mit Begründung, höchstens 30 Tage; die Begründung steht als Kommentar am Vorgang
+- [ ] B kommentiert einen Vorgang von A; A sieht den Kommentar
+
+## 11. Startseite (M2)
+
+- [ ] Die Startseite zeigt fällige Vorgänge, Fristen, Zahlungen je Monat, Posteingang und Zustand des Bestands
+- [ ] „Meins“ und „Haushalt“ zeigen unterschiedliche Zahlen, sobald B eigene Einträge hat
+- [ ] Die Summe der Zahlungen stimmt mit den Beträgen der Verträge überein (jährlich ÷ 12 usw.)
+
+## 12. Benachrichtigungen (M2, als A und B)
+
+- [ ] Benutzermenü → Benachrichtigungen: B stellt die Zusammenfassung auf die nächste volle Stunde, **Speichern und testen** bringt eine Testmail
+- [ ] Ein Vorgang von B mit Fälligkeit gestern: Zur gewählten Stunde kommt die Zusammenfassung, am selben Tag kein zweites Mal
+- [ ] Ohne fällige Vorgänge kommt keine Zusammenfassung
+- [ ] Mit ntfy: Die Push-Nachricht nennt nur Zahlen, keine Titel
 
 ## Ergebnis
 

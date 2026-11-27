@@ -2,7 +2,7 @@
 
 Für DSM 7.2 und neuer mit **Container Manager** (Synology DS1520+, x86-64), neben myLife. Für andere Docker-Hosts gelten dieselben Schritte sinngemäß.
 
-> **Stand M1 (Grundgerüst):** Einrichtung, Anmeldung mit Authenticator-App oder Passkey, Benutzer und Haushalt, Einträge aus dem Katalog, Dokumente mit Versionen, Suche, Protokoll, Admin-Einsicht, Papierkorb, tägliche Sicherung. Noch nicht: Wiedervorlage und Vorgänge (M2), Mailversand (M2), Posteingang und OCR (M3), Desktop-Client (M4), Abgleich mit myLife (M5). Vor echten Daten die Abnahme durchgehen: [abnahme.md](abnahme.md).
+> **Stand M2:** Einrichtung, Anmeldung mit Authenticator-App oder Passkey, Benutzer und Haushalt, Einträge aus dem Katalog, Dokumente mit Versionen, Suche, Protokoll, Admin-Einsicht, Papierkorb, tägliche Sicherung; dazu Lebenszyklus, Vorgänge, Wiedervorlage mit Eskalation, Startseite und Benachrichtigungen per Mail und ntfy. Noch nicht: Posteingang und OCR (M3), Desktop-Client (M4), Abgleich mit myLife (M5). Vor echten Daten die Abnahme durchgehen: [abnahme.md](abnahme.md).
 
 ## 1. Ordner anlegen
 
@@ -79,7 +79,21 @@ myDocs ist noch nicht eingerichtet. Einrichtungscode für den Assistenten: ABCD-
 
 Nach jedem Neustart des Containers gilt ein neuer Code. Sobald das erste Konto mit Authenticator-App angelegt ist, gibt es keinen Code mehr.
 
-Der Assistent führt durch Konto, Passwort (mindestens 12 Zeichen), Authenticator-App (QR-Code) und **10 Wiederherstellungscodes** (ausdrucken oder im Passwortmanager speichern). Unter **Benutzermenü → Sicherheit** lässt sich danach ein **Passkey** hinzufügen; er ersetzt bei der Anmeldung den Code der App. Danach legt der Administrator unter **Verwaltung → Benutzer** weitere Konten an und gibt jedem den angezeigten **Aktivierungslink** weiter (einmal gültig, 7 Tage).
+Der Assistent führt durch Konto, Passwort (mindestens 12 Zeichen), Authenticator-App (QR-Code) und **10 Wiederherstellungscodes** (ausdrucken oder im Passwortmanager speichern). Unter **Benutzermenü → Sicherheit** lässt sich danach ein **Passkey** hinzufügen; er ersetzt bei der Anmeldung den Code der App. Danach legt der Administrator unter **Verwaltung → Benutzer** weitere Konten an und gibt jedem den angezeigten **Aktivierungslink** weiter (einmal gültig, 7 Tage). Ist der Mailversand eingerichtet (Abschnitt 6a), geht der Link zusätzlich per Mail an das Konto.
+
+## 6a. Mailversand und Push-Nachrichten
+
+Unter **Verwaltung → Einstellungen**:
+
+- **Adresse von myDocs:** `https://mydocs.eckis-corner.de`. Sie steht in den Links der Mails.
+- **Mailversand:** ein **eigenes** SMTP-Konto für myDocs, nicht das von myLife. Typisch ist Port 587 mit STARTTLS oder Port 465 mit SSL/TLS, dazu Benutzername, Passwort und Absenderadresse. **Speichern und Testmail an mich** schickt sofort eine Mail an die eigene Adresse und zeigt einen Fehler direkt an.
+- **Push-Nachrichten (optional):** Adresse eines ntfy-Servers (eigener oder `https://ntfy.sh`), bei Bedarf mit Zugangstoken. Zum Testen ein Thema eintragen, das in der ntfy-App abonniert ist.
+
+Passwort und Token liegen verschlüsselt in der Datenbank und erscheinen nie wieder im Browser. Leer lassen behält sie.
+
+Jede Person stellt unter **Benutzermenü → Benachrichtigungen** ein, wann ihre **tägliche Zusammenfassung** kommt (voreingestellt 7 Uhr, abschaltbar), in welcher Sprache und an welches eigene ntfy-Thema. Ist ein Vorgang 14 Tage überfällig, geht sofort eine Mail an alle Mitglieder, die ihn sehen dürfen.
+
+Auf derselben Seite stehen die **größte Datei** (höchstens der Wert der Installation, 100 MB) und **Uhrzeit und Generationen der Sicherung**. Sie ersetzen die Umgebungsvariablen aus Abschnitt 7, sobald einmal gespeichert ist.
 
 ## 7. Hauptschlüssel und Sicherung
 
@@ -97,7 +111,7 @@ Ist `MYDOCS_BACKUP_KEY` gesetzt, legt myDocs **jeden Tag** um 3 Uhr eine verschl
 - den Ordner `data/app/keys` (Schlüsselring von Data Protection und **Hauptschlüssel**),
 - die **Dokumente** aus `data/app/files`, so verschlüsselt, wie sie dort liegen.
 
-Aufbewahrt werden die neueste Sicherung je Tag (7), je Woche (4) und je Monat (6). Unter **Verwaltung → Sicherung** stehen letzte Sicherung, nächster Lauf, ein Fehler und der Knopf **Jetzt sichern**. Uhrzeit und Generationen lassen sich über Umgebungsvariablen ändern: `MyDocs__BackupHour`, `MyDocs__BackupKeepDaily`, `MyDocs__BackupKeepWeekly`, `MyDocs__BackupKeepMonthly`, `MyDocs__BackupIncludeDocuments`.
+Aufbewahrt werden die neueste Sicherung je Tag (7), je Woche (4) und je Monat (6). Unter **Verwaltung → Sicherung** stehen letzte Sicherung, nächster Lauf, ein Fehler und der Knopf **Jetzt sichern**. Uhrzeit und Generationen stellt der Administrator unter **Verwaltung → Einstellungen** ein. Bis zum ersten Speichern dort gelten die Umgebungsvariablen `MyDocs__BackupHour`, `MyDocs__BackupKeepDaily`, `MyDocs__BackupKeepWeekly`, `MyDocs__BackupKeepMonthly` und `MyDocs__BackupIncludeDocuments`.
 
 ### Hyper Backup
 

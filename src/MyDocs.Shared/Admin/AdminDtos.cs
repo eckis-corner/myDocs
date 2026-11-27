@@ -16,7 +16,11 @@ public sealed record CreateUserRequest(string Email, string DisplayName, string 
 public sealed record UpdateUserRequest(string DisplayName, string Role, bool IsAdmin);
 
 /// <summary>Einmal-Token für den Aktivierungslink <c>/activate#{Token}</c>; gültig bis <paramref name="ExpiresAt"/>.</summary>
-public sealed record ActivationLinkDto(Guid UserId, string Token, DateTimeOffset ExpiresAt);
+public sealed record ActivationLinkDto(Guid UserId, string Token, DateTimeOffset ExpiresAt)
+{
+    /// <summary>Der Link ging zusätzlich per Mail an das Konto (wenn SMTP eingerichtet ist).</summary>
+    public bool Mailed { get; init; }
+}
 
 /// <summary>Eine Sicherung im Ordner <c>backup</c>.</summary>
 public sealed record BackupItemDto(string Name, DateTimeOffset CreatedAt, long Size);

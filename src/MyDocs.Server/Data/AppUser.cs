@@ -11,6 +11,18 @@ public sealed class AppUser : IdentityUser<Guid>
 
     /// <summary>Letzter angenommener TOTP-Zeitschritt; jeder Code gilt nur einmal.</summary>
     public long LastTotpStep { get; set; }
+
+    /// <summary>Sprache der Mails (de, en).</summary>
+    public string Language { get; set; } = "de";
+
+    /// <summary>Stunde der täglichen Zusammenfassung in Ortszeit; null = keine (47).</summary>
+    public int? DigestHour { get; set; } = 7;
+
+    /// <summary>Eigenes Thema bei ntfy; null = keine Push-Nachrichten.</summary>
+    public string? NtfyTopic { get; set; }
+
+    /// <summary>Tag der letzten Zusammenfassung (Ortszeit), damit sie einmal am Tag kommt.</summary>
+    public DateOnly? LastDigestOn { get; set; }
 }
 
 public static class Roles

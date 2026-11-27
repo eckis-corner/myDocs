@@ -25,4 +25,14 @@ public sealed class AdminClient(HttpClient http)
 
     public Task<MasterKeyDto> MasterKeyAsync(string code, CancellationToken ct = default) =>
         http.SendAsync<MasterKeyRequest, MasterKeyDto>(HttpMethod.Post, "api/admin/master-key", new MasterKeyRequest(code), ct);
+
+    public Task<AdminSettingsDto> GetSettingsAsync(CancellationToken ct = default) => http.GetAsync<AdminSettingsDto>("api/admin/settings", ct);
+
+    public Task<AdminSettingsDto> SaveSettingsAsync(AdminSettingsDto settings, CancellationToken ct = default) =>
+        http.SendAsync<AdminSettingsDto, AdminSettingsDto>(HttpMethod.Put, "api/admin/settings", settings, ct);
+
+    public Task TestMailAsync(CancellationToken ct = default) => http.SendAsync(HttpMethod.Post, "api/admin/settings/test-mail", ct);
+
+    public Task TestNtfyAsync(string topic, CancellationToken ct = default) =>
+        http.SendAsync<NtfyTestRequest>(HttpMethod.Post, "api/admin/settings/test-ntfy", new NtfyTestRequest(topic), ct);
 }

@@ -8,6 +8,7 @@ using MyDocs.Server.Data;
 using MyDocs.Server.Infrastructure;
 using MyDocs.Server.Infrastructure.Files;
 using MyDocs.Server.Infrastructure.Objects;
+using MyDocs.Server.Infrastructure.Search;
 using MyDocs.Shared.Documents;
 
 namespace MyDocs.Server.Api;
@@ -92,6 +93,7 @@ internal static class DocumentEndpoints
         db.Documents.Add(document);
         db.DocumentObjects.Add(new DocumentObject { DocumentId = document.Id, ObjectId = item.Id });
         db.DocumentVersions.Add(Version(document.Id, 1, upload, caller.UserId, now));
+        await SearchIndex.UpdateAsync(db, document, ct);
         await db.SaveChangesAsync(ct);
         return TypedResults.Ok(await ToDtoAsync(document, caller, access, db, ct));
     }
@@ -120,6 +122,7 @@ internal static class DocumentEndpoints
         var now = time.GetUtcNow();
         db.DocumentVersions.Add(Version(id, number, upload, caller.UserId, now));
         document.UpdatedAt = now;
+        await SearchIndex.UpdateAsync(db, document, ct);
         await db.SaveChangesAsync(ct);
         return TypedResults.Ok(await ToDtoAsync(document, caller, access, db, ct));
     }
@@ -175,6 +178,7 @@ internal static class DocumentEndpoints
         document.DocumentDate = request.DocumentDate;
         document.Note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim()[..Math.Min(request.Note.Trim().Length, 2000)];
         document.UpdatedAt = time.GetUtcNow();
+        await SearchIndex.UpdateAsync(db, document, ct);
         await db.SaveChangesAsync(ct);
         return TypedResults.Ok(await ToDtoAsync(document, caller, access, db, ct));
     }

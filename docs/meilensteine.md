@@ -29,6 +29,8 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 **M1.5 Dokumente ✅ (27.11.2026, lokal):** Hochladen an Objekten, verschlüsselte Ablage mit Hauptschlüssel, Duplikaterkennung, Versionen, Vorschau für PDF und Bilder, Download, Angaben, Zuordnung zu mehreren Objekten, Papierkorb (97–101). 61 Tests grün, 40 MB lokal hoch- und heruntergeladen.
 
+**M1.6 Suche ✅ (27.11.2026, lokal):** Volltext mit Wortstämmen, Teilwörter, Tippfehler, Auswahlwerte in beiden Sprachen, Dokumentnamen, Rechte in der Abfrage, Suchfeld und Seite „Suche“ (102–104). 69 Tests grün.
+
 **M1.2b Passkeys:** als zweiter Faktor statt TOTP, mit den Passkeys von ASP.NET Core Identity 10.
 
 

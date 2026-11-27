@@ -24,6 +24,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<PersonClient>();
         services.AddScoped<ObjectClient>();
         services.AddScoped<DocumentClient>();
+        services.AddScoped<SearchClient>();
         return services;
     }
 }

@@ -138,6 +138,12 @@
   <data name="Role_member" xml:space="preserve"><value>Mitglied</value></data>
   <data name="RowsPerPage" xml:space="preserve"><value>Zeilen je Seite</value></data>
   <data name="Save" xml:space="preserve"><value>Speichern</value></data>
+  <data name="SearchDocumentIn" xml:space="preserve"><value>Dokument bei {0}</value></data>
+  <data name="SearchHelp" xml:space="preserve"><value>Sucht in Titeln, allen Feldern, Notizen und Dokumentnamen, auch nach Teilen von Nummern oder mit Tippfehlern.</value></data>
+  <data name="SearchHits" xml:space="preserve"><value>{0} Treffer</value></data>
+  <data name="SearchNoHits" xml:space="preserve"><value>Keine Treffer für „{0}“.</value></data>
+  <data name="SearchPlaceholder" xml:space="preserve"><value>Suchen …</value></data>
+  <data name="SearchTitle" xml:space="preserve"><value>Suche</value></data>
   <data name="SetupCode" xml:space="preserve"><value>Einrichtungscode</value></data>
   <data name="SetupCodeHelp" xml:space="preserve"><value>Steht im Protokoll des Containers, etwa im Container Manager unter mydocs-app → Protokoll. Nach jedem Neustart gilt ein neuer Code.</value></data>
   <data name="SetupDone" xml:space="preserve"><value>Zu myDocs</value></data>

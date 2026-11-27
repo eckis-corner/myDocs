@@ -269,6 +269,7 @@ internal static class ObjectEndpoints
         item.Locations = data.Locations.Where(l => item.Fields.ContainsKey(l.Key)).ToDictionary(l => l.Key, l => l.Value, StringComparer.Ordinal);
         item.Notes = string.IsNullOrWhiteSpace(data.Notes) ? null : data.Notes.Trim();
         item.ExpiresOn = data.ExpiresOn;
+        Infrastructure.Search.SearchIndex.Update(item);
     }
 
     /// <summary>Alle vergleichbaren Angaben als Text, für die Historie.</summary>

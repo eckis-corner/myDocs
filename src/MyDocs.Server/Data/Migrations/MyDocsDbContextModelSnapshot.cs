@@ -5,6 +5,7 @@ using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using MyDocs.Server.Data;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
+using NpgsqlTypes;
 
 #nullable disable
 
@@ -20,6 +21,7 @@ namespace MyDocs.Server.Data.Migrations
                 .HasAnnotation("ProductVersion", "10.0.15")
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
+            NpgsqlModelBuilderExtensions.HasPostgresExtension(modelBuilder, "pg_trgm");
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", b =>
@@ -387,6 +389,16 @@ namespace MyDocs.Server.Data.Migrations
                         .HasColumnType("integer")
                         .HasColumnName("schema_version");
 
+                    b.Property<string>("SearchText")
+                        .HasColumnType("text")
+                        .HasColumnName("search_text");
+
+                    b.Property<NpgsqlTsVector>("SearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasColumnName("search_vector")
+                        .HasComputedColumnSql("to_tsvector('german', coalesce(search_text, ''))", true);
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -417,6 +429,17 @@ namespace MyDocs.Server.Data.Migrations
 
                     b.HasIndex("ResponsiblePersonId")
                         .HasDatabaseName("ix_objects_responsible_person_id");
+
+                    b.HasIndex("SearchText")
+                        .HasDatabaseName("ix_objects_search_text");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
+
+                    b.HasIndex("SearchVector")
+                        .HasDatabaseName("ix_objects_search_vector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "gin");
 
                     b.HasIndex("TypeKey")
                         .HasDatabaseName("ix_objects_type_key");
@@ -456,6 +479,16 @@ namespace MyDocs.Server.Data.Migrations
                         .HasColumnType("character varying(2000)")
                         .HasColumnName("note");
 
+                    b.Property<string>("SearchText")
+                        .HasColumnType("text")
+                        .HasColumnName("search_text");
+
+                    b.Property<NpgsqlTsVector>("SearchVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasColumnName("search_vector")
+                        .HasComputedColumnSql("to_tsvector('german', coalesce(search_text, ''))", true);
+
                     b.Property<string>("Title")
                         .IsRequired()
                         .HasMaxLength(200)
@@ -468,6 +501,17 @@ namespace MyDocs.Server.Data.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_documents");
+
+                    b.HasIndex("SearchText")
+                        .HasDatabaseName("ix_documents_search_text");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("SearchText"), new[] { "gin_trgm_ops" });
+
+                    b.HasIndex("SearchVector")
+                        .HasDatabaseName("ix_documents_search_vector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "gin");
 
                     b.ToTable("documents", (string)null);
                 });

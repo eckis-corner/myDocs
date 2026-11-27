@@ -244,6 +244,16 @@ TEXTS: dict[str, tuple[str, str]] = {
     "DocumentError_needs-object": ("Ein Dokument gehört zu mindestens einem Eintrag.", "A document belongs to at least one entry."),
     "DocumentError_title-required": ("Bitte eine Bezeichnung eingeben.", "Please enter a title."),
     "DocumentError_http-413": ("Die Datei ist zu groß.", "The file is too large."),
+    # Suche (M1.6)
+    "SearchTitle": ("Suche", "Search"),
+    "SearchPlaceholder": ("Suchen …", "Search …"),
+    "SearchHelp": (
+        "Sucht in Titeln, allen Feldern, Notizen und Dokumentnamen, auch nach Teilen von Nummern oder mit Tippfehlern.",
+        "Searches titles, all fields, notes and document names, also for parts of numbers or with typos.",
+    ),
+    "SearchHits": ("{0} Treffer", "{0} results"),
+    "SearchNoHits": ("Keine Treffer für „{0}“.", "No results for “{0}”."),
+    "SearchDocumentIn": ("Dokument bei {0}", "Document of {0}"),
 }
 
 HEADER = """<?xml version="1.0" encoding="utf-8"?>

@@ -35,6 +35,12 @@ public sealed class Document
 
     public bool IsDeleted { get; set; }
 
+    /// <summary>Suchtext (25), beim Speichern berechnet; null heißt: beim nächsten Start neu berechnen.</summary>
+    public string? SearchText { get; set; }
+
+    /// <summary>Volltextindex aus <see cref="SearchText"/> (PostgreSQL, Konfiguration <c>german</c>), von der Datenbank berechnet.</summary>
+    public NpgsqlTypes.NpgsqlTsVector? SearchVector { get; set; }
+
     public DateTimeOffset? DeletedAt { get; set; }
 }
 

@@ -36,6 +36,9 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
+        builder.HasPostgresExtension("pg_trgm");
+        builder.HasDbFunction(typeof(Infrastructure.Search.SearchFunctions).GetMethod(nameof(Infrastructure.Search.SearchFunctions.WordSimilarity))!)
+            .HasName("word_similarity").IsBuiltIn();
         builder.Entity<AppUser>(entity =>
         {
             entity.ToTable("users");
@@ -76,6 +79,7 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
             entity.Property(x => x.Fields).HasColumnType("jsonb").HasConversion(Json<Dictionary<string, string>>(), JsonComparer<Dictionary<string, string>>());
             entity.Property(x => x.Locations).HasColumnType("jsonb").HasConversion(Json<Dictionary<string, Guid>>(), JsonComparer<Dictionary<string, Guid>>());
             entity.Property(x => x.Version).IsRowVersion();
+            SearchColumns(entity);
             entity.HasIndex(x => x.TypeKey);
             entity.HasIndex(x => x.OwnerPersonId);
             entity.HasOne<Person>().WithMany().HasForeignKey(x => x.OwnerPersonId).OnDelete(DeleteBehavior.Restrict);
@@ -110,6 +114,7 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
             entity.ToTable("documents");
             entity.Property(x => x.Title).HasMaxLength(200);
             entity.Property(x => x.Note).HasMaxLength(2000);
+            SearchColumns(entity);
         });
 
         builder.Entity<DocumentVersion>(entity =>
@@ -137,6 +142,15 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
             entity.HasKey(x => x.Key);
             entity.Property(x => x.Key).HasMaxLength(200);
         });
+    }
+
+    /// <summary>Suchtext, Volltextindex (german) und Trigramm-Index (25).</summary>
+    private static void SearchColumns<T>(Microsoft.EntityFrameworkCore.Metadata.Builders.EntityTypeBuilder<T> entity) where T : class
+    {
+        entity.Property<NpgsqlTypes.NpgsqlTsVector?>("SearchVector")
+            .HasComputedColumnSql("to_tsvector('german', coalesce(search_text, ''))", stored: true);
+        entity.HasIndex("SearchVector").HasMethod("gin");
+        entity.HasIndex("SearchText").HasMethod("gin").HasOperators("gin_trgm_ops");
     }
 
     private static readonly JsonSerializerOptions JsonOptions = new(JsonSerializerDefaults.Web);

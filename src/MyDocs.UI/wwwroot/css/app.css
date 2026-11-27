@@ -405,3 +405,24 @@ html.mydocs-light .mud-chip-outlined.mud-chip-color-primary {
     outline: 2px solid var(--mydocs-primary-ink, var(--mud-palette-primary));
     outline-offset: 2px;
 }
+
+/* Suchfeld in der Kopfzeile (M1.6) */
+.mydocs-searchbox {
+    width: min(360px, 40vw);
+    margin-right: 8px;
+}
+
+.mydocs-searchbox .mud-input-outlined-border {
+    border-color: #ffffff40;
+}
+
+.mydocs-rixio-light .mydocs-searchbox .mud-input,
+.mydocs-rixio-light .mydocs-searchbox .mud-input-adornment-icon {
+    color: #ffffff;
+}
+
+@media (max-width: 600px) {
+    .mydocs-searchbox {
+        display: none;
+    }
+}

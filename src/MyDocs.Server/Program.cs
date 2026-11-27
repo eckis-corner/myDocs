@@ -149,6 +149,7 @@ app.MapAdminUserEndpoints();
 app.MapPersonEndpoints();
 app.MapObjectEndpoints();
 app.MapDocumentEndpoints(maxRequestBytes);
+app.MapSearchEndpoints();
 
 app.MapStaticAssets();
 // Die Seiten sind nur die leere Hülle (kein Prerendering); [Authorize] prüft der Client. Geschützt sind die Daten:
@@ -161,6 +162,7 @@ app.MapRazorComponents<App>()
 await DatabaseMigrator.MigrateAsync(app.Services);
 // Hauptschlüssel beim Start anlegen bzw. prüfen, nicht erst beim ersten Upload.
 app.Services.GetRequiredService<MyDocs.Server.Infrastructure.Files.MasterKey>();
+await MyDocs.Server.Infrastructure.Search.SearchIndex.BackfillAsync(app.Services);
 
 await app.RunAsync();
 

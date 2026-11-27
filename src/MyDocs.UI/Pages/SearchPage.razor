@@ -1,0 +1,99 @@
+@page "/search"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@inject IStringLocalizer<SharedResource> L
+@inject CatalogText Catalog
+@inject SearchClient Search
+@inject NavigationManager Navigation
+
+<PageTitle>@L["AppName"] – @L["SearchTitle"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h4" HtmlTag="h1">@L["SearchTitle"]</MudText>
+    <MudTextField T="string" Value="_query" ValueChanged="QueryChanged" Placeholder="@L["SearchPlaceholder"]" Variant="Variant.Outlined"
+                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" Immediate DebounceInterval="300" Clearable
+                  HelperText="@L["SearchHelp"]" UserAttributes="@(new() { ["data-testid"] = "search-input", ["type"] = "search" })" />
+
+    @if (_busy)
+    {
+        <MudProgressLinear Indeterminate Color="Color.Primary" />
+    }
+    else if (_hits is not null)
+    {
+        @if (_hits.Count == 0)
+        {
+            <MudText data-testid="search-empty">@L["SearchNoHits", _query ?? string.Empty]</MudText>
+        }
+        else
+        {
+            <MudText Typo="Typo.body2" Class="mydocs-muted">@L["SearchHits", _hits.Count]</MudText>
+            <MudList T="SearchHitDto" Dense data-testid="search-hits">
+                @foreach (var hit in _hits)
+                {
+                    <MudListItem T="SearchHitDto" Icon="@Icon(hit)" Href="@Link(hit)">
+                        <MudText><b>@hit.Title</b> <span class="mydocs-muted">· @Kind(hit)</span></MudText>
+                        @if (hit.Snippet is { } snippet)
+                        {
+                            <MudText Typo="Typo.body2" Class="mydocs-muted">@snippet</MudText>
+                        }
+                    </MudListItem>
+                }
+            </MudList>
+        }
+    }
+</MudStack>
+
+@code {
+    private string? _query;
+    private List<SearchHitDto>? _hits;
+    private bool _busy;
+
+    [SupplyParameterFromQuery(Name = "q")] public string? Q { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        if (Q != _query)
+        {
+            _query = Q;
+            await RunAsync();
+        }
+    }
+
+    private async Task QueryChanged(string? value)
+    {
+        _query = value;
+        Navigation.NavigateTo(string.IsNullOrWhiteSpace(value) ? "search" : $"search?q={Uri.EscapeDataString(value.Trim())}", replace: true);
+        await RunAsync();
+    }
+
+    private async Task RunAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_query) || _query.Trim().Length < 2)
+        {
+            _hits = null;
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            _hits = await Search.SearchAsync(_query.Trim());
+        }
+        catch (ApiException)
+        {
+            _hits = [];
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private static string Link(SearchHitDto hit) => $"object/{(hit.Kind == SearchKinds.Document ? hit.ObjectId : hit.Id)}";
+
+    private static string Icon(SearchHitDto hit) =>
+        hit.Kind == SearchKinds.Document ? Icons.Material.Outlined.Description
+        : ObjectCatalog.Find(hit.TypeKey) is { } type ? AreaIcons.For(type.Area) : Icons.Material.Outlined.Folder;
+
+    private string Kind(SearchHitDto hit) =>
+        hit.Kind == SearchKinds.Document ? L["SearchDocumentIn", hit.ObjectTitle ?? string.Empty] : Catalog.Type(hit.TypeKey ?? string.Empty);
+}

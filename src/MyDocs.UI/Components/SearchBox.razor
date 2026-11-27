@@ -1,0 +1,25 @@
+@* Suchfeld in der Kopfzeile: Eingabe und Enter führen zur Seite „Suche“. *@
+@inject IStringLocalizer<SharedResource> L
+@inject NavigationManager Navigation
+
+<AuthorizeView>
+    <Authorized>
+        <div class="mydocs-searchbox">
+            <MudTextField T="string" @bind-Value="_query" Placeholder="@L["SearchPlaceholder"]" Variant="Variant.Outlined" Margin="Margin.Dense"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search" OnKeyUp="KeyUp"
+                          UserAttributes="@(new() { ["aria-label"] = L["SearchTitle"].Value, ["data-testid"] = "searchbox", ["type"] = "search" })" />
+        </div>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    private string? _query;
+
+    private void KeyUp(KeyboardEventArgs args)
+    {
+        if (args.Key == "Enter" && !string.IsNullOrWhiteSpace(_query))
+        {
+            Navigation.NavigateTo($"search?q={Uri.EscapeDataString(_query.Trim())}");
+        }
+    }
+}

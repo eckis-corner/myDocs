@@ -180,6 +180,14 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 100 | Dokumente und Rechte | Dokument mit Titel, Datum, Notiz und unveränderlichen Versionen. Zuordnung zu einem oder mehreren Objekten, mindestens einem. Rechte erbt das Dokument von seinen Objekten (33): Wer eines sieht, sieht und lädt herunter; wer eines bearbeiten darf, lädt Versionen hoch, ändert die Angaben, ordnet zu und löscht. Zuordnen nur zu Objekten, die man selbst bearbeiten darf. |
 | 101 | Vorschau | Direkt im Browser nur PDF, PNG, JPEG, GIF und WebP. Alles andere, vor allem SVG und HTML, nur als Download mit `application/octet-stream`. Office-Vorschau kommt mit M3 (Worker). Grenze 100 MB je Datei (78) gilt im Browser und auf dem Server. |
 
+## Runde 8 (27.11.2026, M1.6 Suche)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 102 | Suchtext | Der Server berechnet beim Speichern je Objekt und Dokument einen Suchtext: Titel, Art (de und en), alle Feldwerte, Auswahlwerte mit deutscher und englischer Bezeichnung, IBANs auch gruppiert, Zahlen auch mit Komma, Notizen; bei Dokumenten Titel, Notiz und alle Dateinamen. Den Inhalt der Dokumente durchsucht erst die OCR in M3. Fehlende Suchtexte berechnet der Server beim Start nach. |
+| 103 | Verfahren | PostgreSQL-Volltext mit Konfiguration `german` (Wortstämme, gespeicherte Spalte `search_vector`, GIN-Index), dazu `ILIKE` für Teilwörter und `word_similarity` aus `pg_trgm` (> 0,5) für Tippfehler, beide über einen GIN-Trigramm-Index. Rangfolge aus `ts_rank` plus Ähnlichkeit, höchstens 50 Treffer. Mindestens zwei Zeichen. |
+| 104 | Rechte und Oberfläche | Die Rechte stecken in der Abfrage (26); Dokumente nur über sichtbare, nicht gelöschte Objekte. Suchfeld in der Kopfzeile, Seite „Suche“ mit Treffern und der Zeile, in der der Begriff vorkommt. Ein Dokument-Treffer führt zu seinem Objekt. |
+
 ## Offen
 
 | Thema | Was fehlt |

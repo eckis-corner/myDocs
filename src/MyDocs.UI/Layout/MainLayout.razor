@@ -21,6 +21,7 @@
                        OnClick="ToggleDrawer" />
         <AppLogo InAppBar />
         <MudSpacer />
+        <SearchBox />
         <LanguageMenu />
         <UserMenu />
         <MudTooltip Text="@L["ToggleDarkMode"]">
@@ -35,6 +36,7 @@
         <div class="mydocs-drawer-body">
             <MudNavMenu Class="mydocs-nav mydocs-nav-main">
                 <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Dashboard">@L["NavHome"]</MudNavLink>
+                <MudNavLink Href="search" Icon="@Icons.Material.Outlined.Search" data-testid="nav-search">@L["SearchTitle"]</MudNavLink>
                 <MudNavGroup Title="@L["NavAreas"]" Icon="@Icons.Material.Outlined.FolderOpen" Expanded>
                     @foreach (var area in Areas.Visible)
                     {

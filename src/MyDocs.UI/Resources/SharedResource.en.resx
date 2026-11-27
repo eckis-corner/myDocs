@@ -138,6 +138,12 @@
   <data name="Role_member" xml:space="preserve"><value>Member</value></data>
   <data name="RowsPerPage" xml:space="preserve"><value>Rows per page</value></data>
   <data name="Save" xml:space="preserve"><value>Save</value></data>
+  <data name="SearchDocumentIn" xml:space="preserve"><value>Document of {0}</value></data>
+  <data name="SearchHelp" xml:space="preserve"><value>Searches titles, all fields, notes and document names, also for parts of numbers or with typos.</value></data>
+  <data name="SearchHits" xml:space="preserve"><value>{0} results</value></data>
+  <data name="SearchNoHits" xml:space="preserve"><value>No results for “{0}”.</value></data>
+  <data name="SearchPlaceholder" xml:space="preserve"><value>Search …</value></data>
+  <data name="SearchTitle" xml:space="preserve"><value>Search</value></data>
   <data name="SetupCode" xml:space="preserve"><value>Setup code</value></data>
   <data name="SetupCodeHelp" xml:space="preserve"><value>Shown in the container log, for example in Container Manager under mydocs-app → Log. After every restart a new code applies.</value></data>
   <data name="SetupDone" xml:space="preserve"><value>Go to myDocs</value></data>

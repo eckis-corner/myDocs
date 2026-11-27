@@ -38,6 +38,12 @@ public sealed class DocObject
 
     public DateTimeOffset? DeletedAt { get; set; }
 
+    /// <summary>Suchtext (25), beim Speichern berechnet; null heißt: beim nächsten Start neu berechnen.</summary>
+    public string? SearchText { get; set; }
+
+    /// <summary>Volltextindex aus <see cref="SearchText"/> (PostgreSQL, Konfiguration <c>german</c>), von der Datenbank berechnet.</summary>
+    public NpgsqlTypes.NpgsqlTsVector? SearchVector { get; set; }
+
     /// <summary>Zeilenversion von PostgreSQL (<c>xmin</c>) gegen gleichzeitiges Überschreiben.</summary>
     public uint Version { get; set; }
 }

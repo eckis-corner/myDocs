@@ -5,6 +5,7 @@
       "label": "db: start",
       "type": "shell",
       "command": "docker compose -f docker-compose.yml -f compose.dev.yml up -d --wait db",
+      "options": { "env": { "POSTGRES_PASSWORD": "mydocs" } },
       "problemMatcher": [],
       "presentation": { "reveal": "silent", "panel": "shared" }
     },
@@ -12,6 +13,7 @@
       "label": "db: stop",
       "type": "shell",
       "command": "docker compose -f docker-compose.yml -f compose.dev.yml stop db",
+      "options": { "env": { "POSTGRES_PASSWORD": "mydocs" } },
       "problemMatcher": []
     },
     {

@@ -1,0 +1,59 @@
+@* Vorgänge als Tabelle: fällig, Titel, Art, zuständig, Status. Klick öffnet den Vorgang. *@
+@inject IStringLocalizer<SharedResource> L
+@inject ObjectDirectory Directory
+@inject IDialogService Dialogs
+
+<MudTable T="TaskDto" Items="Items" Loading="Items is null" Dense Hover OnRowClick="OpenAsync" RowClass="mydocs-clickable" data-testid="tasks">
+    <HeaderContent>
+        <MudTh>@L["TaskDue"]</MudTh>
+        <MudTh>@L["TaskTitle"]</MudTh>
+        <MudTh>@L["TaskKind"]</MudTh>
+        <MudTh>@L["ObjectResponsible"]</MudTh>
+        <MudTh>@L["TaskStateLabel"]</MudTh>
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="@L["TaskDue"]" Style="white-space: nowrap" Class="@(TaskView.IsOverdue(context, _today) ? "mud-error-text" : null)">
+            @(context.DueOn?.ToString("d", CultureInfo.CurrentCulture) ?? "–")
+        </MudTd>
+        <MudTd DataLabel="@L["TaskTitle"]">
+            @if (context.Priority == TaskPriorities.High)
+            {
+                <MudIcon Icon="@Icons.Material.Filled.PriorityHigh" Color="Color.Warning" Size="Size.Small" />
+            }
+            @TaskView.Title(context, L)
+            @if (ShowObjects && context.ObjectIds.Count > 0)
+            {
+                <span class="mydocs-muted"> · @string.Join(", ", context.ObjectIds.Select(id => Directory.TitleOf(id) ?? "?"))</span>
+            }
+        </MudTd>
+        <MudTd DataLabel="@L["TaskKind"]">@L[$"TaskKind_{context.Kind}"]</MudTd>
+        <MudTd DataLabel="@L["ObjectResponsible"]">@(Directory.PersonName(context.ResponsiblePersonId) ?? "–")</MudTd>
+        <MudTd DataLabel="@L["TaskStateLabel"]">
+            <MudChip T="string" Size="Size.Small" Color="@TaskView.StateColor(context)" Variant="Variant.Outlined">
+                @(TaskView.IsOverdue(context, _today) ? L["TaskOverdue"] : L[$"TaskState_{context.State}"])
+            </MudChip>
+        </MudTd>
+    </RowTemplate>
+    <NoRecordsContent><MudText>@L["TasksEmpty"]</MudText></NoRecordsContent>
+</MudTable>
+
+@code {
+    private readonly DateOnly _today = DateOnly.FromDateTime(DateTime.Today);
+
+    [Parameter] public List<TaskDto>? Items { get; set; }
+
+    [Parameter] public bool ShowObjects { get; set; } = true;
+
+    /// <summary>Nach Änderungen im geöffneten Vorgang neu laden.</summary>
+    [Parameter] public EventCallback OnChanged { get; set; }
+
+    private async Task OpenAsync(TableRowClickEventArgs<TaskDto> row)
+    {
+        var parameters = new DialogParameters<TaskDialog> { { d => d.Task, row.Item } };
+        var dialog = await Dialogs.ShowAsync<TaskDialog>(TaskView.Title(row.Item!, L), parameters, new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
+        if (await dialog.Result is { Canceled: false, Data: true })
+        {
+            await OnChanged.InvokeAsync();
+        }
+    }
+}

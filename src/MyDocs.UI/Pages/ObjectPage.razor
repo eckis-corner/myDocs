@@ -9,6 +9,7 @@
 @inject NavigationManager Navigation
 @inject IDialogService Dialogs
 @inject ISnackbar Snackbar
+@inject TaskClient Tasks
 
 <PageTitle>@L["AppName"] – @(_item?.Data.Title ?? (_type is null ? string.Empty : Catalog.Type(_type)))</PageTitle>
 
@@ -51,7 +52,24 @@ else
                 }
             }
         </MudStack>
-        <MudText Typo="Typo.caption" Class="mydocs-muted">@Catalog.Type(_type)</MudText>
+        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+            <MudText Typo="Typo.caption" Class="mydocs-muted">@Catalog.Type(_type)</MudText>
+            @if (_item?.LifecycleState is { } state)
+            {
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="@(LifecycleStates.Inactive.Contains(state) ? Color.Default : state == LifecycleStates.Expired ? Color.Error : state is LifecycleStates.Cancelled or LifecycleStates.Expiring ? Color.Warning : Color.Success)"
+                         data-testid="lifecycle-chip">
+                    @L[$"Lifecycle_{state}"]@(_item.LifecycleDate is { } date ? $" · {date.ToString("d", CultureInfo.CurrentCulture)}" : string.Empty)
+                </MudChip>
+                @if (_item.CanEdit && Lifecycle.NextStates(_item.TypeKey, state).Count > 0)
+                {
+                    <MudButton Variant="Variant.Text" Size="Size.Small" StartIcon="@Icons.Material.Outlined.SwapHoriz" OnClick="LifecycleAsync" data-testid="lifecycle-change">@L["LifecycleChange"]</MudButton>
+                }
+                @if (_item.ReplacedById is { } successor)
+                {
+                    <MudLink Href="@($"object/{successor}")" Typo="Typo.caption">@L["LifecycleReplacedByLink", Directory.TitleOf(successor) ?? "?"]</MudLink>
+                }
+            }
+        </MudStack>
 
         @if (_editing)
         {
@@ -73,6 +91,23 @@ else
             </MudPaper>
 
             <DocumentList ObjectId="_item.Id" CanEdit="_item.CanEdit" />
+
+            <MudPaper Class="pa-4" Elevation="1" data-testid="object-tasks">
+                <MudStack Row AlignItems="AlignItems.Center" Class="mb-2">
+                    <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["TasksTitle"]</b></MudText>
+                    <MudSpacer />
+                    @if (_item.CanEdit)
+                    {
+                        <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="NewTaskAsync" data-testid="object-task-new">@L["TaskNew"]</MudButton>
+                    }
+                </MudStack>
+                <TaskTable Items="_tasks" ShowObjects="false" OnChanged="LoadTasksAsync" />
+            </MudPaper>
+
+            <MudPaper Class="pa-4" Elevation="1">
+                <MudText Typo="Typo.subtitle1" HtmlTag="h2" Class="mb-2"><b>@L["CommentsTitle"]</b></MudText>
+                <CommentList Comments="_comments" CanWrite="_item.CanEdit" OnAdd="AddCommentAsync" OnDelete="DeleteCommentAsync" />
+            </MudPaper>
 
             @if (_item.OwnerPersonId is not null && _item.OwnerPersonId == Session.Me?.PersonId && _item.DeletedAt is null)
             {
@@ -135,6 +170,8 @@ else
     private IReadOnlyDictionary<string, string> _errors = new Dictionary<string, string>();
     private List<ObjectHistoryDto>? _history;
     private List<BreadcrumbItem> _breadcrumbs = [];
+    private List<TaskDto>? _tasks;
+    private List<CommentDto> _comments = [];
 
     [Parameter] public string? TypeKey { get; set; }
 
@@ -157,6 +194,8 @@ else
                 _item = await Objects.GetAsync(id);
                 _type = MyDocsCatalog.Find(_item.TypeKey);
                 _editing = false;
+                await LoadTasksAsync();
+                _comments = await Tasks.ObjectCommentsAsync(id);
             }
             else
             {
@@ -180,6 +219,62 @@ else
         {
             _error = exception.Code;
         }
+    }
+
+    private async Task LoadTasksAsync()
+    {
+        if (_item is not null)
+        {
+            _tasks = await Tasks.ForObjectAsync(_item.Id);
+        }
+    }
+
+    private async Task LifecycleAsync()
+    {
+        var parameters = new DialogParameters<LifecycleDialog> { { d => d.Item, _item! } };
+        var dialog = await Dialogs.ShowAsync<LifecycleDialog>(L["LifecycleChange"], parameters, new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        if (await dialog.Result is not { Canceled: false, Data: LifecycleChangeRequest request })
+        {
+            return;
+        }
+
+        try
+        {
+            _item = await Tasks.ChangeLifecycleAsync(_item!.Id, request);
+            _history = null;
+            await LoadTasksAsync();
+            Snackbar.Add(L["ObjectSaved"], Severity.Success);
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"ObjectError_{exception.Code}"], Severity.Error);
+        }
+    }
+
+    private async Task NewTaskAsync()
+    {
+        var parameters = new DialogParameters<TaskDialog>
+        {
+            { d => d.ObjectIds, [_item!.Id] },
+            { d => d.DefaultResponsible, _item.ResponsiblePersonId ?? Session.Me?.PersonId },
+        };
+        var dialog = await Dialogs.ShowAsync<TaskDialog>(L["TaskNew"], parameters, new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
+        if (await dialog.Result is { Canceled: false })
+        {
+            await LoadTasksAsync();
+        }
+    }
+
+    private async Task AddCommentAsync(string text)
+    {
+        await Tasks.AddObjectCommentAsync(_item!.Id, text);
+        _comments = await Tasks.ObjectCommentsAsync(_item.Id);
+    }
+
+    private async Task DeleteCommentAsync(CommentDto comment)
+    {
+        await Tasks.DeleteCommentAsync(comment.Id);
+        _comments = await Tasks.ObjectCommentsAsync(_item!.Id);
     }
 
     private void StartEdit()
@@ -283,6 +378,8 @@ else
         "owner" => L["ObjectOwner"],
         "responsible" => L["ObjectResponsible"],
         "deleted" => L["InTrash"],
+        "lifecycle" => L["LifecycleLabel"],
+        "lifecycleDate" => L["LifecycleDateLabel"],
         _ when field.StartsWith("field:", StringComparison.Ordinal) && _type!.Field(field[6..]) is { } definition => Catalog.Field(_type, definition),
         _ => field,
     };
@@ -298,6 +395,7 @@ else
         {
             "owner" or "responsible" => Directory.PersonName(Guid.TryParse(value, out var person) ? person : null) ?? value,
             "deleted" => L["Yes"],
+            "lifecycle" => L[$"Lifecycle_{value}"],
             _ when field.StartsWith("field:", StringComparison.Ordinal) && _type!.Field(field[6..]) is { } definition => Catalog.Display(definition, value, Directory.TitleOf),
             _ => value,
         };

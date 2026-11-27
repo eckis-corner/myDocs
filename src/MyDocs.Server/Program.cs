@@ -99,6 +99,7 @@ builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFac
 builder.Services.Configure<SecurityStampValidatorOptions>(stamp => stamp.ValidationInterval = TimeSpan.FromMinutes(1));
 builder.Services.AddScoped<OneTimeTokens>();
 builder.Services.AddScoped<MyDocs.Server.Infrastructure.Objects.ObjectAccess>();
+builder.Services.AddScoped<MyDocs.Server.Infrastructure.Tasks.TaskAccess>();
 builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Files.MasterKey>();
 builder.Services.AddScoped<MyDocs.Server.Infrastructure.Files.BlobStore>();
 builder.Services.AddHttpContextAccessor();
@@ -163,6 +164,7 @@ app.MapDocumentEndpoints(maxRequestBytes);
 app.MapSearchEndpoints();
 app.MapAuditEndpoints();
 app.MapAccountEndpoints();
+app.MapTaskEndpoints();
 app.MapAdminBackupEndpoints();
 
 app.MapStaticAssets();

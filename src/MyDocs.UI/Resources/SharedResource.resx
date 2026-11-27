@@ -50,6 +50,8 @@
   <data name="Audit_passkey-added" xml:space="preserve"><value>Passkey hinzugefügt</value></data>
   <data name="Audit_passkey-removed" xml:space="preserve"><value>Passkey entfernt</value></data>
   <data name="Audit_setup-completed" xml:space="preserve"><value>myDocs eingerichtet</value></data>
+  <data name="Audit_task-closed" xml:space="preserve"><value>Vorgang abgeschlossen</value></data>
+  <data name="Audit_task-created" xml:space="preserve"><value>Vorgang angelegt</value></data>
   <data name="Audit_trash-purged" xml:space="preserve"><value>Papierkorb geleert</value></data>
   <data name="Audit_user-changed" xml:space="preserve"><value>Konto geändert</value></data>
   <data name="Audit_user-created" xml:space="preserve"><value>Konto angelegt</value></data>
@@ -85,6 +87,10 @@
   <data name="BirthDate" xml:space="preserve"><value>Geburtsdatum</value></data>
   <data name="Cancel" xml:space="preserve"><value>Abbrechen</value></data>
   <data name="Close" xml:space="preserve"><value>Schließen</value></data>
+  <data name="CommentAdd" xml:space="preserve"><value>Kommentar</value></data>
+  <data name="CommentSend" xml:space="preserve"><value>Senden</value></data>
+  <data name="CommentsNone" xml:space="preserve"><value>Noch keine Kommentare.</value></data>
+  <data name="CommentsTitle" xml:space="preserve"><value>Kommentare</value></data>
   <data name="Confirm" xml:space="preserve"><value>Bestätigen</value></data>
   <data name="Copied" xml:space="preserve"><value>In die Zwischenablage kopiert.</value></data>
   <data name="CopyLink" xml:space="preserve"><value>Link kopieren</value></data>
@@ -137,6 +143,30 @@
   <data name="Language" xml:space="preserve"><value>Sprache</value></data>
   <data name="LanguageName_de" xml:space="preserve"><value>Deutsch</value></data>
   <data name="LanguageName_en" xml:space="preserve"><value>English</value></data>
+  <data name="LifecycleChange" xml:space="preserve"><value>Zustand ändern</value></data>
+  <data name="LifecycleDateLabel" xml:space="preserve"><value>Datum zum Zustand</value></data>
+  <data name="LifecycleDate_cancelled" xml:space="preserve"><value>Gekündigt zum</value></data>
+  <data name="LifecycleDate_disposed" xml:space="preserve"><value>Abgegeben am</value></data>
+  <data name="LifecycleDate_ended" xml:space="preserve"><value>Beendet am</value></data>
+  <data name="LifecycleFollowUp_archived" xml:space="preserve"><value>Archivierte Einträge verschwinden aus den Listen; die Suche findet sie weiterhin.</value></data>
+  <data name="LifecycleFollowUp_cancelled" xml:space="preserve"><value>myDocs legt den Vorgang „Kündigungsbestätigung ablegen“ an, fällig in 14 Tagen.</value></data>
+  <data name="LifecycleFollowUp_disposed" xml:space="preserve"><value>myDocs legt den Vorgang „Zugehörige Verträge prüfen“ an, mit allen Einträgen, die hierher verweisen.</value></data>
+  <data name="LifecycleFollowUp_ended" xml:space="preserve"><value>myDocs legt die Vorgänge „Letzte Abrechnung prüfen“ und „Lastschrift prüfen“ an.</value></data>
+  <data name="LifecycleLabel" xml:space="preserve"><value>Zustand</value></data>
+  <data name="LifecycleNew" xml:space="preserve"><value>Neuer Zustand</value></data>
+  <data name="LifecycleReplacedBy" xml:space="preserve"><value>Ersetzt durch</value></data>
+  <data name="LifecycleReplacedByLink" xml:space="preserve"><value>Ersetzt durch {0}</value></data>
+  <data name="Lifecycle_active" xml:space="preserve"><value>aktiv</value></data>
+  <data name="Lifecycle_archived" xml:space="preserve"><value>archiviert</value></data>
+  <data name="Lifecycle_cancelled" xml:space="preserve"><value>gekündigt</value></data>
+  <data name="Lifecycle_disposed" xml:space="preserve"><value>abgegeben</value></data>
+  <data name="Lifecycle_draft" xml:space="preserve"><value>in Abschluss</value></data>
+  <data name="Lifecycle_ended" xml:space="preserve"><value>beendet</value></data>
+  <data name="Lifecycle_expired" xml:space="preserve"><value>abgelaufen</value></data>
+  <data name="Lifecycle_expiring" xml:space="preserve"><value>läuft ab</value></data>
+  <data name="Lifecycle_present" xml:space="preserve"><value>vorhanden</value></data>
+  <data name="Lifecycle_replaced" xml:space="preserve"><value>ersetzt</value></data>
+  <data name="Lifecycle_valid" xml:space="preserve"><value>gültig</value></data>
   <data name="Loading" xml:space="preserve"><value>Wird geladen …</value></data>
   <data name="LocationNoneYet" xml:space="preserve"><value>Noch keine Ablageorte. Lege sie im Bereich „Ablageorte“ an.</value></data>
   <data name="LoginNext" xml:space="preserve"><value>Weiter</value></data>
@@ -171,8 +201,11 @@
   <data name="ObjectError_forbidden" xml:space="preserve"><value>Dafür fehlt die Berechtigung.</value></data>
   <data name="ObjectError_http-404" xml:space="preserve"><value>Nicht gefunden.</value></data>
   <data name="ObjectError_invalid" xml:space="preserve"><value>Bitte die markierten Felder prüfen.</value></data>
+  <data name="ObjectError_lifecycle-date-required" xml:space="preserve"><value>Bitte ein Datum angeben.</value></data>
+  <data name="ObjectError_lifecycle-invalid" xml:space="preserve"><value>Dieser Wechsel ist nicht möglich.</value></data>
   <data name="ObjectError_not-found" xml:space="preserve"><value>Diesen Eintrag gibt es nicht oder du darfst ihn nicht sehen.</value></data>
   <data name="ObjectError_owner-invalid" xml:space="preserve"><value>So lässt sich das Eigentum nicht ändern.</value></data>
+  <data name="ObjectError_replacement-invalid" xml:space="preserve"><value>Bitte einen Nachfolger derselben Art wählen.</value></data>
   <data name="ObjectError_type-only-in-mylife" xml:space="preserve"><value>Diese Art von Eintrag führt myLife.</value></data>
   <data name="ObjectError_type-unknown" xml:space="preserve"><value>Diese Art von Eintrag gibt es nicht.</value></data>
   <data name="ObjectLinkedFrom" xml:space="preserve"><value>Verweise von</value></data>
@@ -213,6 +246,8 @@
   <data name="Role_member" xml:space="preserve"><value>Mitglied</value></data>
   <data name="RowsPerPage" xml:space="preserve"><value>Zeilen je Seite</value></data>
   <data name="Save" xml:space="preserve"><value>Speichern</value></data>
+  <data name="ScopeHousehold" xml:space="preserve"><value>Haushalt</value></data>
+  <data name="ScopeMine" xml:space="preserve"><value>Meine</value></data>
   <data name="SearchDocumentIn" xml:space="preserve"><value>Dokument bei {0}</value></data>
   <data name="SearchHelp" xml:space="preserve"><value>Sucht in Titeln, allen Feldern, Notizen und Dokumentnamen, auch nach Teilen von Nummern oder mit Tippfehlern.</value></data>
   <data name="SearchHits" xml:space="preserve"><value>{0} Treffer</value></data>
@@ -239,6 +274,58 @@
   <data name="SharesIntro" xml:space="preserve"><value>Dieser Eintrag ist privat. Gib ihn einzelnen Personen zum Lesen oder Bearbeiten frei.</value></data>
   <data name="SharesTitle" xml:space="preserve"><value>Freigaben</value></data>
   <data name="SkipToContent" xml:space="preserve"><value>Zum Inhalt springen</value></data>
+  <data name="TaskClose" xml:space="preserve"><value>Erledigen</value></data>
+  <data name="TaskDiscard" xml:space="preserve"><value>Verwerfen</value></data>
+  <data name="TaskDone" xml:space="preserve"><value>Erledigt</value></data>
+  <data name="TaskDue" xml:space="preserve"><value>Fällig</value></data>
+  <data name="TaskError_conflict" xml:space="preserve"><value>Jemand anderes hat den Vorgang inzwischen geändert. Bitte neu öffnen.</value></data>
+  <data name="TaskError_forbidden" xml:space="preserve"><value>Dafür fehlt die Berechtigung.</value></data>
+  <data name="TaskError_not-found" xml:space="preserve"><value>Diesen Vorgang gibt es nicht oder du darfst ihn nicht sehen.</value></data>
+  <data name="TaskError_outcome-required" xml:space="preserve"><value>Bitte ein Ergebnis wählen.</value></data>
+  <data name="TaskError_responsible-invalid" xml:space="preserve"><value>Zuständig kann nur eine Person mit Konto sein.</value></data>
+  <data name="TaskError_state-invalid" xml:space="preserve"><value>Diesen Status gibt es nicht.</value></data>
+  <data name="TaskError_title-required" xml:space="preserve"><value>Bitte beschreiben, was zu tun ist.</value></data>
+  <data name="TaskError_wait-until-required" xml:space="preserve"><value>„Wartet auf Dritte“ braucht ein Datum in der Zukunft, sonst wird der Vorgang vergessen.</value></data>
+  <data name="TaskImportant" xml:space="preserve"><value>Wichtig</value></data>
+  <data name="TaskKind" xml:space="preserve"><value>Art</value></data>
+  <data name="TaskKind_cleanup" xml:space="preserve"><value>Aufräumen</value></data>
+  <data name="TaskKind_deadline" xml:space="preserve"><value>Frist</value></data>
+  <data name="TaskKind_inbox" xml:space="preserve"><value>Posteingang</value></data>
+  <data name="TaskKind_mylife-sync" xml:space="preserve"><value>myLife-Abgleich</value></data>
+  <data name="TaskKind_review" xml:space="preserve"><value>Prüfung</value></data>
+  <data name="TaskKind_task" xml:space="preserve"><value>Aufgabe</value></data>
+  <data name="TaskNew" xml:space="preserve"><value>Neuer Vorgang</value></data>
+  <data name="TaskObjects" xml:space="preserve"><value>Betrifft</value></data>
+  <data name="TaskOutcome" xml:space="preserve"><value>Ergebnis</value></data>
+  <data name="TaskOutcomeHelp" xml:space="preserve"><value>Bei Prüfungen und Fristen gehört ein Ergebnis dazu.</value></data>
+  <data name="TaskOutcomeNote" xml:space="preserve"><value>Was ist herausgekommen?</value></data>
+  <data name="TaskOutcome_cancelled" xml:space="preserve"><value>gekündigt</value></data>
+  <data name="TaskOutcome_changed" xml:space="preserve"><value>geändert</value></data>
+  <data name="TaskOutcome_replaced" xml:space="preserve"><value>ersetzt</value></data>
+  <data name="TaskOutcome_unchanged" xml:space="preserve"><value>geprüft, unverändert</value></data>
+  <data name="TaskOverdue" xml:space="preserve"><value>überfällig</value></data>
+  <data name="TaskReopen" xml:space="preserve"><value>Wieder öffnen</value></data>
+  <data name="TaskStart" xml:space="preserve"><value>In Arbeit</value></data>
+  <data name="TaskStateLabel" xml:space="preserve"><value>Status</value></data>
+  <data name="TaskState_discarded" xml:space="preserve"><value>verworfen</value></data>
+  <data name="TaskState_done" xml:space="preserve"><value>erledigt</value></data>
+  <data name="TaskState_in-progress" xml:space="preserve"><value>in Arbeit</value></data>
+  <data name="TaskState_open" xml:space="preserve"><value>offen</value></data>
+  <data name="TaskState_waiting" xml:space="preserve"><value>wartet auf Dritte</value></data>
+  <data name="TaskTitle" xml:space="preserve"><value>Was ist zu tun?</value></data>
+  <data name="TaskTitle_cancellation-confirmation" xml:space="preserve"><value>Kündigungsbestätigung ablegen</value></data>
+  <data name="TaskTitle_check-related-contracts" xml:space="preserve"><value>Zugehörige Verträge prüfen</value></data>
+  <data name="TaskTitle_create-replacement" xml:space="preserve"><value>Ersatz anlegen</value></data>
+  <data name="TaskTitle_direct-debit" xml:space="preserve"><value>Lastschrift prüfen</value></data>
+  <data name="TaskTitle_final-invoice" xml:space="preserve"><value>Letzte Abrechnung prüfen</value></data>
+  <data name="TaskTitle_renew-or-replace" xml:space="preserve"><value>Verlängern oder ersetzen?</value></data>
+  <data name="TaskWait" xml:space="preserve"><value>Wartet auf Dritte</value></data>
+  <data name="TaskWaitUntil" xml:space="preserve"><value>Wieder vorlegen am</value></data>
+  <data name="TaskWaitUntilShort" xml:space="preserve"><value>bis {0}</value></data>
+  <data name="TasksEmpty" xml:space="preserve"><value>Keine Vorgänge.</value></data>
+  <data name="TasksIntro" xml:space="preserve"><value>Was im Haushalt zu tun ist: Prüfungen, Fristen und Aufgaben, aus Regeln oder von Hand angelegt.</value></data>
+  <data name="TasksShowClosed" xml:space="preserve"><value>Erledigte zeigen</value></data>
+  <data name="TasksTitle" xml:space="preserve"><value>Vorgänge</value></data>
   <data name="ToggleDarkMode" xml:space="preserve"><value>Hell/Dunkel umschalten</value></data>
   <data name="TotpCode" xml:space="preserve"><value>Code aus der Authenticator-App</value></data>
   <data name="TrashEmpty" xml:space="preserve"><value>Der Papierkorb ist leer.</value></data>

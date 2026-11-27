@@ -214,6 +214,16 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 114 | Passkeys | Mit den Passkeys von ASP.NET Core Identity 10 (kein Fido2NetLib). Ein Passkey **ersetzt nach dem Passwort den Code** der Authenticator-App (wie myLife); passwortloses Anmelden gibt es nicht. Registrieren und Entfernen unter Benutzermenü → Sicherheit; dort steht auch, wie viele Wiederherstellungscodes übrig sind. Der Ursprung wird gegen den `Origin`-Header geprüft, den Browser bei POST mitschicken. |
 | 115 | Schritt nach dem Passwort | Identity legt den Zustand der Passkey-Zeremonie im Zwischen-Cookie ab und verliert dabei den Benutzer aus dem Passwort-Schritt. myDocs hält ihn in einem eigenen, signierten Cookie (`mydocs.passkey-step`, Data Protection, 5 Minuten, nur für `/api/auth`) fest; der Passkey muss zu genau diesem Konto gehören. Ein fehlgeschlagener Passkey zählt als Fehlversuch für die Sperre. |
 
+## Runde 12 (27.11.2026, M2.1 Lebenszyklus, Vorgänge, Kommentare)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 116 | Aufteilung M2 | **M2.1** Lebenszyklus, Vorgänge, Kommentare; **M2.2** Prüfregeln, Wiedervorlage, Eskalation; **M2.3** Dashboard; **M2.4** Mail, ntfy, tägliche Zusammenfassung und Einstellungsseite. |
+| 117 | Ort der Regeln | Lebenszyklus-Muster, Folgevorgänge und Prüfregeln stehen vorerst in myDocs (`Lifecycle`, `FollowUps`), nicht in `MyCommon.Catalog` (abweichend von 9 und 13). myLife braucht sie erst für den Abgleich in M5; vorher ziehen sie nach my-common um. |
+| 118 | Lebenszyklus | Muster je Typ wie in objekttypen.md, Abschnitt 3; Typen ohne Muster (Kontakt, Ablageort, Persönliche Daten, Steuern …) haben keinen Zustand. Neue Einträge starten in *aktiv*, *gültig* bzw. *vorhanden*. Wechsel von Hand nur entlang des Musters, Zurücknehmen eingeschlossen (gekündigt → aktiv, archiviert → beendet). *gekündigt*, *beendet* und *abgegeben* brauchen ein Datum, *ersetzt* einen Nachfolger derselben Art. *läuft ab* und *abgelaufen* setzt nur der Dienst (M2.2). Archivierte Einträge verschwinden aus den Listen (Schalter „Archiv“ in der API), die Suche findet sie. Bestehende Einträge bekommen per Migration ihren Anfangszustand. |
+| 119 | Folgevorgänge | gekündigt → „Kündigungsbestätigung ablegen“ (14 Tage); beendet → „Letzte Abrechnung prüfen“ und „Lastschrift prüfen“ (30 Tage); läuft ab → Frist „Verlängern oder ersetzen?“; abgelaufen → „Ersatz anlegen“ (7 Tage); abgegeben → „Zugehörige Verträge prüfen“ mit allen Einträgen, die per Verweisfeld hierher zeigen. Zuständig ist die zuständige Person des Eintrags. Ein noch offener Vorgang derselben Regel am selben Eintrag wird nicht verdoppelt. Titel automatischer Vorgänge erscheinen in der Sprache des Lesers. |
+| 120 | Vorgänge und Kommentare | Vorgang mit Art, Titel, Notiz, Zuständigkeit (Person mit Konto), Fälligkeit, Priorität, Status und Einträgen (0..n). Sichtbar ist ein Vorgang nur, wenn **alle** seine Einträge sichtbar sind; ohne Eintrag gehört er dem Haushalt. Ändern darf, wer einen seiner Einträge bearbeiten darf, bzw. Mitglieder. „Wartet auf Dritte“ nur mit Datum in der Zukunft; Prüfung und Frist nur mit Ergebnis erledigt; Erledigtes lässt sich wieder öffnen. Seite „Vorgänge“ mit „Meine“/„Haushalt“, Abschnitt „Vorgänge“ und „Kommentare“ auf der Objektseite. Eigene Kommentare lassen sich löschen. |
+
 ## Offen
 
 | Thema | Was fehlt |

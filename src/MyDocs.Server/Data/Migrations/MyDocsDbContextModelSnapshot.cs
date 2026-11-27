@@ -401,6 +401,47 @@ namespace MyDocs.Server.Data.Migrations
                     b.ToTable("blobs", (string)null);
                 });
 
+            modelBuilder.Entity("MyDocs.Server.Data.Comment", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("at");
+
+                    b.Property<Guid>("AuthorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("author_id");
+
+                    b.Property<Guid?>("ObjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("object_id");
+
+                    b.Property<Guid?>("TaskId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("task_id");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("text");
+
+                    b.HasKey("Id")
+                        .HasName("pk_comments");
+
+                    b.HasIndex("ObjectId")
+                        .HasDatabaseName("ix_comments_object_id");
+
+                    b.HasIndex("TaskId")
+                        .HasDatabaseName("ix_comments_task_id");
+
+                    b.ToTable("comments", (string)null);
+                });
+
             modelBuilder.Entity("MyDocs.Server.Data.DocObject", b =>
                 {
                     b.Property<Guid>("Id")
@@ -433,6 +474,15 @@ namespace MyDocs.Server.Data.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
+                    b.Property<DateOnly?>("LifecycleDate")
+                        .HasColumnType("date")
+                        .HasColumnName("lifecycle_date");
+
+                    b.Property<string>("LifecycleState")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("lifecycle_state");
+
                     b.Property<string>("Locations")
                         .IsRequired()
                         .HasColumnType("jsonb")
@@ -445,6 +495,10 @@ namespace MyDocs.Server.Data.Migrations
                     b.Property<Guid?>("OwnerPersonId")
                         .HasColumnType("uuid")
                         .HasColumnName("owner_person_id");
+
+                    b.Property<Guid?>("ReplacedById")
+                        .HasColumnType("uuid")
+                        .HasColumnName("replaced_by_id");
 
                     b.Property<Guid?>("ResponsiblePersonId")
                         .HasColumnType("uuid")
@@ -491,6 +545,9 @@ namespace MyDocs.Server.Data.Migrations
 
                     b.HasIndex("OwnerPersonId")
                         .HasDatabaseName("ix_objects_owner_person_id");
+
+                    b.HasIndex("ReplacedById")
+                        .HasDatabaseName("ix_objects_replaced_by_id");
 
                     b.HasIndex("ResponsiblePersonId")
                         .HasDatabaseName("ix_objects_responsible_person_id");
@@ -838,6 +895,130 @@ namespace MyDocs.Server.Data.Migrations
                     b.ToTable("system_settings", (string)null);
                 });
 
+            modelBuilder.Entity("MyDocs.Server.Data.TaskObject", b =>
+                {
+                    b.Property<Guid>("TaskId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("task_id");
+
+                    b.Property<Guid>("ObjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("object_id");
+
+                    b.HasKey("TaskId", "ObjectId")
+                        .HasName("pk_task_objects");
+
+                    b.HasIndex("ObjectId")
+                        .HasDatabaseName("ix_task_objects_object_id");
+
+                    b.ToTable("task_objects", (string)null);
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.WorkTask", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset?>("ClosedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("closed_at");
+
+                    b.Property<Guid?>("ClosedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("closed_by");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateOnly?>("DueOn")
+                        .HasColumnType("date")
+                        .HasColumnName("due_on");
+
+                    b.Property<string>("Kind")
+                        .IsRequired()
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(4000)
+                        .HasColumnType("character varying(4000)")
+                        .HasColumnName("note");
+
+                    b.Property<string>("Outcome")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("outcome");
+
+                    b.Property<string>("OutcomeNote")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("outcome_note");
+
+                    b.Property<string>("Priority")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("priority");
+
+                    b.Property<Guid?>("ResponsiblePersonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("responsible_person_id");
+
+                    b.Property<string>("RuleKey")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("rule_key");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("state");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<string>("TitleKey")
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("title_key");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.Property<DateOnly?>("WaitUntil")
+                        .HasColumnType("date")
+                        .HasColumnName("wait_until");
+
+                    b.HasKey("Id")
+                        .HasName("pk_tasks");
+
+                    b.HasIndex("ResponsiblePersonId")
+                        .HasDatabaseName("ix_tasks_responsible_person_id");
+
+                    b.HasIndex("RuleKey")
+                        .HasDatabaseName("ix_tasks_rule_key");
+
+                    b.HasIndex("State", "DueOn")
+                        .HasDatabaseName("ix_tasks_state_due_on");
+
+                    b.ToTable("tasks", (string)null);
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<System.Guid>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole<System.Guid>", null)
@@ -906,7 +1087,7 @@ namespace MyDocs.Server.Data.Migrations
 
                             b1.HasKey("IdentityUserPasskeyCredentialId");
 
-                            b1.ToTable("user_passkeys", (string)null);
+                            b1.ToTable("user_passkeys");
 
                             b1
                                 .ToJson("data")
@@ -948,6 +1129,21 @@ namespace MyDocs.Server.Data.Migrations
                         .HasConstraintName("fk_user_tokens_users_user_id");
                 });
 
+            modelBuilder.Entity("MyDocs.Server.Data.Comment", b =>
+                {
+                    b.HasOne("MyDocs.Server.Data.DocObject", null)
+                        .WithMany()
+                        .HasForeignKey("ObjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_comments_objects_object_id");
+
+                    b.HasOne("MyDocs.Server.Data.WorkTask", null)
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_comments_tasks_task_id");
+                });
+
             modelBuilder.Entity("MyDocs.Server.Data.DocObject", b =>
                 {
                     b.HasOne("MyDocs.Server.Data.Person", null)
@@ -955,6 +1151,12 @@ namespace MyDocs.Server.Data.Migrations
                         .HasForeignKey("OwnerPersonId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_objects_persons_owner_person_id");
+
+                    b.HasOne("MyDocs.Server.Data.DocObject", null)
+                        .WithMany()
+                        .HasForeignKey("ReplacedById")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_objects_objects_replaced_by_id");
 
                     b.HasOne("MyDocs.Server.Data.Person", null)
                         .WithMany()
@@ -1041,6 +1243,32 @@ namespace MyDocs.Server.Data.Migrations
                         .HasForeignKey("MyDocs.Server.Data.Person", "UserId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_persons_users_user_id");
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.TaskObject", b =>
+                {
+                    b.HasOne("MyDocs.Server.Data.DocObject", null)
+                        .WithMany()
+                        .HasForeignKey("ObjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_task_objects_objects_object_id");
+
+                    b.HasOne("MyDocs.Server.Data.WorkTask", null)
+                        .WithMany()
+                        .HasForeignKey("TaskId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_task_objects_tasks_task_id");
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.WorkTask", b =>
+                {
+                    b.HasOne("MyDocs.Server.Data.Person", null)
+                        .WithMany()
+                        .HasForeignKey("ResponsiblePersonId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_tasks_persons_responsible_person_id");
                 });
 #pragma warning restore 612, 618
         }

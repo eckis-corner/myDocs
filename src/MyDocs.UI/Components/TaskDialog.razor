@@ -1,0 +1,227 @@
+@* Vorgang anlegen, ändern und bearbeiten (11): Angaben, Status, Abschluss mit Ergebnis (15), Kommentare (50). *@
+@inject IStringLocalizer<SharedResource> L
+@inject TaskClient Tasks
+@inject ObjectDirectory Directory
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            @if (_task is not null)
+            {
+                <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                    <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@L[$"TaskKind_{_task.Kind}"]</MudChip>
+                    <MudChip T="string" Size="Size.Small" Color="@TaskView.StateColor(_task)" data-testid="task-state">@L[$"TaskState_{_task.State}"]</MudChip>
+                    @if (_task.WaitUntil is { } until)
+                    {
+                        <MudText Typo="Typo.caption">@L["TaskWaitUntilShort", until.ToString("d", CultureInfo.CurrentCulture)]</MudText>
+                    }
+                    @if (_task.Outcome is { } outcome)
+                    {
+                        <MudText Typo="Typo.caption">@L[$"TaskOutcome_{outcome}"]</MudText>
+                    }
+                </MudStack>
+            }
+            <MudTextField T="string" @bind-Value="_title" Label="@L["TaskTitle"]" Variant="Variant.Outlined" Required MaxLength="200" ReadOnly="!CanEdit"
+                          UserAttributes="@(new() { ["data-testid"] = "task-title" })" />
+            <MudGrid Spacing="2">
+                <MudItem xs="12" sm="6">
+                    <MudSelect T="Guid?" @bind-Value="_responsible" Label="@L["ObjectResponsible"]" Variant="Variant.Outlined" Clearable ReadOnly="!CanEdit">
+                        @foreach (var person in Directory.Accounts)
+                        {
+                            <MudSelectItem T="Guid?" Value="@person.Id">@person.DisplayName</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="3">
+                    <MudDatePicker Label="@L["TaskDue"]" @bind-Date="_due" Variant="Variant.Outlined" Editable Clearable ReadOnly="!CanEdit" />
+                </MudItem>
+                <MudItem xs="12" sm="3">
+                    <MudSwitch T="bool" @bind-Value="_high" Label="@L["TaskImportant"]" Color="Color.Warning" ReadOnly="!CanEdit" />
+                </MudItem>
+            </MudGrid>
+            <MudTextField T="string" @bind-Value="_note" Label="@L["Note"]" Variant="Variant.Outlined" Lines="2" MaxLength="4000" ReadOnly="!CanEdit" />
+            @if (_task is not null && _task.ObjectIds.Count > 0)
+            {
+                <MudText Typo="Typo.body2">
+                    @L["TaskObjects"]:
+                    @foreach (var id in _task.ObjectIds)
+                    {
+                        <MudLink Href="@($"object/{id}")" Class="mr-2">@(Directory.TitleOf(id) ?? "?")</MudLink>
+                    }
+                </MudText>
+            }
+
+            @if (_task is not null && CanEdit)
+            {
+                <MudDivider />
+                @if (_closing)
+                {
+                    <MudStack Spacing="2" data-testid="task-closing">
+                        @if (TaskKinds.NeedOutcome.Contains(_task.Kind))
+                        {
+                            <MudSelect T="string" @bind-Value="_outcome" Label="@L["TaskOutcome"]" Variant="Variant.Outlined" Required HelperText="@L["TaskOutcomeHelp"]"
+                                       UserAttributes="@(new() { ["data-testid"] = "task-outcome" })">
+                                @foreach (var outcome in TaskOutcomes.All)
+                                {
+                                    <MudSelectItem T="string" Value="@outcome">@L[$"TaskOutcome_{outcome}"]</MudSelectItem>
+                                }
+                            </MudSelect>
+                        }
+                        <MudTextField T="string" @bind-Value="_outcomeNote" Label="@L["TaskOutcomeNote"]" Variant="Variant.Outlined" Lines="2" />
+                        <MudStack Row Spacing="2">
+                            <MudButton Variant="Variant.Filled" Color="Color.Success" OnClick="() => StateAsync(TaskStates.Done)"
+                                       Disabled="@(TaskKinds.NeedOutcome.Contains(_task.Kind) && _outcome is null)" data-testid="task-done">@L["TaskDone"]</MudButton>
+                            <MudButton Variant="Variant.Text" OnClick="() => _closing = false">@L["Cancel"]</MudButton>
+                        </MudStack>
+                    </MudStack>
+                }
+                else if (_waiting)
+                {
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                        <MudDatePicker Label="@L["TaskWaitUntil"]" @bind-Date="_waitUntil" Variant="Variant.Outlined" Editable MinDate="DateTime.Today.AddDays(1)" />
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="_waitUntil is null" OnClick="() => StateAsync(TaskStates.Waiting)">@L["Save"]</MudButton>
+                        <MudButton Variant="Variant.Text" OnClick="() => _waiting = false">@L["Cancel"]</MudButton>
+                    </MudStack>
+                }
+                else
+                {
+                    <MudStack Row Wrap="Wrap.Wrap" Spacing="2">
+                        @if (TaskStates.Closed.Contains(_task.State))
+                        {
+                            <MudButton Variant="Variant.Outlined" OnClick="() => StateAsync(TaskStates.Open)">@L["TaskReopen"]</MudButton>
+                        }
+                        else
+                        {
+                            <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.Check" OnClick="() => _closing = true" data-testid="task-close">@L["TaskClose"]</MudButton>
+                            @if (_task.State != TaskStates.InProgress)
+                            {
+                                <MudButton Variant="Variant.Outlined" OnClick="() => StateAsync(TaskStates.InProgress)">@L["TaskStart"]</MudButton>
+                            }
+                            <MudButton Variant="Variant.Outlined" OnClick="() => _waiting = true">@L["TaskWait"]</MudButton>
+                            <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="() => StateAsync(TaskStates.Discarded)">@L["TaskDiscard"]</MudButton>
+                        }
+                    </MudStack>
+                }
+            }
+
+            @if (_task is not null)
+            {
+                <MudDivider />
+                <MudText Typo="Typo.subtitle2"><b>@L["CommentsTitle"]</b></MudText>
+                <CommentList Comments="_comments" CanWrite="CanEdit" OnAdd="AddCommentAsync" OnDelete="DeleteCommentAsync" />
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="() => Dialog.Close(DialogResult.Ok(_changed))">@L["Close"]</MudButton>
+        @if (CanEdit)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveAsync" Disabled="string.IsNullOrWhiteSpace(_title)" data-testid="task-save">@L["Save"]</MudButton>
+        }
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private TaskDto? _task;
+    private string? _title;
+    private string? _note;
+    private Guid? _responsible;
+    private DateTime? _due;
+    private bool _high;
+    private bool _closing;
+    private bool _waiting;
+    private DateTime? _waitUntil;
+    private string? _outcome;
+    private string? _outcomeNote;
+    private bool _changed;
+    private List<CommentDto> _comments = [];
+
+    [CascadingParameter] private IMudDialogInstance Dialog { get; set; } = default!;
+
+    /// <summary>Bestehender Vorgang; null für einen neuen.</summary>
+    [Parameter] public TaskDto? Task { get; set; }
+
+    /// <summary>Objekte eines neuen Vorgangs (von der Objektseite).</summary>
+    [Parameter] public IReadOnlyList<Guid> ObjectIds { get; set; } = [];
+
+    [Parameter] public Guid? DefaultResponsible { get; set; }
+
+    [Parameter] public bool CanCreate { get; set; } = true;
+
+    private bool CanEdit => _task?.CanEdit ?? CanCreate;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (Directory.Persons.Count == 0)
+        {
+            await Directory.LoadAsync();
+        }
+
+        if (Task is not null)
+        {
+            Show(Task);
+            _comments = await Tasks.TaskCommentsAsync(Task.Id);
+        }
+        else
+        {
+            _responsible = DefaultResponsible;
+        }
+    }
+
+    private void Show(TaskDto task)
+    {
+        _task = task;
+        _title = TaskView.Title(task, L);
+        _note = task.Note;
+        _responsible = task.ResponsiblePersonId;
+        _due = task.DueOn?.ToDateTime(TimeOnly.MinValue);
+        _high = task.Priority == TaskPriorities.High;
+        _closing = _waiting = false;
+        _outcome = null;
+        _outcomeNote = null;
+    }
+
+    private TaskSaveRequest Request() => new(_title ?? string.Empty, _note, _responsible, _due is { } d ? DateOnly.FromDateTime(d) : null,
+        _high ? TaskPriorities.High : TaskPriorities.Normal, _task?.ObjectIds ?? ObjectIds, _task?.Version ?? 0);
+
+    private async Task SaveAsync()
+    {
+        try
+        {
+            var saved = _task is null ? await Tasks.CreateAsync(Request()) : await Tasks.UpdateAsync(_task.Id, Request());
+            Dialog.Close(DialogResult.Ok(true));
+            _ = saved;
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"TaskError_{exception.Code}"], Severity.Error);
+        }
+    }
+
+    private async Task StateAsync(string state)
+    {
+        try
+        {
+            var updated = await Tasks.SetStateAsync(_task!.Id, new TaskStateRequest(state, _waitUntil is { } w ? DateOnly.FromDateTime(w) : null, _outcome, _outcomeNote, _task.Version));
+            _changed = true;
+            Show(updated);
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"TaskError_{exception.Code}"], Severity.Error);
+        }
+    }
+
+    private async Task AddCommentAsync(string text)
+    {
+        await Tasks.AddTaskCommentAsync(_task!.Id, text);
+        _comments = await Tasks.TaskCommentsAsync(_task.Id);
+    }
+
+    private async Task DeleteCommentAsync(CommentDto comment)
+    {
+        await Tasks.DeleteCommentAsync(comment.Id);
+        _comments = await Tasks.TaskCommentsAsync(_task!.Id);
+    }
+}

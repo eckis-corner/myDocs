@@ -50,6 +50,8 @@
   <data name="Audit_passkey-added" xml:space="preserve"><value>Passkey added</value></data>
   <data name="Audit_passkey-removed" xml:space="preserve"><value>Passkey removed</value></data>
   <data name="Audit_setup-completed" xml:space="preserve"><value>myDocs set up</value></data>
+  <data name="Audit_task-closed" xml:space="preserve"><value>Task closed</value></data>
+  <data name="Audit_task-created" xml:space="preserve"><value>Task created</value></data>
   <data name="Audit_trash-purged" xml:space="preserve"><value>Trash emptied</value></data>
   <data name="Audit_user-changed" xml:space="preserve"><value>Account changed</value></data>
   <data name="Audit_user-created" xml:space="preserve"><value>Account created</value></data>
@@ -85,6 +87,10 @@
   <data name="BirthDate" xml:space="preserve"><value>Date of birth</value></data>
   <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Close" xml:space="preserve"><value>Close</value></data>
+  <data name="CommentAdd" xml:space="preserve"><value>Comment</value></data>
+  <data name="CommentSend" xml:space="preserve"><value>Send</value></data>
+  <data name="CommentsNone" xml:space="preserve"><value>No comments yet.</value></data>
+  <data name="CommentsTitle" xml:space="preserve"><value>Comments</value></data>
   <data name="Confirm" xml:space="preserve"><value>Confirm</value></data>
   <data name="Copied" xml:space="preserve"><value>Copied to the clipboard.</value></data>
   <data name="CopyLink" xml:space="preserve"><value>Copy link</value></data>
@@ -137,6 +143,30 @@
   <data name="Language" xml:space="preserve"><value>Language</value></data>
   <data name="LanguageName_de" xml:space="preserve"><value>Deutsch</value></data>
   <data name="LanguageName_en" xml:space="preserve"><value>English</value></data>
+  <data name="LifecycleChange" xml:space="preserve"><value>Change state</value></data>
+  <data name="LifecycleDateLabel" xml:space="preserve"><value>Date of state</value></data>
+  <data name="LifecycleDate_cancelled" xml:space="preserve"><value>Cancelled as of</value></data>
+  <data name="LifecycleDate_disposed" xml:space="preserve"><value>Disposed of on</value></data>
+  <data name="LifecycleDate_ended" xml:space="preserve"><value>Ended on</value></data>
+  <data name="LifecycleFollowUp_archived" xml:space="preserve"><value>Archived entries disappear from the lists; search still finds them.</value></data>
+  <data name="LifecycleFollowUp_cancelled" xml:space="preserve"><value>myDocs creates the task “File the cancellation confirmation”, due in 14 days.</value></data>
+  <data name="LifecycleFollowUp_disposed" xml:space="preserve"><value>myDocs creates the task “Check related contracts” with all entries that refer to this one.</value></data>
+  <data name="LifecycleFollowUp_ended" xml:space="preserve"><value>myDocs creates the tasks “Check the final invoice” and “Check the direct debit”.</value></data>
+  <data name="LifecycleLabel" xml:space="preserve"><value>State</value></data>
+  <data name="LifecycleNew" xml:space="preserve"><value>New state</value></data>
+  <data name="LifecycleReplacedBy" xml:space="preserve"><value>Replaced by</value></data>
+  <data name="LifecycleReplacedByLink" xml:space="preserve"><value>Replaced by {0}</value></data>
+  <data name="Lifecycle_active" xml:space="preserve"><value>active</value></data>
+  <data name="Lifecycle_archived" xml:space="preserve"><value>archived</value></data>
+  <data name="Lifecycle_cancelled" xml:space="preserve"><value>cancelled</value></data>
+  <data name="Lifecycle_disposed" xml:space="preserve"><value>disposed of</value></data>
+  <data name="Lifecycle_draft" xml:space="preserve"><value>being concluded</value></data>
+  <data name="Lifecycle_ended" xml:space="preserve"><value>ended</value></data>
+  <data name="Lifecycle_expired" xml:space="preserve"><value>expired</value></data>
+  <data name="Lifecycle_expiring" xml:space="preserve"><value>expiring</value></data>
+  <data name="Lifecycle_present" xml:space="preserve"><value>present</value></data>
+  <data name="Lifecycle_replaced" xml:space="preserve"><value>replaced</value></data>
+  <data name="Lifecycle_valid" xml:space="preserve"><value>valid</value></data>
   <data name="Loading" xml:space="preserve"><value>Loading …</value></data>
   <data name="LocationNoneYet" xml:space="preserve"><value>No storage places yet. Create them in the area “Storage places”.</value></data>
   <data name="LoginNext" xml:space="preserve"><value>Next</value></data>
@@ -171,8 +201,11 @@
   <data name="ObjectError_forbidden" xml:space="preserve"><value>You do not have permission for this.</value></data>
   <data name="ObjectError_http-404" xml:space="preserve"><value>Not found.</value></data>
   <data name="ObjectError_invalid" xml:space="preserve"><value>Please check the highlighted fields.</value></data>
+  <data name="ObjectError_lifecycle-date-required" xml:space="preserve"><value>Please enter a date.</value></data>
+  <data name="ObjectError_lifecycle-invalid" xml:space="preserve"><value>This change is not possible.</value></data>
   <data name="ObjectError_not-found" xml:space="preserve"><value>This entry does not exist or you may not see it.</value></data>
   <data name="ObjectError_owner-invalid" xml:space="preserve"><value>Ownership cannot be changed this way.</value></data>
+  <data name="ObjectError_replacement-invalid" xml:space="preserve"><value>Please choose a successor of the same kind.</value></data>
   <data name="ObjectError_type-only-in-mylife" xml:space="preserve"><value>This kind of entry is kept in myLife.</value></data>
   <data name="ObjectError_type-unknown" xml:space="preserve"><value>This kind of entry does not exist.</value></data>
   <data name="ObjectLinkedFrom" xml:space="preserve"><value>Referenced by</value></data>
@@ -213,6 +246,8 @@
   <data name="Role_member" xml:space="preserve"><value>Member</value></data>
   <data name="RowsPerPage" xml:space="preserve"><value>Rows per page</value></data>
   <data name="Save" xml:space="preserve"><value>Save</value></data>
+  <data name="ScopeHousehold" xml:space="preserve"><value>Household</value></data>
+  <data name="ScopeMine" xml:space="preserve"><value>Mine</value></data>
   <data name="SearchDocumentIn" xml:space="preserve"><value>Document of {0}</value></data>
   <data name="SearchHelp" xml:space="preserve"><value>Searches titles, all fields, notes and document names, also for parts of numbers or with typos.</value></data>
   <data name="SearchHits" xml:space="preserve"><value>{0} results</value></data>
@@ -239,6 +274,58 @@
   <data name="SharesIntro" xml:space="preserve"><value>This entry is private. Share it with individual people to read or edit.</value></data>
   <data name="SharesTitle" xml:space="preserve"><value>Sharing</value></data>
   <data name="SkipToContent" xml:space="preserve"><value>Skip to content</value></data>
+  <data name="TaskClose" xml:space="preserve"><value>Complete</value></data>
+  <data name="TaskDiscard" xml:space="preserve"><value>Discard</value></data>
+  <data name="TaskDone" xml:space="preserve"><value>Done</value></data>
+  <data name="TaskDue" xml:space="preserve"><value>Due</value></data>
+  <data name="TaskError_conflict" xml:space="preserve"><value>Someone else changed the task in the meantime. Please reopen it.</value></data>
+  <data name="TaskError_forbidden" xml:space="preserve"><value>You do not have permission for this.</value></data>
+  <data name="TaskError_not-found" xml:space="preserve"><value>This task does not exist or you may not see it.</value></data>
+  <data name="TaskError_outcome-required" xml:space="preserve"><value>Please choose an outcome.</value></data>
+  <data name="TaskError_responsible-invalid" xml:space="preserve"><value>Only a person with an account can be responsible.</value></data>
+  <data name="TaskError_state-invalid" xml:space="preserve"><value>This status does not exist.</value></data>
+  <data name="TaskError_title-required" xml:space="preserve"><value>Please describe what needs doing.</value></data>
+  <data name="TaskError_wait-until-required" xml:space="preserve"><value>“Waiting for others” needs a future date, otherwise the task is forgotten.</value></data>
+  <data name="TaskImportant" xml:space="preserve"><value>Important</value></data>
+  <data name="TaskKind" xml:space="preserve"><value>Kind</value></data>
+  <data name="TaskKind_cleanup" xml:space="preserve"><value>Clean-up</value></data>
+  <data name="TaskKind_deadline" xml:space="preserve"><value>Deadline</value></data>
+  <data name="TaskKind_inbox" xml:space="preserve"><value>Inbox</value></data>
+  <data name="TaskKind_mylife-sync" xml:space="preserve"><value>myLife sync</value></data>
+  <data name="TaskKind_review" xml:space="preserve"><value>Review</value></data>
+  <data name="TaskKind_task" xml:space="preserve"><value>Task</value></data>
+  <data name="TaskNew" xml:space="preserve"><value>New task</value></data>
+  <data name="TaskObjects" xml:space="preserve"><value>Concerns</value></data>
+  <data name="TaskOutcome" xml:space="preserve"><value>Outcome</value></data>
+  <data name="TaskOutcomeHelp" xml:space="preserve"><value>Reviews and deadlines need an outcome.</value></data>
+  <data name="TaskOutcomeNote" xml:space="preserve"><value>What came of it?</value></data>
+  <data name="TaskOutcome_cancelled" xml:space="preserve"><value>cancelled</value></data>
+  <data name="TaskOutcome_changed" xml:space="preserve"><value>changed</value></data>
+  <data name="TaskOutcome_replaced" xml:space="preserve"><value>replaced</value></data>
+  <data name="TaskOutcome_unchanged" xml:space="preserve"><value>checked, unchanged</value></data>
+  <data name="TaskOverdue" xml:space="preserve"><value>overdue</value></data>
+  <data name="TaskReopen" xml:space="preserve"><value>Reopen</value></data>
+  <data name="TaskStart" xml:space="preserve"><value>Start</value></data>
+  <data name="TaskStateLabel" xml:space="preserve"><value>Status</value></data>
+  <data name="TaskState_discarded" xml:space="preserve"><value>discarded</value></data>
+  <data name="TaskState_done" xml:space="preserve"><value>done</value></data>
+  <data name="TaskState_in-progress" xml:space="preserve"><value>in progress</value></data>
+  <data name="TaskState_open" xml:space="preserve"><value>open</value></data>
+  <data name="TaskState_waiting" xml:space="preserve"><value>waiting for others</value></data>
+  <data name="TaskTitle" xml:space="preserve"><value>What needs doing?</value></data>
+  <data name="TaskTitle_cancellation-confirmation" xml:space="preserve"><value>File the cancellation confirmation</value></data>
+  <data name="TaskTitle_check-related-contracts" xml:space="preserve"><value>Check related contracts</value></data>
+  <data name="TaskTitle_create-replacement" xml:space="preserve"><value>Create a replacement</value></data>
+  <data name="TaskTitle_direct-debit" xml:space="preserve"><value>Check the direct debit</value></data>
+  <data name="TaskTitle_final-invoice" xml:space="preserve"><value>Check the final invoice</value></data>
+  <data name="TaskTitle_renew-or-replace" xml:space="preserve"><value>Renew or replace?</value></data>
+  <data name="TaskWait" xml:space="preserve"><value>Waiting for others</value></data>
+  <data name="TaskWaitUntil" xml:space="preserve"><value>Follow up on</value></data>
+  <data name="TaskWaitUntilShort" xml:space="preserve"><value>until {0}</value></data>
+  <data name="TasksEmpty" xml:space="preserve"><value>No tasks.</value></data>
+  <data name="TasksIntro" xml:space="preserve"><value>What needs doing in the household: reviews, deadlines and tasks, created by rules or by hand.</value></data>
+  <data name="TasksShowClosed" xml:space="preserve"><value>Show closed</value></data>
+  <data name="TasksTitle" xml:space="preserve"><value>Tasks</value></data>
   <data name="ToggleDarkMode" xml:space="preserve"><value>Toggle light/dark mode</value></data>
   <data name="TotpCode" xml:space="preserve"><value>Code from the authenticator app</value></data>
   <data name="TrashEmpty" xml:space="preserve"><value>The trash is empty.</value></data>

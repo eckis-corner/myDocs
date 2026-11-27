@@ -60,12 +60,12 @@ public sealed class ObjectData : IEditableFieldValues
 
 /// <summary>Eintrag in Listen: genug für Tabelle, Suche und Verweise.</summary>
 public sealed record ObjectSummaryDto(Guid Id, string TypeKey, string Title, Guid? OwnerPersonId, Guid? ResponsiblePersonId,
-    DateOnly? ExpiresOn, DateTimeOffset UpdatedAt, Dictionary<string, string> Fields);
+    DateOnly? ExpiresOn, DateTimeOffset UpdatedAt, Dictionary<string, string> Fields, string? LifecycleState = null, DateOnly? LifecycleDate = null);
 
 /// <summary>Ein Objekt mit allem, was die Objektseite braucht, und den Rechten des Aufrufers.</summary>
 public sealed record ObjectDto(Guid Id, string TypeKey, ObjectData Data, Guid? OwnerPersonId, Guid? ResponsiblePersonId,
     IReadOnlyList<ObjectShareDto> Shares, bool CanEdit, bool CanManage, uint Version, DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt,
-    DateTimeOffset? DeletedAt);
+    DateTimeOffset? DeletedAt, string? LifecycleState = null, DateOnly? LifecycleDate = null, Guid? ReplacedById = null);
 
 /// <summary>Neu anlegen oder speichern. <paramref name="OwnerPersonId"/> null heißt Haushalt.</summary>
 public sealed record ObjectSaveRequest(string TypeKey, ObjectData Data, Guid? OwnerPersonId, Guid? ResponsiblePersonId, uint Version = 0);
@@ -87,6 +87,9 @@ public static class ObjectErrors
     public const string ResponsibleRequired = "responsible-required";
     public const string OwnerInvalid = "owner-invalid";
     public const string TypeOnlyInMyLife = "type-only-in-mylife";
+    public const string LifecycleInvalid = "lifecycle-invalid";
+    public const string LifecycleDateRequired = "lifecycle-date-required";
+    public const string ReplacementInvalid = "replacement-invalid";
 }
 
 /// <summary>Validierungsfehler eines Objekts: Feldschlüssel (oder <c>title</c>) → Fehlercode.</summary>

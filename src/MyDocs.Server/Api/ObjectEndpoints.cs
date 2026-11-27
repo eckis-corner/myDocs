@@ -5,6 +5,7 @@ using MyCommon.Catalog;
 using MyDocs.Server.Data;
 using MyDocs.Server.Infrastructure.Audit;
 using MyDocs.Server.Infrastructure.Objects;
+using MyDocs.Server.Infrastructure.Tasks;
 using MyDocs.Shared.Audit;
 using MyDocs.Shared.Objects;
 
@@ -25,13 +26,17 @@ internal static class ObjectEndpoints
         group.MapPost("/{id:guid}/restore", RestoreAsync);
         group.MapPut("/{id:guid}/shares", SharesAsync);
         group.MapGet("/{id:guid}/history", HistoryAsync);
+        group.MapPost("/{id:guid}/lifecycle", LifecycleAsync);
         return app;
     }
 
-    private static async Task<IResult> ListAsync(int? area, string? type, ClaimsPrincipal principal, ObjectAccess access, CancellationToken ct)
+    private static async Task<IResult> ListAsync(int? area, string? type, bool? archived, ClaimsPrincipal principal, ObjectAccess access, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
-        var query = access.Visible(caller);
+        // Archivierte Einträge verschwinden aus den Listen (29), bleiben aber über die Suche und den Schalter „Archiv“ erreichbar.
+        var query = archived == true
+            ? access.Visible(caller).Where(o => o.LifecycleState == LifecycleStates.Archived)
+            : access.Visible(caller).Where(o => o.LifecycleState == null || o.LifecycleState != LifecycleStates.Archived);
         if (type is not null)
         {
             query = query.Where(o => o.TypeKey == type);
@@ -104,6 +109,7 @@ internal static class ObjectEndpoints
             UpdatedAt = now,
             OwnerPersonId = request.OwnerPersonId,
             ResponsiblePersonId = request.ResponsiblePersonId,
+            LifecycleState = Lifecycle.InitialState(type.Key),
         };
         Apply(item, request.Data);
         db.Objects.Add(item);
@@ -264,6 +270,68 @@ internal static class ObjectEndpoints
         return TypedResults.Ok(entries);
     }
 
+    /// <summary>
+    /// Wechsel im Lebenszyklus (9, 10): nur erlaubte Wechsel des Musters, mit Datum, wo es eins braucht, und mit
+    /// Nachfolger bei „ersetzt“. Legt die Folgevorgänge an.
+    /// </summary>
+    private static async Task<IResult> LifecycleAsync(Guid id, LifecycleChangeRequest request, ClaimsPrincipal principal, ObjectAccess access,
+        MyDocsDbContext db, AuditLog audit, TimeProvider time, CancellationToken ct)
+    {
+        var caller = await access.CallerAsync(principal, ct);
+        if (await access.Visible(caller).FirstOrDefaultAsync(o => o.Id == id, ct) is not { } item)
+        {
+            return NotFound();
+        }
+
+        if (!await access.CanEditAsync(caller, item, ct))
+        {
+            return Forbidden();
+        }
+
+        if (!Lifecycle.CanChange(item.TypeKey, item.LifecycleState, request.State))
+        {
+            return ApiProblems.Of(ObjectErrors.LifecycleInvalid);
+        }
+
+        if (Lifecycle.NeedsDate(request.State) && request.Date is null)
+        {
+            return ApiProblems.Of(ObjectErrors.LifecycleDateRequired);
+        }
+
+        if (request.State == LifecycleStates.Replaced
+            && (request.ReplacedById is not { } successor || successor == item.Id
+                || !await access.Visible(caller).AnyAsync(o => o.Id == successor && o.TypeKey == item.TypeKey, ct)))
+        {
+            return ApiProblems.Of(ObjectErrors.ReplacementInvalid);
+        }
+
+        db.Entry(item).Property(o => o.Version).OriginalValue = request.Version;
+        var now = time.GetUtcNow();
+        var before = new Dictionary<string, string?> { ["lifecycle"] = item.LifecycleState, ["lifecycleDate"] = item.LifecycleDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) };
+        item.LifecycleState = request.State;
+        item.LifecycleDate = Lifecycle.NeedsDate(request.State) ? request.Date : null;
+        item.ReplacedById = request.State == LifecycleStates.Replaced ? request.ReplacedById : null;
+        item.UpdatedAt = now;
+        AddHistory(db, item, before, new() { ["lifecycle"] = item.LifecycleState, ["lifecycleDate"] = item.LifecycleDate?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) }, caller.UserId, now);
+        var today = DateOnly.FromDateTime(now.UtcDateTime);
+        // Beim Abgeben eines Fahrzeugs oder einer Immobilie gehören die Verträge, die darauf verweisen, mit in den Vorgang.
+        var related = request.State == LifecycleStates.Disposed
+            ? (await access.Visible(caller).Where(o => o.Id != item.Id).ToListAsync(ct)).Where(o => o.Fields.ContainsValue(item.Id.ToString())).Select(o => o.Id).ToList()
+            : [];
+        FollowUps.Create(db, item, request.State, today, now, caller.UserId, related);
+        audit.Add(AuditActions.ObjectChanged, caller.UserId, item.OwnerPersonId, item.Id, title: item.Title, details: $"lifecycle: {request.State}");
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return ApiProblems.Of(ObjectErrors.Conflict, StatusCodes.Status409Conflict);
+        }
+
+        return TypedResults.Ok(await ToDtoAsync(item, caller, access, db, ct));
+    }
+
     private static async Task<IResult?> ValidateAsync(ObjectTypeDefinition type, ObjectSaveRequest request, MyDocsDbContext db, CancellationToken ct)
     {
         var errors = MyDocsCatalog.Validate(type, request.Data ?? new ObjectData());
@@ -329,7 +397,7 @@ internal static class ObjectEndpoints
     }
 
     private static ObjectSummaryDto Summary(DocObject o) =>
-        new(o.Id, o.TypeKey, o.Title, o.OwnerPersonId, o.ResponsiblePersonId, o.ExpiresOn, o.UpdatedAt, o.Fields);
+        new(o.Id, o.TypeKey, o.Title, o.OwnerPersonId, o.ResponsiblePersonId, o.ExpiresOn, o.UpdatedAt, o.Fields, o.LifecycleState, o.LifecycleDate);
 
     private static async Task<ObjectDto> ToDtoAsync(DocObject item, Caller caller, ObjectAccess access, MyDocsDbContext db, CancellationToken ct)
     {
@@ -339,7 +407,8 @@ internal static class ObjectEndpoints
             ? await db.ObjectShares.Where(s => s.ObjectId == item.Id).Select(s => new ObjectShareDto(s.UserId, s.CanEdit)).ToListAsync(ct)
             : [];
         return new ObjectDto(item.Id, item.TypeKey, data, item.OwnerPersonId, item.ResponsiblePersonId, shares,
-            !item.IsDeleted && await access.CanEditAsync(caller, item, ct), canManage, item.Version, item.CreatedAt, item.UpdatedAt, item.DeletedAt);
+            !item.IsDeleted && await access.CanEditAsync(caller, item, ct), canManage, item.Version, item.CreatedAt, item.UpdatedAt, item.DeletedAt,
+            item.LifecycleState, item.LifecycleDate, item.ReplacedById);
     }
 
     private static IResult NotFound() => ApiProblems.Of(ObjectErrors.NotFound, StatusCodes.Status404NotFound);

@@ -1,0 +1,68 @@
+@page "/tasks"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@inject IStringLocalizer<SharedResource> L
+@inject TaskClient Tasks
+@inject ObjectDirectory Directory
+@inject SessionService Session
+@inject IDialogService Dialogs
+
+<PageTitle>@L["AppName"] – @L["TasksTitle"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudStack Row AlignItems="AlignItems.Center" Wrap="Wrap.Wrap" Spacing="2">
+        <MudText Typo="Typo.h4" HtmlTag="h1">@L["TasksTitle"]</MudText>
+        <MudSpacer />
+        <MudToggleGroup T="bool" Value="_mine" ValueChanged="MineChanged" Size="Size.Small" Color="Color.Primary" SelectionMode="SelectionMode.SingleSelection">
+            <MudToggleItem Value="true" Text="@L["ScopeMine"]" />
+            <MudToggleItem Value="false" Text="@L["ScopeHousehold"]" />
+        </MudToggleGroup>
+        <MudSwitch T="bool" Value="_closed" ValueChanged="ClosedChanged" Label="@L["TasksShowClosed"]" Color="Color.Primary" />
+        @if (_canCreate)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="CreateAsync" data-testid="task-create">@L["TaskNew"]</MudButton>
+        }
+    </MudStack>
+    <MudText Typo="Typo.body2" Class="mydocs-muted">@L["TasksIntro"]</MudText>
+    <TaskTable Items="_tasks" OnChanged="LoadAsync" />
+</MudStack>
+
+@code {
+    private List<TaskDto>? _tasks;
+    private bool _mine = true;
+    private bool _closed;
+    private bool _canCreate;
+
+    [CascadingParameter] private Task<Microsoft.AspNetCore.Components.Authorization.AuthenticationState>? AuthState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _canCreate = AuthState is not null && (await AuthState).User.IsInRole(HouseholdRoles.Member);
+        await Session.GetAuthenticationStateAsync();
+        await Directory.LoadAsync();
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync() => _tasks = await Tasks.ListAsync(_mine, !_closed);
+
+    private async Task MineChanged(bool mine)
+    {
+        _mine = mine;
+        await LoadAsync();
+    }
+
+    private async Task ClosedChanged(bool closed)
+    {
+        _closed = closed;
+        await LoadAsync();
+    }
+
+    private async Task CreateAsync()
+    {
+        var parameters = new DialogParameters<TaskDialog> { { d => d.DefaultResponsible, Session.Me?.PersonId } };
+        var dialog = await Dialogs.ShowAsync<TaskDialog>(L["TaskNew"], parameters, new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
+        if (await dialog.Result is { Canceled: false })
+        {
+            await LoadAsync();
+        }
+    }
+}

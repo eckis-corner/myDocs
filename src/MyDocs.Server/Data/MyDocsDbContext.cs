@@ -36,6 +36,12 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
 
     public DbSet<AuditEntry> AuditLog => Set<AuditEntry>();
 
+    public DbSet<WorkTask> Tasks => Set<WorkTask>();
+
+    public DbSet<TaskObject> TaskObjects => Set<TaskObject>();
+
+    public DbSet<Comment> Comments => Set<Comment>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -83,6 +89,8 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
             entity.Property(x => x.Locations).HasColumnType("jsonb").HasConversion(Json<Dictionary<string, Guid>>(), JsonComparer<Dictionary<string, Guid>>());
             entity.Property(x => x.Version).IsRowVersion();
             SearchColumns(entity);
+            entity.Property(x => x.LifecycleState).HasMaxLength(30);
+            entity.HasOne<DocObject>().WithMany().HasForeignKey(x => x.ReplacedById).OnDelete(DeleteBehavior.SetNull);
             entity.HasIndex(x => x.TypeKey);
             entity.HasIndex(x => x.OwnerPersonId);
             entity.HasOne<Person>().WithMany().HasForeignKey(x => x.OwnerPersonId).OnDelete(DeleteBehavior.Restrict);
@@ -136,6 +144,43 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
             entity.HasKey(x => new { x.DocumentId, x.ObjectId });
             entity.HasIndex(x => x.ObjectId);
             entity.HasOne<Document>().WithMany().HasForeignKey(x => x.DocumentId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<DocObject>().WithMany().HasForeignKey(x => x.ObjectId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<WorkTask>(entity =>
+        {
+            entity.ToTable("tasks");
+            entity.Property(x => x.Kind).HasMaxLength(30);
+            entity.Property(x => x.Title).HasMaxLength(200);
+            entity.Property(x => x.TitleKey).HasMaxLength(100);
+            entity.Property(x => x.RuleKey).HasMaxLength(200);
+            entity.Property(x => x.Note).HasMaxLength(4000);
+            entity.Property(x => x.Priority).HasMaxLength(20);
+            entity.Property(x => x.State).HasMaxLength(20);
+            entity.Property(x => x.Outcome).HasMaxLength(30);
+            entity.Property(x => x.OutcomeNote).HasMaxLength(2000);
+            entity.Property(x => x.Version).IsRowVersion();
+            entity.HasIndex(x => new { x.State, x.DueOn });
+            entity.HasIndex(x => x.RuleKey);
+            entity.HasOne<Person>().WithMany().HasForeignKey(x => x.ResponsiblePersonId).OnDelete(DeleteBehavior.SetNull);
+        });
+
+        builder.Entity<TaskObject>(entity =>
+        {
+            entity.ToTable("task_objects");
+            entity.HasKey(x => new { x.TaskId, x.ObjectId });
+            entity.HasIndex(x => x.ObjectId);
+            entity.HasOne<WorkTask>().WithMany().HasForeignKey(x => x.TaskId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<DocObject>().WithMany().HasForeignKey(x => x.ObjectId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Comment>(entity =>
+        {
+            entity.ToTable("comments");
+            entity.Property(x => x.Text).HasMaxLength(4000);
+            entity.HasIndex(x => x.TaskId);
+            entity.HasIndex(x => x.ObjectId);
+            entity.HasOne<WorkTask>().WithMany().HasForeignKey(x => x.TaskId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne<DocObject>().WithMany().HasForeignKey(x => x.ObjectId).OnDelete(DeleteBehavior.Cascade);
         });
 

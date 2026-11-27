@@ -1,0 +1,50 @@
+@* Kommentarverlauf (50): ohne @-Erwähnungen, eigene Kommentare lassen sich löschen. *@
+@inject IStringLocalizer<SharedResource> L
+@inject SessionService Session
+
+<MudStack Spacing="2" data-testid="comments">
+    @foreach (var comment in Comments)
+    {
+        <div>
+            <MudText Typo="Typo.caption" Class="mydocs-muted">
+                @comment.AuthorName · @comment.At.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)
+                @if (comment.AuthorId == Session.Me?.Id)
+                {
+                    <MudIconButton Icon="@Icons.Material.Outlined.Delete" Size="Size.Small" aria-label="@L["Delete"]" OnClick="() => OnDelete.InvokeAsync(comment)" />
+                }
+            </MudText>
+            <MudText Typo="Typo.body2" Class="mydocs-multiline">@comment.Text</MudText>
+        </div>
+    }
+    @if (Comments.Count == 0)
+    {
+        <MudText Typo="Typo.body2" Class="mydocs-muted">@L["CommentsNone"]</MudText>
+    }
+    @if (CanWrite)
+    {
+        <MudStack Row AlignItems="AlignItems.End" Spacing="2">
+            <MudTextField T="string" @bind-Value="_text" Label="@L["CommentAdd"]" Variant="Variant.Outlined" Lines="1" Sizing="InputSizing.Auto" MaxLength="4000" Class="flex-grow-1"
+                          UserAttributes="@(new() { ["data-testid"] = "comment-text" })" />
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" Disabled="string.IsNullOrWhiteSpace(_text)" OnClick="AddAsync" data-testid="comment-add">@L["CommentSend"]</MudButton>
+        </MudStack>
+    }
+</MudStack>
+
+@code {
+    private string? _text;
+
+    [Parameter] public IReadOnlyList<CommentDto> Comments { get; set; } = [];
+
+    [Parameter] public bool CanWrite { get; set; }
+
+    [Parameter] public EventCallback<string> OnAdd { get; set; }
+
+    [Parameter] public EventCallback<CommentDto> OnDelete { get; set; }
+
+    private async Task AddAsync()
+    {
+        var text = _text!;
+        _text = null;
+        await OnAdd.InvokeAsync(text);
+    }
+}

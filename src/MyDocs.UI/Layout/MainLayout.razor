@@ -37,6 +37,7 @@
             <MudNavMenu Class="mydocs-nav mydocs-nav-main">
                 <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Dashboard">@L["NavHome"]</MudNavLink>
                 <MudNavLink Href="search" Icon="@Icons.Material.Outlined.Search" data-testid="nav-search">@L["SearchTitle"]</MudNavLink>
+                <MudNavLink Href="tasks" Icon="@Icons.Material.Outlined.TaskAlt" data-testid="nav-tasks">@L["TasksTitle"]</MudNavLink>
                 <MudNavGroup Title="@L["NavAreas"]" Icon="@Icons.Material.Outlined.FolderOpen" Expanded>
                     @foreach (var area in Areas.Visible)
                     {

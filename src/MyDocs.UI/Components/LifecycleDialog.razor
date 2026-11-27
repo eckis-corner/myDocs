@@ -1,0 +1,57 @@
+@* Wechsel im Lebenszyklus: neuer Zustand, bei Kündigung, Ende und Abgabe ein Datum, bei „ersetzt“ der Nachfolger. *@
+@inject IStringLocalizer<SharedResource> L
+@inject ObjectDirectory Directory
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudSelect T="string" @bind-Value="_state" Label="@L["LifecycleNew"]" Variant="Variant.Outlined" UserAttributes="@(new() { ["data-testid"] = "lifecycle-state" })">
+                @foreach (var state in Lifecycle.NextStates(Item.TypeKey, Item.LifecycleState))
+                {
+                    <MudSelectItem T="string" Value="@state">@L[$"Lifecycle_{state}"]</MudSelectItem>
+                }
+            </MudSelect>
+            @if (_state is not null && Lifecycle.NeedsDate(_state))
+            {
+                <MudDatePicker Label="@L[$"LifecycleDate_{_state}"]" @bind-Date="_date" Variant="Variant.Outlined" Editable Required />
+            }
+            @if (_state == LifecycleStates.Replaced)
+            {
+                <MudSelect T="Guid?" @bind-Value="_successor" Label="@L["LifecycleReplacedBy"]" Variant="Variant.Outlined" Required>
+                    @foreach (var other in Directory.OfTypes([Item.TypeKey], Item.Id))
+                    {
+                        <MudSelectItem T="Guid?" Value="@other.Id">@other.Title</MudSelectItem>
+                    }
+                </MudSelect>
+            }
+            @if (_state is not null && FollowUpText(_state) is { } hint)
+            {
+                <MudAlert Severity="Severity.Info" Variant="Variant.Outlined" Dense>@hint</MudAlert>
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="() => Dialog.Cancel()">@L["Cancel"]</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="!Ready" OnClick="Save" data-testid="lifecycle-save">@L["Save"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private string? _state;
+    private DateTime? _date = DateTime.Today;
+    private Guid? _successor;
+
+    [CascadingParameter] private IMudDialogInstance Dialog { get; set; } = default!;
+
+    [Parameter] public ObjectDto Item { get; set; } = default!;
+
+    private bool Ready => _state is not null && (!Lifecycle.NeedsDate(_state) || _date is not null) && (_state != LifecycleStates.Replaced || _successor is not null);
+
+    private string? FollowUpText(string state) =>
+        state is LifecycleStates.Cancelled or LifecycleStates.Ended or LifecycleStates.Disposed or LifecycleStates.Archived
+            ? L[$"LifecycleFollowUp_{state}"].Value
+            : null;
+
+    private void Save() => Dialog.Close(DialogResult.Ok(new LifecycleChangeRequest(_state!, _date is { } d && Lifecycle.NeedsDate(_state!) ? DateOnly.FromDateTime(d) : null,
+        _state == LifecycleStates.Replaced ? _successor : null, Item.Version)));
+}

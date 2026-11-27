@@ -31,6 +31,8 @@ public static class AuditActions
     public const string MasterKeyShown = "master-key-shown";
     public const string PasskeyAdded = "passkey-added";
     public const string PasskeyRemoved = "passkey-removed";
+    public const string TaskCreated = "task-created";
+    public const string TaskClosed = "task-closed";
 }
 
 /// <summary>Ein Eintrag im Audit-Log. Details ohne Inhalte, höchstens Titel.</summary>

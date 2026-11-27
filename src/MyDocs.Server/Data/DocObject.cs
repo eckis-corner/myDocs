@@ -28,6 +28,15 @@ public sealed class DocObject
     /// <summary>Zuständige Person (12); bei Haushaltsobjekten Pflicht.</summary>
     public Guid? ResponsiblePersonId { get; set; }
 
+    /// <summary>Zustand im Lebenszyklus (9); null bei Typen ohne Muster.</summary>
+    public string? LifecycleState { get; set; }
+
+    /// <summary>Datum zum Zustand: gekündigt zum, beendet am, abgegeben am.</summary>
+    public DateOnly? LifecycleDate { get; set; }
+
+    /// <summary>Nachfolger bei „ersetzt durch …“ (10).</summary>
+    public Guid? ReplacedById { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 
     public Guid CreatedBy { get; set; }

@@ -1,0 +1,60 @@
+@* Datenblatt eines Objekts: Felder aus dem Katalog, Eigentum, Zuständigkeit, Ablaufdatum, Notizen und Verknüpfungen in beide Richtungen. *@
+@inject IStringLocalizer<SharedResource> L
+@inject CatalogText Catalog
+@inject ObjectDirectory Directory
+
+<MudSimpleTable Dense Elevation="0" Class="mydocs-datasheet-table" data-testid="datasheet">
+    <tbody>
+        @foreach (var row in Catalog.FieldRows(Type, Item.Data, Directory.TitleOf, key => Item.Data.Locations.TryGetValue(key, out var id) ? id : null))
+        {
+            <tr>
+                <th scope="row">@row.Label</th>
+                <td class="@(row.Multiline ? "mydocs-multiline" : null)">
+                    @if (row.Reference is { } reference && Directory.Find(reference) is not null)
+                    {
+                        <MudLink Href="@($"object/{reference}")">@row.Value</MudLink>
+                    }
+                    else
+                    {
+                        @row.Value
+                    }
+                </td>
+            </tr>
+        }
+        @if (Item.Data.ExpiresOn is { } expires)
+        {
+            <tr><th scope="row">@Catalog.Expiry(Type)</th><td>@expires.ToString("d", CultureInfo.CurrentCulture)</td></tr>
+        }
+        <tr><th scope="row">@L["ObjectOwner"]</th><td data-testid="datasheet-owner">@(Item.OwnerPersonId is null ? L["OwnerHousehold"] : Directory.PersonName(Item.OwnerPersonId))</td></tr>
+        @if (Item.ResponsiblePersonId is { } responsible)
+        {
+            <tr><th scope="row">@L["ObjectResponsible"]</th><td>@Directory.PersonName(responsible)</td></tr>
+        }
+        @if (!string.IsNullOrWhiteSpace(Item.Data.Notes))
+        {
+            <tr><th scope="row">@L["Notes"]</th><td class="mydocs-multiline">@Item.Data.Notes</td></tr>
+        }
+        @if (_incoming.Count > 0)
+        {
+            <tr>
+                <th scope="row">@L["ObjectLinkedFrom"]</th>
+                <td>
+                    @foreach (var other in _incoming)
+                    {
+                        <div><MudLink Href="@($"object/{other.Id}")">@other.Title</MudLink> <span class="mydocs-muted">(@Catalog.Type(other.TypeKey))</span></div>
+                    }
+                </td>
+            </tr>
+        }
+    </tbody>
+</MudSimpleTable>
+
+@code {
+    private List<ObjectSummaryDto> _incoming = [];
+
+    [Parameter, EditorRequired] public ObjectTypeDefinition Type { get; set; } = default!;
+
+    [Parameter, EditorRequired] public ObjectDto Item { get; set; } = default!;
+
+    protected override void OnParametersSet() => _incoming = [.. Directory.ReferencesTo(Item.Id)];
+}

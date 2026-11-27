@@ -16,6 +16,7 @@ public static class ServiceCollectionExtensions
         services.AddMyCommonUi();
         services.AddScoped<CultureService>();
         services.AddScoped<SessionService>();
+        services.AddScoped<ObjectDirectory>();
         services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<SessionService>());
         services.AddAuthorizationCore();
         services.AddCascadingAuthenticationState();

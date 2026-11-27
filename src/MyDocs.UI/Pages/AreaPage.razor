@@ -1,0 +1,109 @@
+@page "/area/{Number:int}"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@using FieldType = MyCommon.Catalog.FieldType
+@inject IStringLocalizer<SharedResource> L
+@inject CatalogText Catalog
+@inject ObjectDirectory Directory
+
+<PageTitle>@L["AppName"] – @Catalog.Area(Number)</PageTitle>
+
+@if (MyDocsCatalog.Areas.All(a => a.Number != Number))
+{
+    <MudAlert Severity="Severity.Info">@L["AreaNotAvailable"]</MudAlert>
+}
+else
+{
+    <MudStack Spacing="3">
+        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+            <MudIcon Icon="@AreaIcons.For(Number)" Color="Color.Primary" Size="Size.Large" />
+            <MudText Typo="Typo.h4" HtmlTag="h1">@Catalog.Area(Number)</MudText>
+            <MudSpacer />
+            @if (_canCreate)
+            {
+                @if (_types.Count == 1)
+                {
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" Href="@($"object/new/{_types[0].Key}")"
+                               data-testid="new-object">@L["NewObject", Catalog.Type(_types[0])]</MudButton>
+                }
+                else
+                {
+                    <MudMenu Label="@L["New"]" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" data-testid="new-object">
+                        @foreach (var type in _types)
+                        {
+                            <MudMenuItem Href="@($"object/new/{type.Key}")">@Catalog.Type(type)</MudMenuItem>
+                        }
+                    </MudMenu>
+                }
+            }
+        </MudStack>
+        <MudText Typo="Typo.body2" Class="mydocs-muted">@Catalog.AreaText(Number)</MudText>
+
+        <MudTable T="ObjectSummaryDto" Items="_items" Loading="_items is null" Hover Dense Filter="Matches" OnRowClick="Open" RowClass="mydocs-clickable" data-testid="objects">
+            <ToolBarContent>
+                <MudTextField T="string" @bind-Value="_filter" Placeholder="@L["Filter"]" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                              Immediate Clearable Class="mt-0" />
+            </ToolBarContent>
+            <HeaderContent>
+                <MudTh><MudTableSortLabel T="ObjectSummaryDto" SortBy="o => o.Title">@L["ObjectTitle"]</MudTableSortLabel></MudTh>
+                <MudTh>@L["ObjectType"]</MudTh>
+                <MudTh>@L["ObjectSummary"]</MudTh>
+                <MudTh>@L["ObjectOwner"]</MudTh>
+                <MudTh><MudTableSortLabel T="ObjectSummaryDto" SortBy="o => o.ExpiresOn ?? DateOnly.MaxValue">@L["Expiry_default"]</MudTableSortLabel></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="@L["ObjectTitle"]"><MudLink Href="@($"object/{context.Id}")">@context.Title</MudLink></MudTd>
+                <MudTd DataLabel="@L["ObjectType"]">@Catalog.Type(context.TypeKey)</MudTd>
+                <MudTd DataLabel="@L["ObjectSummary"]" Class="mydocs-muted">@Summary(context)</MudTd>
+                <MudTd DataLabel="@L["ObjectOwner"]">@(context.OwnerPersonId is null ? L["OwnerHousehold"] : Directory.PersonName(context.OwnerPersonId))</MudTd>
+                <MudTd DataLabel="@L["Expiry_default"]">@(context.ExpiresOn?.ToString("d", CultureInfo.CurrentCulture) ?? "–")</MudTd>
+            </RowTemplate>
+            <NoRecordsContent><MudText>@L["AreaEmpty"]</MudText></NoRecordsContent>
+            <PagerContent><MudTablePager PageSizeOptions="[25, 50, 100]" RowsPerPageString="@L["RowsPerPage"]" /></PagerContent>
+        </MudTable>
+    </MudStack>
+}
+
+@code {
+    private List<ObjectSummaryDto>? _items;
+    private List<ObjectTypeDefinition> _types = [];
+    private string? _filter;
+    private bool _canCreate;
+
+    [Parameter] public int Number { get; set; }
+
+    [CascadingParameter] private Task<Microsoft.AspNetCore.Components.Authorization.AuthenticationState>? AuthState { get; set; }
+
+    [Inject] private NavigationManager Navigation { get; set; } = default!;
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _items = null;
+        _types = [.. MyDocsCatalog.TypesIn(Number)];
+        _canCreate = AuthState is not null && (await AuthState).User.IsInRole(HouseholdRoles.Member);
+        await Directory.LoadAsync();
+        var keys = _types.Select(t => t.Key).ToHashSet();
+        _items = [.. Directory.Objects.Where(o => keys.Contains(o.TypeKey)).OrderBy(o => o.Title, StringComparer.CurrentCultureIgnoreCase)];
+    }
+
+    private string Summary(ObjectSummaryDto item)
+    {
+        if (MyDocsCatalog.Find(item.TypeKey) is not { } type)
+        {
+            return string.Empty;
+        }
+
+        var values = new ObjectData { Fields = item.Fields };
+        return string.Join(" · ", type.Fields
+            .Where(f => f.Type is not (FieldType.LongText or FieldType.Reference) && values.Get(f.Key).Length > 0)
+            .OrderByDescending(f => f.Required || f.Type == FieldType.Choice)
+            .Take(2)
+            .Select(f => Catalog.Display(f, values.Get(f.Key), Directory.TitleOf)));
+    }
+
+    private bool Matches(ObjectSummaryDto item) =>
+        string.IsNullOrWhiteSpace(_filter)
+        || item.Title.Contains(_filter, StringComparison.CurrentCultureIgnoreCase)
+        || Summary(item).Contains(_filter, StringComparison.CurrentCultureIgnoreCase);
+
+    private void Open(TableRowClickEventArgs<ObjectSummaryDto> row) => Navigation.NavigateTo($"object/{row.Item!.Id}");
+}

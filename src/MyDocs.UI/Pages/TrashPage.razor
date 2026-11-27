@@ -1,0 +1,41 @@
+@page "/trash"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@inject IStringLocalizer<SharedResource> L
+@inject CatalogText Catalog
+@inject ObjectClient Objects
+@inject ISnackbar Snackbar
+
+<PageTitle>@L["AppName"] – @L["TrashTitle"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h4" HtmlTag="h1">@L["TrashTitle"]</MudText>
+    <MudText>@L["TrashIntro"]</MudText>
+    <MudTable T="ObjectSummaryDto" Items="_items" Loading="_items is null" Dense Hover data-testid="trash">
+        <HeaderContent>
+            <MudTh>@L["ObjectTitle"]</MudTh>
+            <MudTh>@L["ObjectType"]</MudTh>
+            <MudTh />
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="@L["ObjectTitle"]"><MudLink Href="@($"object/{context.Id}")">@context.Title</MudLink></MudTd>
+            <MudTd DataLabel="@L["ObjectType"]">@Catalog.Type(context.TypeKey)</MudTd>
+            <MudTd Style="text-align: right">
+                <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Filled.RestoreFromTrash" OnClick="() => RestoreAsync(context)">@L["Restore"]</MudButton>
+            </MudTd>
+        </RowTemplate>
+        <NoRecordsContent><MudText>@L["TrashEmpty"]</MudText></NoRecordsContent>
+    </MudTable>
+</MudStack>
+
+@code {
+    private List<ObjectSummaryDto>? _items;
+
+    protected override async Task OnInitializedAsync() => _items = await Objects.TrashAsync();
+
+    private async Task RestoreAsync(ObjectSummaryDto item)
+    {
+        await Objects.RestoreAsync(item.Id);
+        _items = await Objects.TrashAsync();
+        Snackbar.Add(L["ObjectRestored"], Severity.Success);
+    }
+}

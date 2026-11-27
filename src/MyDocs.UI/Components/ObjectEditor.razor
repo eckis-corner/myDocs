@@ -1,0 +1,83 @@
+@* Formular eines Objekts: Titel, Felder aus dem Katalog (MyCommon.Ui), dazu Eigentum, Zuständigkeit, Ablaufdatum und Notizen. *@
+@inject IStringLocalizer<SharedResource> L
+@inject CatalogText Catalog
+@inject ObjectDirectory Directory
+
+<MudStack Spacing="3">
+    <MudTextField T="string" Value="Data.Title" ValueChanged="v => Data.Title = v ?? string.Empty" Label="@L["ObjectTitle"]"
+                  Variant="Variant.Outlined" Required MaxLength="200" Error="@Has("title")" ErrorText="@ErrorOf("title")"
+                  UserAttributes="@(new() { ["data-testid"] = "object-title" })" />
+
+    <CatalogFields Type="Type" Values="Data" Errors="Errors" Choices="Choices">
+        <LocationField Context="place">
+            <LocationSelect Data="Data" Key="@place.Field.Key" Label="@place.Label" Required="place.Required" Error="@place.Error"
+                            ErrorText="@place.ErrorText" HelperText="@place.HelperText" />
+        </LocationField>
+    </CatalogFields>
+
+    <MudText Typo="Typo.subtitle1" HtmlTag="h3" Class="mt-2"><b>@L["ObjectCommon"]</b></MudText>
+    <MudGrid Spacing="2">
+        <MudItem xs="12" sm="6">
+            <MudSelect T="bool" Value="Private" ValueChanged="SetPrivate" Label="@L["ObjectOwner"]" Variant="Variant.Outlined"
+                       Disabled="!CanChangeOwner" HelperText="@L["ObjectOwnerHelp"]" UserAttributes="@(new() { ["data-testid"] = "object-owner" })">
+                <MudSelectItem T="bool" Value="false">@L["OwnerHousehold"]</MudSelectItem>
+                <MudSelectItem T="bool" Value="true">@(OwnerName ?? L["OwnerMe"])</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudSelect T="Guid?" Value="Responsible" ValueChanged="v => ResponsibleChanged.InvokeAsync(v)" Label="@L["ObjectResponsible"]" Variant="Variant.Outlined"
+                       Clearable="Private" Required="!Private" Error="@Has("responsible")" ErrorText="@ErrorOf("responsible")"
+                       UserAttributes="@(new() { ["data-testid"] = "object-responsible" })">
+                @foreach (var person in Directory.Accounts)
+                {
+                    <MudSelectItem T="Guid?" Value="@person.Id">@person.DisplayName</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudDatePicker Label="@Catalog.Expiry(Type)" Date="@Data.ExpiresOn?.ToDateTime(TimeOnly.MinValue)" DateChanged="d => Data.ExpiresOn = d is { } x ? DateOnly.FromDateTime(x) : null"
+                           Variant="Variant.Outlined" Editable Clearable />
+        </MudItem>
+        <MudItem xs="12">
+            <MudTextField T="string" @bind-Value="Data.Notes" Label="@L["Notes"]" Variant="Variant.Outlined" Lines="3" Sizing="InputSizing.Auto"
+                          MaxLength="@FieldValues.MaxLongTextLength" Error="@Has("notes")" ErrorText="@ErrorOf("notes")" />
+        </MudItem>
+    </MudGrid>
+</MudStack>
+
+@code {
+    [Parameter, EditorRequired] public ObjectTypeDefinition Type { get; set; } = default!;
+
+    [Parameter, EditorRequired] public ObjectData Data { get; set; } = default!;
+
+    [Parameter] public Guid? ObjectId { get; set; }
+
+    /// <summary>Eigentümer: null für den Haushalt, sonst die eigene Person.</summary>
+    [Parameter] public Guid? Owner { get; set; }
+
+    [Parameter] public EventCallback<Guid?> OwnerChanged { get; set; }
+
+    [Parameter] public Guid? Responsible { get; set; }
+
+    [Parameter] public EventCallback<Guid?> ResponsibleChanged { get; set; }
+
+    /// <summary>Die eigene Person; nur sie kann Eigentümer eines neuen privaten Objekts sein.</summary>
+    [Parameter] public Guid? MyPersonId { get; set; }
+
+    [Parameter] public bool CanChangeOwner { get; set; } = true;
+
+    [Parameter] public IReadOnlyDictionary<string, string> Errors { get; set; } = new Dictionary<string, string>();
+
+    private bool Private => Owner is not null;
+
+    private string? OwnerName => Owner is { } owner && owner != MyPersonId ? Directory.PersonName(owner) : null;
+
+    private Task SetPrivate(bool value) => OwnerChanged.InvokeAsync(value ? Owner ?? MyPersonId : null);
+
+    private bool Has(string key) => Errors.ContainsKey(key);
+
+    private string? ErrorOf(string key) => Errors.TryGetValue(key, out var code) ? Catalog.Error(code) : null;
+
+    private IEnumerable<ObjectChoice> Choices(IReadOnlyList<string> types) =>
+        Directory.OfTypes(types, ObjectId).Select(o => new ObjectChoice(o.Id, o.Title, o.TypeKey));
+}

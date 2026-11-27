@@ -304,6 +304,163 @@ namespace MyDocs.Server.Data.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("MyDocs.Server.Data.DocObject", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<DateOnly?>("ExpiresOn")
+                        .HasColumnType("date")
+                        .HasColumnName("expires_on");
+
+                    b.Property<string>("Fields")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("fields");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Locations")
+                        .IsRequired()
+                        .HasColumnType("jsonb")
+                        .HasColumnName("locations");
+
+                    b.Property<string>("Notes")
+                        .HasColumnType("text")
+                        .HasColumnName("notes");
+
+                    b.Property<Guid?>("OwnerPersonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_person_id");
+
+                    b.Property<Guid?>("ResponsiblePersonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("responsible_person_id");
+
+                    b.Property<int>("SchemaVersion")
+                        .HasColumnType("integer")
+                        .HasColumnName("schema_version");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<string>("TypeKey")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("type_key");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.Property<uint>("Version")
+                        .IsConcurrencyToken()
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("xid")
+                        .HasColumnName("xmin");
+
+                    b.HasKey("Id")
+                        .HasName("pk_objects");
+
+                    b.HasIndex("OwnerPersonId")
+                        .HasDatabaseName("ix_objects_owner_person_id");
+
+                    b.HasIndex("ResponsiblePersonId")
+                        .HasDatabaseName("ix_objects_responsible_person_id");
+
+                    b.HasIndex("TypeKey")
+                        .HasDatabaseName("ix_objects_type_key");
+
+                    b.ToTable("objects", (string)null);
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.ObjectHistoryEntry", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<Guid>("ActorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actor_id");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("at");
+
+                    b.Property<string>("Field")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("field");
+
+                    b.Property<string>("NewValue")
+                        .HasColumnType("text")
+                        .HasColumnName("new_value");
+
+                    b.Property<Guid>("ObjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("object_id");
+
+                    b.Property<string>("OldValue")
+                        .HasColumnType("text")
+                        .HasColumnName("old_value");
+
+                    b.HasKey("Id")
+                        .HasName("pk_object_history");
+
+                    b.HasIndex("ObjectId", "At")
+                        .HasDatabaseName("ix_object_history_object_id_at");
+
+                    b.ToTable("object_history", (string)null);
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.ObjectShare", b =>
+                {
+                    b.Property<Guid>("ObjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("object_id");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<bool>("CanEdit")
+                        .HasColumnType("boolean")
+                        .HasColumnName("can_edit");
+
+                    b.HasKey("ObjectId", "UserId")
+                        .HasName("pk_object_shares");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_object_shares_user_id");
+
+                    b.ToTable("object_shares", (string)null);
+                });
+
             modelBuilder.Entity("MyDocs.Server.Data.OneTimeToken", b =>
                 {
                     b.Property<Guid>("Id")
@@ -526,6 +683,48 @@ namespace MyDocs.Server.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_user_tokens_users_user_id");
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.DocObject", b =>
+                {
+                    b.HasOne("MyDocs.Server.Data.Person", null)
+                        .WithMany()
+                        .HasForeignKey("OwnerPersonId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_objects_persons_owner_person_id");
+
+                    b.HasOne("MyDocs.Server.Data.Person", null)
+                        .WithMany()
+                        .HasForeignKey("ResponsiblePersonId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .HasConstraintName("fk_objects_persons_responsible_person_id");
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.ObjectHistoryEntry", b =>
+                {
+                    b.HasOne("MyDocs.Server.Data.DocObject", null)
+                        .WithMany()
+                        .HasForeignKey("ObjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_object_history_objects_object_id");
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.ObjectShare", b =>
+                {
+                    b.HasOne("MyDocs.Server.Data.DocObject", null)
+                        .WithMany()
+                        .HasForeignKey("ObjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_object_shares_objects_object_id");
+
+                    b.HasOne("MyDocs.Server.Data.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_object_shares_users_user_id");
                 });
 
             modelBuilder.Entity("MyDocs.Server.Data.OneTimeToken", b =>

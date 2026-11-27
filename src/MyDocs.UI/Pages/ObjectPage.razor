@@ -1,0 +1,303 @@
+@page "/object/new/{TypeKey}"
+@page "/object/{Id:guid}"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@inject IStringLocalizer<SharedResource> L
+@inject CatalogText Catalog
+@inject ObjectDirectory Directory
+@inject ObjectClient Objects
+@inject SessionService Session
+@inject NavigationManager Navigation
+@inject IDialogService Dialogs
+@inject ISnackbar Snackbar
+
+<PageTitle>@L["AppName"] – @(_item?.Data.Title ?? (_type is null ? string.Empty : Catalog.Type(_type)))</PageTitle>
+
+@if (_error is not null)
+{
+    <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">@L[$"ObjectError_{_error}"]</MudAlert>
+}
+else if (_type is null)
+{
+    <MudProgressLinear Indeterminate Color="Color.Primary" />
+}
+else
+{
+    <MudStack Spacing="3">
+        <MudBreadcrumbs Items="_breadcrumbs" Class="px-0 py-0" />
+        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+            <MudIcon Icon="@AreaIcons.For(_type.Area)" Color="Color.Primary" />
+            <MudText Typo="Typo.h4" HtmlTag="h1">@(_editing ? (_item is null ? L["NewObject", Catalog.Type(_type)] : _draft!.Title) : _item!.Data.Title)</MudText>
+            <MudSpacer />
+            @if (!_editing && _item is not null)
+            {
+                @if (_item.DeletedAt is not null)
+                {
+                    <MudChip T="string" Color="Color.Warning" Variant="Variant.Outlined">@L["InTrash"]</MudChip>
+                    @if (_item.CanManage)
+                    {
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.RestoreFromTrash" OnClick="RestoreAsync" data-testid="object-restore">@L["Restore"]</MudButton>
+                    }
+                }
+                else
+                {
+                    @if (_item.CanEdit)
+                    {
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Edit" OnClick="StartEdit" data-testid="object-edit">@L["Edit"]</MudButton>
+                    }
+                    @if (_item.CanManage)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" aria-label="@L["Delete"]" OnClick="DeleteAsync" data-testid="object-delete" />
+                    }
+                }
+            }
+        </MudStack>
+        <MudText Typo="Typo.caption" Class="mydocs-muted">@Catalog.Type(_type)</MudText>
+
+        @if (_editing)
+        {
+            <MudPaper Class="pa-4" Elevation="1">
+                <EditForm Model="_draft" OnSubmit="SaveAsync">
+                    <ObjectEditor Type="_type" Data="_draft!" ObjectId="_item?.Id" @bind-Owner="_owner" @bind-Responsible="_responsible"
+                                  MyPersonId="Session.Me?.PersonId" CanChangeOwner="CanChangeOwner" Errors="_errors" />
+                    <MudStack Row Class="mt-4" Spacing="2">
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy" data-testid="object-save">@L["Save"]</MudButton>
+                        <MudButton Variant="Variant.Text" OnClick="Cancel">@L["Cancel"]</MudButton>
+                    </MudStack>
+                </EditForm>
+            </MudPaper>
+        }
+        else if (_item is not null)
+        {
+            <MudPaper Class="pa-4" Elevation="1">
+                <ObjectDatasheet Type="_type" Item="_item" />
+            </MudPaper>
+
+            @if (_item.OwnerPersonId is not null && _item.OwnerPersonId == Session.Me?.PersonId && _item.DeletedAt is null)
+            {
+                <MudPaper Class="pa-4" Elevation="1" data-testid="object-shares">
+                    <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["SharesTitle"]</b></MudText>
+                    <MudText Typo="Typo.body2" Class="mydocs-muted mb-2">@L["SharesIntro"]</MudText>
+                    @foreach (var person in Directory.Accounts.Where(p => p.UserId != Session.Me?.Id))
+                    {
+                        var share = _item.Shares.FirstOrDefault(s => s.UserId == person.UserId);
+                        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                            <MudText Style="min-width: 12rem">@person.DisplayName</MudText>
+                            <MudSelect T="string" Value="@(share is null ? "none" : share.CanEdit ? "edit" : "read")" ValueChanged="v => ShareAsync(person.UserId!.Value, v)"
+                                       Dense Variant="Variant.Outlined" Margin="Margin.Dense" Style="max-width: 14rem">
+                                <MudSelectItem T="string" Value="@("none")">@L["ShareNone"]</MudSelectItem>
+                                <MudSelectItem T="string" Value="@("read")">@L["ShareRead"]</MudSelectItem>
+                                <MudSelectItem T="string" Value="@("edit")">@L["ShareEdit"]</MudSelectItem>
+                            </MudSelect>
+                        </MudStack>
+                    }
+                </MudPaper>
+            }
+
+            <MudExpansionPanels Elevation="0" Outlined>
+                <MudExpansionPanel Text="@L["HistoryTitle"]" ExpandedChanged="LoadHistoryAsync" data-testid="object-history">
+                    @if (_history is null)
+                    {
+                        <MudProgressLinear Indeterminate Color="Color.Primary" />
+                    }
+                    else
+                    {
+                        <MudSimpleTable Dense Elevation="0">
+                            <tbody>
+                                @foreach (var entry in _history)
+                                {
+                                    <tr>
+                                        <td class="mydocs-muted" style="white-space: nowrap">@entry.At.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</td>
+                                        <td>@entry.ActorName</td>
+                                        <td>@FieldName(entry.Field)</td>
+                                        <td>@HistoryValue(entry.Field, entry.OldValue) → @HistoryValue(entry.Field, entry.NewValue)</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </MudSimpleTable>
+                    }
+                </MudExpansionPanel>
+            </MudExpansionPanels>
+        }
+    </MudStack>
+}
+
+@code {
+    private ObjectTypeDefinition? _type;
+    private ObjectDto? _item;
+    private ObjectData? _draft;
+    private Guid? _owner;
+    private Guid? _responsible;
+    private bool _editing;
+    private bool _busy;
+    private string? _error;
+    private IReadOnlyDictionary<string, string> _errors = new Dictionary<string, string>();
+    private List<ObjectHistoryDto>? _history;
+    private List<BreadcrumbItem> _breadcrumbs = [];
+
+    [Parameter] public string? TypeKey { get; set; }
+
+    [Parameter] public Guid? Id { get; set; }
+
+    /// <summary>Eigentum ändern: beim Anlegen frei; danach privat → Haushalt durch den Eigentümer, Haushalt → privat nur durch die zuständige Person (34).</summary>
+    private bool CanChangeOwner => _item is null
+        || (_item.OwnerPersonId is null ? _item.ResponsiblePersonId == Session.Me?.PersonId : _item.OwnerPersonId == Session.Me?.PersonId);
+
+    protected override async Task OnParametersSetAsync()
+    {
+        _error = null;
+        _history = null;
+        try
+        {
+            await Session.GetAuthenticationStateAsync();
+            await Directory.LoadAsync();
+            if (Id is { } id)
+            {
+                _item = await Objects.GetAsync(id);
+                _type = MyDocsCatalog.Find(_item.TypeKey);
+                _editing = false;
+            }
+            else
+            {
+                _type = MyDocsCatalog.Find(TypeKey);
+                _item = null;
+                _draft = new ObjectData();
+                _owner = null;
+                _responsible = Session.Me?.PersonId;
+                _editing = true;
+            }
+
+            if (_type is null)
+            {
+                _error = ObjectErrors.TypeUnknown;
+                return;
+            }
+
+            _breadcrumbs = [new(L["NavHome"], ""), new(Catalog.Area(_type.Area), $"area/{_type.Area}"), new(_item?.Data.Title ?? Catalog.Type(_type), null, disabled: true)];
+        }
+        catch (ApiException exception)
+        {
+            _error = exception.Code;
+        }
+    }
+
+    private void StartEdit()
+    {
+        _draft = _item!.Data.Clone();
+        _owner = _item.OwnerPersonId;
+        _responsible = _item.ResponsiblePersonId;
+        _errors = new Dictionary<string, string>();
+        _editing = true;
+    }
+
+    private void Cancel()
+    {
+        if (_item is null)
+        {
+            Navigation.NavigateTo($"area/{_type!.Area}");
+            return;
+        }
+
+        _editing = false;
+    }
+
+    private async Task SaveAsync()
+    {
+        _busy = true;
+        try
+        {
+            var request = new ObjectSaveRequest(_type!.Key, _draft!, _owner, _responsible, _item?.Version ?? 0);
+            if (_item is null)
+            {
+                var created = await Objects.CreateAsync(request);
+                Snackbar.Add(L["ObjectSaved"], Severity.Success);
+                Navigation.NavigateTo($"object/{created.Id}");
+                return;
+            }
+
+            _item = await Objects.UpdateAsync(_item.Id, request);
+            await Directory.LoadAsync();
+            _editing = false;
+            _history = null;
+            Snackbar.Add(L["ObjectSaved"], Severity.Success);
+        }
+        catch (ObjectValidationException exception)
+        {
+            _errors = exception.Errors;
+            Snackbar.Add(L["ObjectError_invalid"], Severity.Warning);
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"ObjectError_{exception.Code}"], Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task DeleteAsync()
+    {
+        if (await Dialogs.ShowMessageBoxAsync(L["Delete"], L["ObjectDeleteConfirm", _item!.Data.Title].Value, L["Delete"], L["Cancel"]) != true)
+        {
+            return;
+        }
+
+        await Objects.DeleteAsync(_item.Id);
+        Snackbar.Add(L["ObjectDeleted"], Severity.Info);
+        Navigation.NavigateTo($"area/{_type!.Area}");
+    }
+
+    private async Task RestoreAsync()
+    {
+        _item = await Objects.RestoreAsync(_item!.Id);
+        await Directory.LoadAsync();
+        Snackbar.Add(L["ObjectRestored"], Severity.Success);
+    }
+
+    private async Task ShareAsync(Guid userId, string level)
+    {
+        var shares = _item!.Shares.Where(s => s.UserId != userId).ToList();
+        if (level != "none")
+        {
+            shares.Add(new ObjectShareDto(userId, level == "edit"));
+        }
+
+        _item = await Objects.SetSharesAsync(_item.Id, shares);
+    }
+
+    private async Task LoadHistoryAsync(bool expanded)
+    {
+        if (expanded && _history is null && _item is not null)
+        {
+            _history = await Objects.HistoryAsync(_item.Id);
+        }
+    }
+
+    private string FieldName(string field) => field switch
+    {
+        "title" => L["ObjectTitle"],
+        "notes" => L["Notes"],
+        "expiresOn" => Catalog.Expiry(_type!),
+        "owner" => L["ObjectOwner"],
+        "responsible" => L["ObjectResponsible"],
+        "deleted" => L["InTrash"],
+        _ when field.StartsWith("field:", StringComparison.Ordinal) && _type!.Field(field[6..]) is { } definition => Catalog.Field(_type, definition),
+        _ => field,
+    };
+
+    private string HistoryValue(string field, string? value)
+    {
+        if (value is null)
+        {
+            return "–";
+        }
+
+        return field switch
+        {
+            "owner" or "responsible" => Directory.PersonName(Guid.TryParse(value, out var person) ? person : null) ?? value,
+            "deleted" => L["Yes"],
+            _ when field.StartsWith("field:", StringComparison.Ordinal) && _type!.Field(field[6..]) is { } definition => Catalog.Display(definition, value, Directory.TitleOf),
+            _ => value,
+        };
+    }
+}

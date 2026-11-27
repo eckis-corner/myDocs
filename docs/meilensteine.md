@@ -25,6 +25,8 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 **M1.3 Benutzer, Personen, Haushalt ✅ (27.11.2026, lokal):** Benutzerverwaltung mit Aktivierungslink, Rollen Mitglied, Gast und Administrator, Sperren und Zurücksetzen, Seite „Haushalt“ mit Personen (85–90). 37 Tests grün, Migration gegen den Stand aus M1.2 durchgespielt.
 
+**M1.4 Objekte ✅ (27.11.2026, lokal):** Bereiche in der Navigation, Liste je Bereich mit Filter, Objektseite mit Datenblatt und Formular (CatalogFields aus MyCommon.Ui), Ablageorte, Haushalt oder privat, Zuständigkeit, Freigaben, Konflikterkennung, Historie, Papierkorb (91–96). 49 Tests grün.
+
 **M1.2b Passkeys:** als zweiter Faktor statt TOTP, mit den Passkeys von ASP.NET Core Identity 10.
 
 
@@ -35,7 +37,7 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 4. Objekte aus dem Katalog: anlegen, bearbeiten, Besitz, Zuständigkeit, private Freigaben, Admin-Einsicht, Historie, Papierkorb
 5. Dokumente: Upload, verschlüsselte Blobs adressiert über ihren Inhalts-Hash, Versionen, Zuordnung n:m, Download, Vorschau von PDF und Bildern
 6. Suche über Titel und Felder (PostgreSQL), Rechte in der Abfrage
-7. Audit-Log, Sicherheits-Header, Sicherung und `restore`, Hauptschlüssel als Ausdruck
+7. Audit-Log, Admin-Einsicht (96), Papierkorb nach 30 Tagen leeren, Sicherheits-Header, Sicherung und `restore`, Hauptschlüssel als Ausdruck
 8. Installationsanleitung für Synology und Nginx Proxy Manager
 
 **Abnahme:** Die App läuft unter `https://mydocs.eckis-corner.de`, eine Rücksicherung ist getestet, und auf dem Volume liegt nachweislich nur Chiffrat.

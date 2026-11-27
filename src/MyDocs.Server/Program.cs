@@ -93,6 +93,7 @@ builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFac
 // Neue Rechte, Sperre und Zurücksetzen wirken spätestens nach einer Minute auf laufende Sitzungen.
 builder.Services.Configure<SecurityStampValidatorOptions>(stamp => stamp.ValidationInterval = TimeSpan.FromMinutes(1));
 builder.Services.AddScoped<OneTimeTokens>();
+builder.Services.AddScoped<MyDocs.Server.Infrastructure.Objects.ObjectAccess>();
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(Roles.Admin, policy => policy.RequireRole(Roles.Admin))
     .AddPolicy(PersonEndpoints.MemberPolicy, policy => policy.RequireRole(MyDocs.Shared.Household.HouseholdRoles.Member));
@@ -142,6 +143,7 @@ app.MapAuthEndpoints();
 app.MapActivationEndpoints();
 app.MapAdminUserEndpoints();
 app.MapPersonEndpoints();
+app.MapObjectEndpoints();
 
 app.MapStaticAssets();
 // Die Seiten sind nur die leere Hülle (kein Prerendering); [Authorize] prüft der Client. Geschützt sind die Daten:

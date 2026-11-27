@@ -12,6 +12,8 @@
   <data name="ActivationLinkText" xml:space="preserve"><value>Gib diesen Link an {0} weiter. Er gilt einmal und bis {1}. Wer ihn hat, kann das Konto aktivieren, also nur auf sicherem Weg verschicken.</value></data>
   <data name="ActivationLinkTitle" xml:space="preserve"><value>Aktivierungslink</value></data>
   <data name="AppName" xml:space="preserve"><value>myDocs</value></data>
+  <data name="AreaEmpty" xml:space="preserve"><value>Noch keine Einträge.</value></data>
+  <data name="AreaNotAvailable" xml:space="preserve"><value>Diesen Bereich führt myDocs nicht.</value></data>
   <data name="AuthError_activation-invalid" xml:space="preserve"><value>Der Link ist ungültig, abgelaufen oder schon benutzt. Bitte den Administrator um einen neuen.</value></data>
   <data name="AuthError_auth-2fa-missing" xml:space="preserve"><value>Für dieses Konto ist kein zweiter Faktor eingerichtet. Bitte wende dich an den Administrator.</value></data>
   <data name="AuthError_auth-code-invalid" xml:space="preserve"><value>Der Code stimmt nicht oder wurde schon verwendet.</value></data>
@@ -36,6 +38,9 @@
   <data name="Edit" xml:space="preserve"><value>Bearbeiten</value></data>
   <data name="Email" xml:space="preserve"><value>E-Mail-Adresse</value></data>
   <data name="ErrorUnhandled" xml:space="preserve"><value>Ein unerwarteter Fehler ist aufgetreten.</value></data>
+  <data name="Expiry_default" xml:space="preserve"><value>Ablaufdatum</value></data>
+  <data name="Filter" xml:space="preserve"><value>Filtern</value></data>
+  <data name="HistoryTitle" xml:space="preserve"><value>Änderungen</value></data>
   <data name="HomeAreas" xml:space="preserve"><value>Bereiche</value></data>
   <data name="HomeIntro" xml:space="preserve"><value>myDocs verwaltet die Unterlagen eures Haushalts: Versicherungen, Konten, Verträge und Abos als eigene Einträge mit ihren Dokumenten, mit Wiedervorlage und Zuständigkeit. Was im Ernstfall gebraucht wird, übernimmt myLife.</value></data>
   <data name="HomeStatusUnreachable" xml:space="preserve"><value>Der Server ist nicht erreichbar. Bitte versuche es später erneut.</value></data>
@@ -54,11 +59,13 @@
   <data name="HouseholdRole" xml:space="preserve"><value>Rolle im Haushalt</value></data>
   <data name="HouseholdRoleHelp" xml:space="preserve"><value>Mitglieder lesen und ändern den gemeinsamen Bestand, Gäste lesen nur.</value></data>
   <data name="HouseholdTitle" xml:space="preserve"><value>Haushalt</value></data>
+  <data name="InTrash" xml:space="preserve"><value>Im Papierkorb</value></data>
   <data name="IsAdmin" xml:space="preserve"><value>Administrator</value></data>
   <data name="Language" xml:space="preserve"><value>Sprache</value></data>
   <data name="LanguageName_de" xml:space="preserve"><value>Deutsch</value></data>
   <data name="LanguageName_en" xml:space="preserve"><value>English</value></data>
   <data name="Loading" xml:space="preserve"><value>Wird geladen …</value></data>
+  <data name="LocationNoneYet" xml:space="preserve"><value>Noch keine Ablageorte. Lege sie im Bereich „Ablageorte“ an.</value></data>
   <data name="LoginNext" xml:space="preserve"><value>Weiter</value></data>
   <data name="LoginRecoveryText" xml:space="preserve"><value>Gib einen deiner Wiederherstellungscodes ein. Jeder Code gilt nur einmal.</value></data>
   <data name="LoginSubmit" xml:space="preserve"><value>Anmelden</value></data>
@@ -68,12 +75,38 @@
   <data name="LoginUseTotp" xml:space="preserve"><value>Code aus der Authenticator-App verwenden</value></data>
   <data name="Logout" xml:space="preserve"><value>Abmelden</value></data>
   <data name="NavAdmin" xml:space="preserve"><value>Verwaltung</value></data>
+  <data name="NavAreas" xml:space="preserve"><value>Bereiche</value></data>
   <data name="NavHome" xml:space="preserve"><value>Übersicht</value></data>
+  <data name="New" xml:space="preserve"><value>Neu</value></data>
+  <data name="NewObject" xml:space="preserve"><value>Neu: {0}</value></data>
   <data name="No" xml:space="preserve"><value>Nein</value></data>
   <data name="NotFoundText" xml:space="preserve"><value>Die aufgerufene Seite gibt es nicht.</value></data>
   <data name="NotFoundTitle" xml:space="preserve"><value>Seite nicht gefunden</value></data>
   <data name="Note" xml:space="preserve"><value>Notiz</value></data>
+  <data name="Notes" xml:space="preserve"><value>Notizen</value></data>
+  <data name="ObjectCommon" xml:space="preserve"><value>Allgemein</value></data>
+  <data name="ObjectDeleteConfirm" xml:space="preserve"><value>„{0}“ in den Papierkorb legen?</value></data>
+  <data name="ObjectDeleted" xml:space="preserve"><value>In den Papierkorb gelegt.</value></data>
+  <data name="ObjectError_conflict" xml:space="preserve"><value>Jemand anderes hat den Eintrag inzwischen geändert. Bitte neu laden und die Änderung noch einmal machen.</value></data>
+  <data name="ObjectError_forbidden" xml:space="preserve"><value>Dafür fehlt die Berechtigung.</value></data>
+  <data name="ObjectError_http-404" xml:space="preserve"><value>Nicht gefunden.</value></data>
+  <data name="ObjectError_invalid" xml:space="preserve"><value>Bitte die markierten Felder prüfen.</value></data>
+  <data name="ObjectError_not-found" xml:space="preserve"><value>Diesen Eintrag gibt es nicht oder du darfst ihn nicht sehen.</value></data>
+  <data name="ObjectError_owner-invalid" xml:space="preserve"><value>So lässt sich das Eigentum nicht ändern.</value></data>
+  <data name="ObjectError_type-only-in-mylife" xml:space="preserve"><value>Diese Art von Eintrag führt myLife.</value></data>
+  <data name="ObjectError_type-unknown" xml:space="preserve"><value>Diese Art von Eintrag gibt es nicht.</value></data>
+  <data name="ObjectLinkedFrom" xml:space="preserve"><value>Verweise von</value></data>
+  <data name="ObjectOwner" xml:space="preserve"><value>Gehört</value></data>
+  <data name="ObjectOwnerHelp" xml:space="preserve"><value>Haushalt: alle sehen den Eintrag, Mitglieder ändern ihn. Privat: nur du und wem du ihn freigibst.</value></data>
+  <data name="ObjectResponsible" xml:space="preserve"><value>Zuständig</value></data>
+  <data name="ObjectRestored" xml:space="preserve"><value>Wiederhergestellt.</value></data>
+  <data name="ObjectSaved" xml:space="preserve"><value>Gespeichert.</value></data>
+  <data name="ObjectSummary" xml:space="preserve"><value>Angaben</value></data>
+  <data name="ObjectTitle" xml:space="preserve"><value>Titel</value></data>
+  <data name="ObjectType" xml:space="preserve"><value>Art</value></data>
   <data name="OpenMenu" xml:space="preserve"><value>Menü öffnen</value></data>
+  <data name="OwnerHousehold" xml:space="preserve"><value>Haushalt</value></data>
+  <data name="OwnerMe" xml:space="preserve"><value>Mir (privat)</value></data>
   <data name="Password" xml:space="preserve"><value>Passwort</value></data>
   <data name="PasswordHelp" xml:space="preserve"><value>Mindestens {0} Zeichen. Ein Satz aus mehreren Wörtern ist leicht zu merken und sicher.</value></data>
   <data name="PersonCreate" xml:space="preserve"><value>Person hinzufügen</value></data>
@@ -82,8 +115,10 @@
   <data name="PersonNameFromAccount" xml:space="preserve"><value>Der Name kommt aus dem Konto; ändern kann ihn der Administrator.</value></data>
   <data name="RecoveryCode" xml:space="preserve"><value>Wiederherstellungscode</value></data>
   <data name="Reload" xml:space="preserve"><value>Neu laden</value></data>
+  <data name="Restore" xml:space="preserve"><value>Wiederherstellen</value></data>
   <data name="Role_guest" xml:space="preserve"><value>Gast</value></data>
   <data name="Role_member" xml:space="preserve"><value>Mitglied</value></data>
+  <data name="RowsPerPage" xml:space="preserve"><value>Zeilen je Seite</value></data>
   <data name="Save" xml:space="preserve"><value>Speichern</value></data>
   <data name="SetupCode" xml:space="preserve"><value>Einrichtungscode</value></data>
   <data name="SetupCodeHelp" xml:space="preserve"><value>Steht im Protokoll des Containers, etwa im Container Manager unter mydocs-app → Protokoll. Nach jedem Neustart gilt ein neuer Code.</value></data>
@@ -98,9 +133,17 @@
   <data name="SetupTotpManual" xml:space="preserve"><value>Ohne Kamera diesen Schlüssel eintragen:</value></data>
   <data name="SetupTotpQr" xml:space="preserve"><value>QR-Code für die Authenticator-App</value></data>
   <data name="SetupTotpText" xml:space="preserve"><value>Scanne den QR-Code mit einer Authenticator-App (etwa Microsoft Authenticator, Aegis oder 1Password) und gib den angezeigten Code ein.</value></data>
+  <data name="ShareEdit" xml:space="preserve"><value>Darf bearbeiten</value></data>
+  <data name="ShareNone" xml:space="preserve"><value>Keine Freigabe</value></data>
+  <data name="ShareRead" xml:space="preserve"><value>Darf lesen</value></data>
+  <data name="SharesIntro" xml:space="preserve"><value>Dieser Eintrag ist privat. Gib ihn einzelnen Personen zum Lesen oder Bearbeiten frei.</value></data>
+  <data name="SharesTitle" xml:space="preserve"><value>Freigaben</value></data>
   <data name="SkipToContent" xml:space="preserve"><value>Zum Inhalt springen</value></data>
   <data name="ToggleDarkMode" xml:space="preserve"><value>Hell/Dunkel umschalten</value></data>
   <data name="TotpCode" xml:space="preserve"><value>Code aus der Authenticator-App</value></data>
+  <data name="TrashEmpty" xml:space="preserve"><value>Der Papierkorb ist leer.</value></data>
+  <data name="TrashIntro" xml:space="preserve"><value>Gelöschte Einträge lassen sich hier wiederherstellen.</value></data>
+  <data name="TrashTitle" xml:space="preserve"><value>Papierkorb</value></data>
   <data name="UserCreate" xml:space="preserve"><value>Konto anlegen</value></data>
   <data name="UserLock" xml:space="preserve"><value>Sperren</value></data>
   <data name="UserLockConfirm" xml:space="preserve"><value>{0} sperren? Laufende Sitzungen enden innerhalb einer Minute.</value></data>

@@ -2,6 +2,8 @@
 @attribute [Microsoft.AspNetCore.Authorization.Authorize]
 @inject IStringLocalizer<SharedResource> L
 @inject CatalogText Catalog
+@inject ObjectClient Objects
+@inject NavigationManager Navigation
 
 <PageTitle>@L["AppName"]</PageTitle>
 
@@ -13,11 +15,39 @@
         @foreach (var area in Areas.Visible)
         {
             <MudItem xs="12" sm="6" md="4">
-                <MudPaper Class="pa-4" Elevation="1" data-testid="@($"area-{area.Number}")">
-                    <MudText Typo="Typo.subtitle1"><b>@Catalog.Area(area.Number)</b></MudText>
+                <MudPaper Class="pa-4 mydocs-clickable" Elevation="1" data-testid="@($"area-{area.Number}")" @onclick="@(() => Navigation.NavigateTo($"area/{area.Number}"))">
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                        <MudIcon Icon="@AreaIcons.For(area.Number)" Color="Color.Primary" />
+                        <MudText Typo="Typo.subtitle1"><b>@Catalog.Area(area.Number)</b></MudText>
+                        <MudSpacer />
+                        @if (_counts.TryGetValue(area.Number, out var count))
+                        {
+                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined">@count</MudChip>
+                        }
+                    </MudStack>
                     <MudText Typo="Typo.body2" Class="mydocs-muted">@Catalog.AreaText(area.Number)</MudText>
                 </MudPaper>
             </MudItem>
         }
     </MudGrid>
 </MudStack>
+
+@code {
+    private Dictionary<int, int> _counts = [];
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var items = await Objects.ListAsync();
+            _counts = items.Select(o => ObjectCatalog.Find(o.TypeKey)?.Area).OfType<int>().GroupBy(a => a).ToDictionary(g => g.Key, g => g.Count());
+        }
+        catch (ApiException)
+        {
+            // Ohne Zahlen bleibt die Übersicht nutzbar.
+        }
+        catch (HttpRequestException)
+        {
+        }
+    }
+}

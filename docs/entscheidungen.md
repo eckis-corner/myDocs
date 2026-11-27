@@ -159,6 +159,17 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 89 | Personen | Tabelle `persons` (Name, Geburtsdatum, Notiz, optional Konto). Jedes Konto ist genau eine Person, ihr Name ist der des Kontos. Mitglieder legen Personen ohne Konto an, ändern und entfernen sie (Papierkorb-Kennzeichen). Personen mit Konto lassen sich nicht entfernen. |
 | 90 | Aktualisierung | Die Migration `Household` macht bestehende Administratoren zu Mitgliedern und legt für jedes Konto eine Person an. |
 
+## Runde 6 (27.11.2026, M1.4 Objekte)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 91 | Inhalt eines Objekts | Typ aus dem Katalog, Titel, Felder als `jsonb` in kanonischer Form, Ablageorte (Verweis und Name wie myLife), Notizen, Ablaufdatum. Nicht in myDocs: die Typen der Bereiche 11 und 12 und das eigene Datenblatt `profile` (Personen führt myDocs selbst). Verknüpfungen entstehen über die Verweisfelder des Katalogs und werden im Datenblatt in beide Richtungen gezeigt; freie Verknüpfungen und Zusatzfelder kommen bei Bedarf später. |
+| 92 | Rechte | Geprüft in jeder Abfrage (26). Haushaltsobjekte sehen alle Angemeldeten, ändern nur Mitglieder. Private Objekte sieht und ändert der Eigentümer, dazu wer eine Freigabe hat (lesen oder bearbeiten). Fremde private Objekte erscheinen nirgends, auch nicht in Listen, Historie oder Papierkorb. Anlegen dürfen nur Mitglieder, privat nur für sich selbst. |
+| 93 | Eigentum | Privat → Haushalt durch den Eigentümer. Haushalt → privat nur durch die zuständige Person und nur für sich selbst (zu 34). Wer nur eine Freigabe hat, ändert das Eigentum nicht und löscht nicht. Im Haushalt gibt es keine Freigaben; sie entfallen beim Wechsel. |
+| 94 | Gleichzeitige Änderungen | Version über `xmin` von PostgreSQL. Wer auf einem veralteten Stand speichert, bekommt einen Konflikt (409) statt die Änderung des anderen zu überschreiben. |
+| 95 | Historie und Papierkorb | Jede Änderung von Titel, Feldern, Notizen, Ablaufdatum, Eigentum und Zuständigkeit landet mit Wer und Wann in `object_history`, ebenso Löschen und Wiederherstellen. Gelöschte Objekte liegen im Papierkorb, bis jemand mit Verwaltungsrecht sie wiederherstellt; das endgültige Leeren nach 30 Tagen kommt mit M1.7. |
+| 96 | Admin-Einsicht | Wandert nach **M1.7**, weil jeder Zugriff im Audit-Log des Eigentümers erscheinen soll (31) und das Audit-Log mit M1.7 kommt. Bis dahin sieht auch der Administrator fremde private Objekte nicht. |
+
 ## Offen
 
 | Thema | Was fehlt |

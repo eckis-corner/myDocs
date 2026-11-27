@@ -1,5 +1,6 @@
 @inherits LayoutComponentBase
 @inject IStringLocalizer<SharedResource> L
+@inject CatalogText Catalog
 @* Dienste optional: Die Seite „nicht gefunden“ rendert der Server statisch mit diesem Layout, ohne die Dienste des Browsers. *@
 @inject IServiceProvider ServiceProvider
 
@@ -34,7 +35,14 @@
         <div class="mydocs-drawer-body">
             <MudNavMenu Class="mydocs-nav mydocs-nav-main">
                 <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Dashboard">@L["NavHome"]</MudNavLink>
+                <MudNavGroup Title="@L["NavAreas"]" Icon="@Icons.Material.Outlined.FolderOpen" Expanded>
+                    @foreach (var area in Areas.Visible)
+                    {
+                        <MudNavLink Href="@($"area/{area.Number}")" Icon="@AreaIcons.For(area.Number)">@Catalog.Area(area.Number)</MudNavLink>
+                    }
+                </MudNavGroup>
                 <MudNavLink Href="household" Icon="@Icons.Material.Outlined.Diversity3" data-testid="nav-household">@L["HouseholdTitle"]</MudNavLink>
+                <MudNavLink Href="trash" Icon="@Icons.Material.Outlined.Delete" data-testid="nav-trash">@L["TrashTitle"]</MudNavLink>
             </MudNavMenu>
             <AuthorizeView Roles="@HouseholdRoles.Admin">
                 <Authorized>

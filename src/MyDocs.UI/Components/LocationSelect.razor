@@ -1,0 +1,34 @@
+@* Ablageort aus der Tabelle „Ablageorte“ (Bereich 14), die myDocs führt (63). Speichert Verweis und Namen. *@
+@inject IStringLocalizer<SharedResource> L
+@inject ObjectDirectory Directory
+
+<MudSelect T="Guid?" Value="@Current" ValueChanged="Select" Label="@Label" Variant="Variant.Outlined" Clearable
+           Required="Required" Error="@Error" ErrorText="@ErrorText" HelperText="@Helper"
+           ToStringFunc="@(id => id is { } v ? Directory.TitleOf(v) ?? Data.Get(Key) : string.Empty)" UserAttributes="@(new() { ["data-testid"] = $"field-{Key}" })">
+    @foreach (var location in Directory.Locations)
+    {
+        <MudSelectItem T="Guid?" Value="@location.Id">@location.Title</MudSelectItem>
+    }
+</MudSelect>
+
+@code {
+    [Parameter, EditorRequired] public ObjectData Data { get; set; } = default!;
+
+    [Parameter, EditorRequired] public string Key { get; set; } = default!;
+
+    [Parameter] public string? Label { get; set; }
+
+    [Parameter] public bool Required { get; set; }
+
+    [Parameter] public bool Error { get; set; }
+
+    [Parameter] public string? ErrorText { get; set; }
+
+    [Parameter] public string? HelperText { get; set; }
+
+    private Guid? Current => Data.Locations.TryGetValue(Key, out var id) ? id : null;
+
+    private string? Helper => Directory.Locations.Any() ? HelperText : L["LocationNoneYet"].Value;
+
+    private void Select(Guid? id) => Data.SetLocation(Key, id, id is { } v ? Directory.TitleOf(v) : null);
+}

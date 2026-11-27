@@ -1,0 +1,18 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <AnalysisLevel>latest-recommended</AnalysisLevel>
+    <Authors>myDocs contributors</Authors>
+    <Product>myDocs</Product>
+    <Copyright>myDocs contributors, AGPL-3.0-or-later</Copyright>
+    <Version>0.1.0</Version>
+    <InvariantGlobalization>false</InvariantGlobalization>
+    <!-- Liegt my-common neben myDocs (eckis-corner/my-common), nutzen die Projekte den Quellcode, sonst die Pakete (52). -->
+    <MyCommonDir>$(MSBuildThisFileDirectory)..\my-common\</MyCommonDir>
+    <UseMyCommonSource Condition="Exists('$(MyCommonDir)MyCommon.slnx')">true</UseMyCommonSource>
+  </PropertyGroup>
+</Project>

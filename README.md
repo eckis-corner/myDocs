@@ -6,7 +6,7 @@ myDocs verwaltet Versicherungen, Konten, Verträge, Abos, Urkunden und alles and
 
 myDocs ist der Alltag, [myLife](https://github.com/eckis-corner/myLife) der Notfall. Was im Ernstfall gebraucht wird, übernimmt myLife per Abgleich aus myDocs, verschlüsselt im Browser.
 
-> **Status:** Planung. Die Umsetzung beginnt nach Freigabe des Plans.
+> **Status:** In Entwicklung, Meilenstein M1 (Grundgerüst). Noch nicht für echte Daten.
 
 ## Merkmale (geplant)
 
@@ -29,6 +29,37 @@ myDocs ist der Alltag, [myLife](https://github.com/eckis-corner/myLife) der Notf
 | [docs/entscheidungen.md](docs/entscheidungen.md) | Entscheidungsprotokoll und offene Punkte |
 | [docs/meilensteine.md](docs/meilensteine.md) | Umsetzungsplan |
 | [PROMPT.md](PROMPT.md) | Ursprüngliche Idee |
+
+## Entwickeln
+
+Voraussetzungen: .NET SDK 10, Docker (für PostgreSQL und die Integrationstests). `my-common` liegt am besten daneben (`eckis-corner/my-common`), dann nutzt der Build dessen Quellcode. Sonst kommen die Pakete aus GitHub Packages, siehe `nuget.config`.
+
+```bash
+cp .env.example .env                                               # für die Entwicklung: POSTGRES_PASSWORD=mydocs
+docker compose -f docker-compose.yml -f compose.dev.yml up -d db   # PostgreSQL auf localhost:5433
+dotnet run --project src/MyDocs.Server                             # http://localhost:5072
+dotnet test --solution MyDocs.slnx                                 # Tests (nutzen Testcontainers)
+python3 tools/resources.py                                         # Texte de/en neu erzeugen
+```
+
+**VS Code:** F5 („myDocs (Server)“) startet die Datenbank, baut und öffnet die App unter <http://localhost:5072>.
+
+## Projektstruktur
+
+```text
+src/
+  MyDocs.Shared     DTOs, API-Verträge, Sprachen
+  MyDocs.ApiClient  typisierter HTTP-Client für die REST-API
+  MyDocs.UI         gesamte Oberfläche (Razor Class Library, MudBlazor), auch für den späteren Desktop-Client
+  MyDocs.Web        Hosting im Browser (Blazor WebAssembly)
+  MyDocs.Server     ASP.NET Core: API, Auslieferung, PostgreSQL
+tests/
+  MyDocs.Tests      xUnit, bUnit, Integrationstests mit Testcontainers
+```
+
+## Sicherheit
+
+Bitte Sicherheitslücken **nicht** als öffentliches Issue melden, siehe [SECURITY.md](SECURITY.md).
 
 ## Lizenz
 

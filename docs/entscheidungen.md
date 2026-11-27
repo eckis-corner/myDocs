@@ -129,6 +129,15 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 74 | Umfang MyCommon.Ui | Farbschema mit Akzentfarbe je App (`EckisTheme`, `AppAccent`), Schrift Titillium Web, `CatalogText` (Texte, Datenblatt-Zeilen der Felder) und `CatalogFields` (Formular der Felder eines Typs, Ablageort-Felder über eine Vorlage der App). Die allgemeinen Texte der Feldtypen (Ja/Nein, Verweise, Fehler) gehören zum Katalog. |
 | 75 | Bleibt in den Apps | Logo, Sprach- und Benutzermenü, Layout und das CSS. Sie hängen in myLife an Sitzung, Tresor und Kulturdienst. Sie werden herausgelöst, sobald myDocs in M1 eigene Gegenstücke hat und klar ist, was beide wirklich teilen. Die Akzentfarbe von myDocs wird in M1 festgelegt. |
 
+## Runde 3 (27.11.2026, Start von M1)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 76 | Bereiche | myDocs übernimmt die **Bereiche des Katalogs** für Navigation und Übersicht. Die Zusatztypen (7) bekommen neue Bereiche ab 15 im Katalog. Die Bereiche nur für den Notfall (11 Persönliche Wünsche, 12 Checkliste) zeigt myDocs nicht. |
+| 77 | Personen | Eigene Tabelle **Personen** für Haushaltsmitglieder und Kinder, mit oder ohne Login; sie tragen Rechte und Zuständigkeit. Der Katalogtyp **Kontakt** bleibt für Außenstehende. Ob Felder wie Versicherungsnehmer später auf Personen verweisen, klärt M2. (Zu 5.) |
+| 78 | Dateigröße | **100 MB** je Datei, vom Administrator änderbar. |
+| 79 | Akzentfarbe und Logo | **Petrol #1F9E8F** (dunkle Schrift darauf); als Schriftfarbe im hellen Modus #0F6B60. Logo im Stil von myLife: Quadrat mit zwei Blättern, Zeilen in Petrol, Schriftzug „my“ im Akzent und „Docs“ in der Textfarbe. |
+
 ## Offen
 
 | Thema | Was fehlt |
@@ -137,6 +146,3 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | Prüfregeln (13) | Standard-Prüfintervall je Typ, Vorlauf bei Fristen |
 | Aufbewahrung (28) | Dauer und Bezugspunkt je Dokumentart |
 | Posteingang (20) | Wert für „X Tage“, bis ein Eintrag fällig wird |
-| Bereiche | Ob myDocs die 15 Bereiche von myLife übernimmt oder eigene Bereiche für die Zusatztypen bekommt |
-| Personen-Stammdaten (5) | Verhältnis zum myLife-Typ „Kontakt“ und zu Benutzern |
-| Größengrenze | Maximale Dateigröße in myDocs (myLife: 25 MB) |

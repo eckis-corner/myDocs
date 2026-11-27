@@ -1,0 +1,109 @@
+@inherits LayoutComponentBase
+@inject IStringLocalizer<SharedResource> L
+@* Dienste optional: Die Seite „nicht gefunden“ rendert der Server statisch mit diesem Layout, ohne die Dienste des Browsers. *@
+@inject IServiceProvider ServiceProvider
+
+<MudThemeProvider @ref="_themeProvider" Theme="_theme" @bind-IsDarkMode="_isDarkMode" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+@* Design wie myLife (rixio-Template): flache Kopfzeile mit Trennlinie, Seitenleiste mit Akzent in Petrol. *@
+<a class="mydocs-skip-link" href="@SkipTarget">@L["SkipToContent"]</a>
+
+<MudLayout Class="@(_isDarkMode ? "mydocs-rixio mydocs-rixio-dark" : "mydocs-rixio mydocs-rixio-light")">
+    <MudAppBar Elevation="0" Class="mydocs-appbar">
+        <MudIconButton Icon="@Icons.Material.Filled.Menu"
+                       Color="Color.Inherit"
+                       Edge="Edge.Start"
+                       aria-label="@L["OpenMenu"]"
+                       OnClick="ToggleDrawer" />
+        <AppLogo InAppBar />
+        <MudSpacer />
+        <LanguageMenu />
+        <MudTooltip Text="@L["ToggleDarkMode"]">
+            <MudIconButton Icon="@(_isDarkMode ? Icons.Material.Filled.LightMode : Icons.Material.Filled.DarkMode)"
+                           Color="Color.Inherit"
+                           aria-label="@L["ToggleDarkMode"]"
+                           OnClick="() => _isDarkMode = !_isDarkMode" />
+        </MudTooltip>
+    </MudAppBar>
+
+    <MudDrawer @bind-Open="_drawerOpen" ClipMode="DrawerClipMode.Always" Elevation="0" Variant="DrawerVariant.Responsive" Class="mydocs-drawer">
+        <div class="mydocs-drawer-body">
+            <MudNavMenu Class="mydocs-nav mydocs-nav-main">
+                <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Dashboard">@L["NavHome"]</MudNavLink>
+            </MudNavMenu>
+        </div>
+    </MudDrawer>
+
+    <MudMainContent Class="mydocs-main" role="main">
+        <MudContainer MaxWidth="MaxWidth.Large" Class="py-6 flex-grow-1" id="main-content" tabindex="-1">
+            <ErrorBoundary>
+                <ChildContent>
+                    @Body
+                </ChildContent>
+                <ErrorContent>
+                    <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">
+                        @L["ErrorUnhandled"]
+                        <MudButton Variant="Variant.Text" Color="Color.Error" Href="." Class="ml-2">@L["Reload"]</MudButton>
+                    </MudAlert>
+                </ErrorContent>
+            </ErrorBoundary>
+        </MudContainer>
+        <footer class="mydocs-footer">
+            <MudText Typo="Typo.caption">
+                @L["AppName"]@if (_version is not null)
+                {
+                    <text> · @L["HomeStatusVersion"] @_version</text>
+                }
+            </MudText>
+        </footer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private readonly MudTheme _theme = Theme.MyDocsTheme.Create();
+    private MudThemeProvider? _themeProvider;
+    private bool _isDarkMode;
+    private bool _drawerOpen = true;
+    private string? _version;
+    private bool? _appliedLight;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (ServiceProvider.GetService<AppInfoClient>() is not { } appInfo)
+        {
+            return;
+        }
+
+        try
+        {
+            _version = (await appInfo.GetAsync())?.Version;
+        }
+        catch (Exception)
+        {
+            // Die Versionsanzeige ist nur ein Hinweis; ohne Server bleibt die Fußzeile ohne Version.
+        }
+    }
+
+    /// <summary>Sprunglink „Zum Inhalt“ auf die aktuelle Seite (mit &lt;base href="/"&gt; sonst die Startseite).</summary>
+    private string SkipTarget => $"{(ServiceProvider.GetService<NavigationManager>()?.Uri ?? string.Empty).Split('#')[0]}#main-content";
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _themeProvider is not null)
+        {
+            _isDarkMode = await _themeProvider.GetSystemDarkModeAsync();
+            StateHasChanged();
+        }
+
+        if (_appliedLight != !_isDarkMode && ServiceProvider.GetService<IJSRuntime>() is { } js)
+        {
+            _appliedLight = !_isDarkMode;
+            await js.InvokeVoidAsync("myDocs.setLightMode", !_isDarkMode);
+        }
+    }
+
+    private void ToggleDrawer() => _drawerOpen = !_drawerOpen;
+}

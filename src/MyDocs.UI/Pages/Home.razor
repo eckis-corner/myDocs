@@ -1,0 +1,22 @@
+@page "/"
+@inject IStringLocalizer<SharedResource> L
+@inject CatalogText Catalog
+
+<PageTitle>@L["AppName"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h4" HtmlTag="h1">@L["HomeTitle"]</MudText>
+    <MudText>@L["HomeIntro"]</MudText>
+    <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["HomeAreas"]</b></MudText>
+    <MudGrid Spacing="2">
+        @foreach (var area in Areas.Visible)
+        {
+            <MudItem xs="12" sm="6" md="4">
+                <MudPaper Class="pa-4" Elevation="1" data-testid="@($"area-{area.Number}")">
+                    <MudText Typo="Typo.subtitle1"><b>@Catalog.Area(area.Number)</b></MudText>
+                    <MudText Typo="Typo.body2" Class="mydocs-muted">@Catalog.AreaText(area.Number)</MudText>
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+</MudStack>

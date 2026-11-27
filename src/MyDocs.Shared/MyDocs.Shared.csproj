@@ -1,0 +1,11 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <RootNamespace>MyDocs.Shared</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup Condition="'$(UseMyCommonSource)' == 'true'">
+    <ProjectReference Include="$(MyCommonDir)src\MyCommon.Catalog\MyCommon.Catalog.csproj" />
+  </ItemGroup>
+  <ItemGroup Condition="'$(UseMyCommonSource)' != 'true'">
+    <PackageReference Include="MyCommon.Catalog" />
+  </ItemGroup>
+</Project>

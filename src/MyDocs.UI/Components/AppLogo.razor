@@ -1,0 +1,12 @@
+@* Logo mit Schriftzug wie myLife: „my“ im Akzent, „Docs“ in der Textfarbe, damit er hell und dunkel lesbar bleibt (79). *@
+<div class="@(InAppBar ? "mydocs-logo mydocs-logo--appbar" : "mydocs-logo")" role="img" aria-label="myDocs" data-testid="app-logo">
+    <img src="_content/MyDocs.UI/img/icon.svg" alt="" width="@IconSize" height="@IconSize" />
+    <span class="mydocs-logo-text" aria-hidden="true"><span class="mydocs-logo-my">my</span><span class="mydocs-logo-docs">Docs</span></span>
+</div>
+
+@code {
+    /// <summary>Kleine Variante für die App-Leiste.</summary>
+    [Parameter] public bool InAppBar { get; set; }
+
+    private int IconSize => InAppBar ? 32 : 56;
+}

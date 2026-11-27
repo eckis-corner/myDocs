@@ -1,0 +1,407 @@
+/* myDocs – Ergänzungen zu MudBlazor. Übernommen aus myLife (app.css) mit Präfix mydocs- und der Akzentfarbe Petrol (79). */
+/* Ergänzungen zu MudBlazor. Fokus-Sprungziel nach Navigation (FocusOnNavigate) ohne sichtbaren Rahmen. */
+h1:focus {
+    outline: none;
+}
+
+/* Allgemein */
+.mydocs-muted {
+    color: var(--mud-palette-text-secondary);
+}
+
+.mydocs-clickable {
+    cursor: pointer;
+}
+
+.mydocs-multiline {
+    white-space: pre-line;
+}
+
+.mydocs-hidden-input {
+    display: none;
+}
+
+.mydocs-datasheet-table th {
+    width: 35%;
+    font-weight: 600;
+    color: var(--mud-palette-text-secondary);
+    vertical-align: top;
+    text-align: left;
+}
+
+.mydocs-datasheet-table td {
+    vertical-align: top;
+    overflow-wrap: anywhere;
+}
+
+.mydocs-preview-frame {
+    width: 100%;
+    height: 75vh;
+    border: 0;
+}
+
+/* Beim Drucken nur den markierten Bereich zeigen (Datenblätter). */
+@media print {
+    body * {
+        visibility: hidden;
+    }
+
+    .mydocs-print,
+    .mydocs-print * {
+        visibility: visible;
+    }
+
+    .mydocs-no-print {
+        display: none !important;
+    }
+
+    .mydocs-page-break {
+        break-before: page;
+    }
+
+    .mydocs-avoid-break {
+        break-inside: avoid;
+    }
+
+    .mydocs-print {
+        position: absolute;
+        inset: 0 auto auto 0;
+        width: 100%;
+        border: none !important;
+        box-shadow: none !important;
+        color: #000 !important;
+        background: #fff !important;
+    }
+}
+
+/* Fußzeile mit der App-Version */
+.mydocs-main {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.mydocs-footer {
+    padding: 8px 16px 16px;
+    text-align: center;
+    color: var(--mud-palette-text-secondary);
+}
+
+@media print {
+    .mydocs-footer {
+        display: none;
+    }
+}
+
+/* Logo mit Schriftzug (Anmeldeseite, App-Leiste) */
+.mydocs-logo {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+}
+
+.mydocs-logo img {
+    display: block;
+    border-radius: 12px;
+}
+
+.mydocs-logo-text {
+    font-size: 2.6rem;
+    font-weight: 600;
+    line-height: 1;
+    letter-spacing: -0.03em;
+}
+
+.mydocs-logo-my {
+    color: var(--mydocs-accent, var(--mud-palette-primary));
+    font-weight: 400;
+}
+
+.mydocs-logo-docs {
+    color: var(--mud-palette-text-primary);
+}
+
+.mydocs-logo--appbar {
+    justify-content: flex-start;
+    gap: 10px;
+    margin-left: 8px;
+}
+
+.mydocs-logo--appbar img {
+    border-radius: 7px;
+    box-shadow: 0 0 0 1px var(--mud-palette-lines-default);
+}
+
+.mydocs-logo--appbar .mydocs-logo-text {
+    font-size: 1.5rem;
+}
+
+/* ---------------------------------------------------------------------------------------------
+   rixio-Design (wie myLife, nach rixio.de/template/static/style.css). Farben stehen in
+   MyDocsTheme.cs; hier nur Formen und Akzente, die MudBlazor nicht über das Theme abbildet.
+   --------------------------------------------------------------------------------------------- */
+
+/* Titillium Web (SIL Open Font License 1.1, siehe _content/MyCommon.Ui/fonts/OFL-TitilliumWeb.txt), selbst gehostet in MyCommon.Ui. */
+@font-face {
+    font-family: 'Titillium Web';
+    font-style: normal;
+    font-weight: 400;
+    font-display: swap;
+    src: url(../../MyCommon.Ui/fonts/TitilliumWeb-Regular.ttf) format('truetype');
+}
+
+@font-face {
+    font-family: 'Titillium Web';
+    font-style: normal;
+    font-weight: 600;
+    font-display: swap;
+    src: url(../../MyCommon.Ui/fonts/TitilliumWeb-SemiBold.ttf) format('truetype');
+}
+
+@font-face {
+    font-family: 'Titillium Web';
+    font-style: normal;
+    font-weight: 700;
+    font-display: swap;
+    src: url(../../MyCommon.Ui/fonts/TitilliumWeb-Bold.ttf) format('truetype');
+}
+
+.mydocs-rixio {
+    --mydocs-accent: #1f9e8f;
+    --mydocs-accent-soft: #1f9e8f12;
+    --mydocs-accent-line: #1d5c55;
+}
+
+.mydocs-rixio-light {
+    /* Petrol als Text ist auf Weiß zu kontrastarm, dort gilt das dunklere #0F6B60. */
+    --mydocs-accent: #0f6b60;
+    --mydocs-accent-soft: #dcf3ef;
+    --mydocs-accent-line: #9fd3ca;
+}
+
+/* Kopfzeile: flach mit Trennlinie statt farbiger Leiste. */
+.mydocs-rixio .mydocs-appbar {
+    border-bottom: 1px solid var(--mud-palette-lines-default);
+}
+
+/* Heller Modus: dunkle Kopfzeile. Das Logo braucht dort helle Farben statt dunklem Petrol und Graphit. */
+.mydocs-rixio-light .mydocs-appbar {
+    border-bottom-color: #23394c;
+}
+
+.mydocs-rixio-light .mydocs-appbar .mydocs-logo-my {
+    color: #3fc1b0;
+}
+
+.mydocs-rixio-light .mydocs-appbar .mydocs-logo-docs {
+    color: #ffffff;
+}
+
+.mydocs-rixio-light .mydocs-appbar .mydocs-logo--appbar img {
+    box-shadow: 0 0 0 1px #ffffff26;
+}
+
+/* Profilbild statt Kontosymbol in der Kopfzeile, so groß wie die Symbolknöpfe daneben. */
+.mydocs-appbar-avatar {
+    display: inline-flex;
+    width: 48px;
+    height: 48px;
+    padding: 8px;
+    border: 0;
+    border-radius: 50%;
+    background: none;
+    cursor: pointer;
+}
+
+.mydocs-appbar-avatar:hover {
+    background: var(--mud-palette-action-default-hover);
+}
+
+.mydocs-appbar-avatar:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: -2px;
+}
+
+.mydocs-appbar-avatar img {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    object-fit: cover;
+    box-shadow: 0 0 0 1px #ffffff40;
+}
+
+/* Seitenleiste */
+.mydocs-rixio .mydocs-drawer {
+    border-right: 1px solid var(--mud-palette-lines-default);
+}
+
+.mydocs-nav {
+    padding: 16px 12px;
+}
+
+/* Hauptmenü scrollt, die Gruppe „Konto“ bleibt am unteren Rand sichtbar. */
+.mydocs-drawer-body {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    min-height: 0;
+}
+
+.mydocs-nav-main {
+    flex: 1 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+}
+
+.mydocs-nav-account {
+    flex: 0 0 auto;
+    /* Verwaltung und Konto aufgeklappt: Die untere Leiste scrollt selbst, statt das Hauptmenü ganz zu verdrängen. */
+    max-height: 60%;
+    overflow-y: auto;
+    padding-top: 8px;
+    border-top: 1px solid var(--mud-palette-lines-default);
+}
+
+.mydocs-rixio-light .mydocs-nav-account {
+    border-top-color: #2a4256;
+}
+
+/* Heller Modus: dunkle Seitenleiste. Akzent und Hover wie im dunklen Modus, damit sie auf dem dunklen Grund lesbar bleiben. */
+.mydocs-rixio-light .mydocs-drawer {
+    --mydocs-accent: #3fc1b0;
+    --mydocs-accent-soft: #3fc1b014;
+    --mydocs-accent-line: #2b7f75;
+    border-right-color: #2a4256;
+}
+
+.mydocs-rixio-light .mydocs-nav .mud-nav-link:hover:not(.active) {
+    background: #ffffff0f;
+    color: #ffffff;
+}
+
+.mydocs-nav .mud-nav-link {
+    border: 1px solid transparent;
+    border-radius: 8px;
+    margin: 2px 0;
+    padding: 9px 12px;
+}
+
+.mydocs-nav .mud-nav-link:hover:not(.active) {
+    background: color-mix(in srgb, var(--mud-palette-text-primary) 5%, transparent);
+    color: var(--mud-palette-text-primary);
+}
+
+.mydocs-nav .mud-nav-link.active:not(.mud-nav-link-disabled) {
+    background: var(--mydocs-accent-soft);
+    border-color: var(--mydocs-accent-line);
+    color: var(--mydocs-accent);
+}
+
+.mydocs-nav .mud-nav-link.active .mud-nav-link-icon {
+    color: var(--mydocs-accent);
+}
+
+/* Karten und Tabellen: Rahmen statt Schatten, 12px Radius. */
+.mydocs-rixio .mud-main-content .mud-paper.mud-elevation-1,
+.mydocs-rixio .mud-main-content .mud-paper.mud-elevation-2 {
+    box-shadow: none;
+    border: 1px solid var(--mud-palette-lines-default);
+    border-radius: 12px;
+}
+
+.mydocs-rixio-dark .mud-main-content .mud-card.mud-elevation-1 {
+    background: linear-gradient(120deg, #202a33, #1a2026);
+}
+
+.mydocs-rixio .mud-table-head .mud-table-cell {
+    background: var(--mud-palette-background-gray);
+    color: var(--mud-palette-text-secondary);
+    font-size: 11px;
+    letter-spacing: 1.2px;
+    text-transform: uppercase;
+}
+
+/* Akzenttexte im hellen Modus lesbar halten. */
+.mydocs-rixio-light .mud-primary-text,
+.mydocs-rixio-light .mud-button-text-primary,
+.mydocs-rixio-light .mud-button-outlined-primary,
+.mydocs-rixio-light .mud-link.mud-primary-text {
+    color: var(--mydocs-accent) !important;
+}
+
+.mydocs-rixio-light .mud-button-outlined-primary {
+    border-color: var(--mydocs-accent-line);
+}
+
+/* Fokus wie im Template. */
+.mydocs-rixio a:focus-visible,
+.mydocs-rixio button:focus-visible {
+    outline: 2px solid var(--mydocs-accent);
+    outline-offset: 2px;
+}
+
+/* Fußzeile mit Trennlinie */
+.mydocs-rixio .mydocs-footer {
+    border-top: 1px solid var(--mud-palette-lines-default);
+    margin: 24px 24px 0;
+    padding-top: 16px;
+}
+
+/* Buttons flach wie im Template. */
+.mydocs-rixio .mud-button-filled,
+.mydocs-rixio .mud-button-filled:hover {
+    box-shadow: none;
+}
+
+/* Barrierefreiheit ----------------------------------------------------------------------------------------- */
+
+/* Sprunglink „Zum Inhalt“: unsichtbar, bis er per Tastatur den Fokus bekommt. */
+.mydocs-skip-link {
+    position: absolute;
+    left: 8px;
+    top: -48px;
+    z-index: 2000;
+    padding: 8px 16px;
+    background: var(--mud-palette-surface);
+    color: var(--mud-palette-text-primary);
+    border: 2px solid var(--mud-palette-primary);
+    border-radius: 4px;
+}
+
+.mydocs-skip-link:focus {
+    top: 8px;
+}
+
+#main-content:focus {
+    outline: none;
+}
+
+/*
+ * Im hellen Modus reicht Petrol als Schriftfarbe nicht (3,3:1 auf Weiß). Für Schrift, Rahmen und Haken gilt
+ * dort #0F6B60 (6,4:1); gefüllte Flächen bleiben Petrol mit dunkler Schrift (6,1:1).
+ */
+html.mydocs-light {
+    --mydocs-primary-ink: #0f6b60;
+}
+
+html.mydocs-light .mud-primary-text,
+html.mydocs-light .mud-button-text.mud-button-text-primary,
+html.mydocs-light .mud-button-outlined.mud-button-outlined-primary,
+html.mydocs-light .mud-chip-outlined.mud-chip-color-primary,
+html.mydocs-light .mud-chip-text.mud-chip-color-primary,
+html.mydocs-light .mud-link.mud-primary-text,
+html.mydocs-light .mud-tab.mud-tab-active {
+    color: var(--mydocs-primary-ink) !important;
+}
+
+html.mydocs-light .mud-button-outlined.mud-button-outlined-primary,
+html.mydocs-light .mud-chip-outlined.mud-chip-color-primary {
+    border-color: var(--mydocs-primary-ink) !important;
+}
+
+/* Sichtbarer Fokus für Tastaturnutzer. */
+:focus-visible {
+    outline: 2px solid var(--mydocs-primary-ink, var(--mud-palette-primary));
+    outline-offset: 2px;
+}

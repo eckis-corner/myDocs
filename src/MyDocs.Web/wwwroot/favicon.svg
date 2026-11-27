@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="myDocs">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#2B3641"/>
+      <stop offset="1" stop-color="#141A20"/>
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)"/>
+  <!-- Zwei gestapelte Blätter wie der Ordner im myLife-Logo: hinten Stahlblau, vorn hell mit Eselsohr und Zeilen in Petrol -->
+  <path d="M150 118h150l62 62v214q0 22-22 22H150q-22 0-22-22V140q0-22 22-22z" fill="#587894" transform="translate(-22 -26)"/>
+  <path d="M172 140h150l62 62v222q0 24-24 24H172q-24 0-24-24V164q0-24 24-24z" fill="#EDF2F6"/>
+  <path d="M322 140v42q0 20 20 20h42z" fill="#B8CDDD"/>
+  <rect x="190" y="250" width="150" height="22" rx="11" fill="#1F9E8F"/>
+  <rect x="190" y="300" width="150" height="22" rx="11" fill="#1F9E8F"/>
+  <rect x="190" y="350" width="96" height="22" rx="11" fill="#1F9E8F"/>
+</svg>

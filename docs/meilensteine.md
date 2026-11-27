@@ -19,6 +19,9 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 ## M1 – Grundgerüst myDocs
 
+**M1.1 Leeres Grundgerüst ✅ (27.11.2026, lokal):** Solution mit Shared, ApiClient, UI, Web, Server und Tests; Layout wie myLife in Petrol, Logo, Sprachen de/en, PostgreSQL mit erster Migration, `/health`, `/api/info`, Sicherheits-Header, Docker, CI, VS Code. 13 Tests grün.
+
+
 1. Solution `MyDocs.slnx` mit den Projekten aus [architektur.md](architektur.md), Abschnitt 3; Docker Compose mit `app` und `db`; CI mit Image nach `ghcr.io/eckis-corner/mydocs`
 2. Einrichtungsassistent mit Einrichtungscode, erster Admin, 2FA (TOTP und Passkey)
 3. Admin legt Benutzer an, Personen-Stammdaten, Haushalt, Rollen Mitglied und Gast

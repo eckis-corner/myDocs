@@ -35,7 +35,9 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 **M1.7b Sicherung und Betrieb ✅ (27.11.2026, lokal):** tägliche verschlüsselte Sicherung, `restore` und `master-key restore` auf der Kommandozeile, Hauptschlüssel als 24 Wörter zum Drucken, Installationsanleitung und Abnahme-Checkliste (110–113). 88 Tests grün, Sichern und Zurückspielen lokal durchgespielt.
 
-**M1.2b Passkeys:** als zweiter Faktor statt TOTP, mit den Passkeys von ASP.NET Core Identity 10.
+**M1.2b Passkeys ✅ (27.11.2026, lokal):** Passkey statt Code nach dem Passwort, Seite „Sicherheit“ (114, 115). 95 Tests grün, vollständige WebAuthn-Zeremonie über einen Authenticator in Software.
+
+**M1 fertig (27.11.2026).** Offen bis zur Abnahme: die Checkliste [betrieb/abnahme.md](betrieb/abnahme.md) auf der Synology. Nicht Teil von M1 und auf später verschoben: Einstellungsseite für den Administrator (Dateigröße, Sicherungszeit; bis dahin Umgebungsvariablen, 78, 110), Pager auch oben an den Tabellen, PNG-Icons für Smartphone und Favicon.
 
 
 

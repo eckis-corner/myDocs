@@ -162,6 +162,7 @@ app.MapObjectEndpoints();
 app.MapDocumentEndpoints(maxRequestBytes);
 app.MapSearchEndpoints();
 app.MapAuditEndpoints();
+app.MapAccountEndpoints();
 app.MapAdminBackupEndpoints();
 
 app.MapStaticAssets();

@@ -28,6 +28,23 @@ public sealed class AuthClient(HttpClient http)
     public Task<LoginResultDto> LoginAsync(LoginRequest request, CancellationToken ct = default) =>
         PostAsync<LoginRequest, LoginResultDto>("api/auth/login", request, ct);
 
+    public Task<PasskeyOptionsDto> PasskeyLoginOptionsAsync(CancellationToken ct = default) => http.PostForAsync<PasskeyOptionsDto>("api/auth/login/passkey/options", ct);
+
+    public async Task LoginPasskeyAsync(string credentialJson, CancellationToken ct = default)
+    {
+        using var response = await http.PostAsJsonAsync("api/auth/login/passkey", new PasskeyCredentialRequest(credentialJson), ct);
+        await ApiException.EnsureSuccessAsync(response, ct);
+    }
+
+    public Task<List<PasskeyDto>> PasskeysAsync(CancellationToken ct = default) => http.GetAsync<List<PasskeyDto>>("api/account/passkeys", ct);
+
+    public Task<PasskeyOptionsDto> PasskeyCreationOptionsAsync(CancellationToken ct = default) => http.PostForAsync<PasskeyOptionsDto>("api/account/passkeys/options", ct);
+
+    public Task<PasskeyDto> AddPasskeyAsync(string credentialJson, string name, CancellationToken ct = default) =>
+        http.SendAsync<PasskeyCredentialRequest, PasskeyDto>(HttpMethod.Post, "api/account/passkeys", new PasskeyCredentialRequest(credentialJson, name), ct);
+
+    public Task RemovePasskeyAsync(string id, CancellationToken ct = default) => http.SendAsync(HttpMethod.Delete, $"api/account/passkeys/{Uri.EscapeDataString(id)}", ct);
+
     public async Task LoginTwoFactorAsync(LoginTwoFactorRequest request, CancellationToken ct = default)
     {
         using var response = await http.PostAsJsonAsync("api/auth/login/2fa", request, ct);

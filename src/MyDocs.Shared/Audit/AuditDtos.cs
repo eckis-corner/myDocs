@@ -29,6 +29,8 @@ public static class AuditActions
     public const string BackupCreated = "backup-created";
     public const string BackupFailed = "backup-failed";
     public const string MasterKeyShown = "master-key-shown";
+    public const string PasskeyAdded = "passkey-added";
+    public const string PasskeyRemoved = "passkey-removed";
 }
 
 /// <summary>Ein Eintrag im Audit-Log. Details ohne Inhalte, höchstens Titel.</summary>

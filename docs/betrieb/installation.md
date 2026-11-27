@@ -2,7 +2,7 @@
 
 Für DSM 7.2 und neuer mit **Container Manager** (Synology DS1520+, x86-64), neben myLife. Für andere Docker-Hosts gelten dieselben Schritte sinngemäß.
 
-> **Stand M1 (Grundgerüst):** Einrichtung, Anmeldung mit Authenticator-App, Benutzer und Haushalt, Einträge aus dem Katalog, Dokumente mit Versionen, Suche, Protokoll, Admin-Einsicht, Papierkorb, tägliche Sicherung. Noch nicht: Wiedervorlage und Vorgänge (M2), Mailversand (M2), Posteingang und OCR (M3), Desktop-Client (M4), Abgleich mit myLife (M5). Vor echten Daten die Abnahme durchgehen: [abnahme.md](abnahme.md).
+> **Stand M1 (Grundgerüst):** Einrichtung, Anmeldung mit Authenticator-App oder Passkey, Benutzer und Haushalt, Einträge aus dem Katalog, Dokumente mit Versionen, Suche, Protokoll, Admin-Einsicht, Papierkorb, tägliche Sicherung. Noch nicht: Wiedervorlage und Vorgänge (M2), Mailversand (M2), Posteingang und OCR (M3), Desktop-Client (M4), Abgleich mit myLife (M5). Vor echten Daten die Abnahme durchgehen: [abnahme.md](abnahme.md).
 
 ## 1. Ordner anlegen
 
@@ -79,7 +79,7 @@ myDocs ist noch nicht eingerichtet. Einrichtungscode für den Assistenten: ABCD-
 
 Nach jedem Neustart des Containers gilt ein neuer Code. Sobald das erste Konto mit Authenticator-App angelegt ist, gibt es keinen Code mehr.
 
-Der Assistent führt durch Konto, Passwort (mindestens 12 Zeichen), Authenticator-App (QR-Code) und **10 Wiederherstellungscodes** (ausdrucken oder im Passwortmanager speichern). Danach legt der Administrator unter **Verwaltung → Benutzer** weitere Konten an und gibt jedem den angezeigten **Aktivierungslink** weiter (einmal gültig, 7 Tage).
+Der Assistent führt durch Konto, Passwort (mindestens 12 Zeichen), Authenticator-App (QR-Code) und **10 Wiederherstellungscodes** (ausdrucken oder im Passwortmanager speichern). Unter **Benutzermenü → Sicherheit** lässt sich danach ein **Passkey** hinzufügen; er ersetzt bei der Anmeldung den Code der App. Danach legt der Administrator unter **Verwaltung → Benutzer** weitere Konten an und gibt jedem den angezeigten **Aktivierungslink** weiter (einmal gültig, 7 Tage).
 
 ## 7. Hauptschlüssel und Sicherung
 

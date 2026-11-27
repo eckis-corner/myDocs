@@ -4,6 +4,7 @@
 @inject AuthClient Auth
 @inject SessionService Session
 @inject NavigationManager Navigation
+@inject WebAuthnService WebAuthn
 
 <PageTitle>@L["AppName"] – @L["LoginTitle"]</PageTitle>
 
@@ -35,6 +36,10 @@
                 <MudTextField T="string" @bind-Value="_code" Label="@(_recovery ? L["RecoveryCode"] : L["TotpCode"])" Variant="Variant.Outlined"
                               UserAttributes="@(new() { ["autocomplete"] = "one-time-code", ["inputmode"] = _recovery ? "text" : "numeric", ["data-testid"] = "login-code" })" Required />
                 <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy" data-testid="login-code-submit">@L["LoginSubmit"]</MudButton>
+                @if (_passkey && !_recovery)
+                {
+                    <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Key" OnClick="PasskeyAsync" Disabled="_busy" data-testid="login-passkey">@L["LoginUsePasskey"]</MudButton>
+                }
                 <MudButton Variant="Variant.Text" OnClick="ToggleRecovery">@(_recovery ? L["LoginUseTotp"] : L["LoginUseRecovery"])</MudButton>
             </MudStack>
         </EditForm>
@@ -47,6 +52,7 @@
     private string? _code;
     private bool _secondStep;
     private bool _recovery;
+    private bool _passkey;
     private bool _busy;
     private string? _error;
 
@@ -72,6 +78,21 @@
         var result = await Auth.LoginAsync(new(_email ?? string.Empty, _password ?? string.Empty));
         _password = null;
         _secondStep = result.TwoFactorRequired;
+        _passkey = result.PasskeyAvailable && await WebAuthn.IsSupportedAsync();
+    });
+
+    private async Task PasskeyAsync() => await RunAsync(async () =>
+    {
+        var options = await Auth.PasskeyLoginOptionsAsync();
+        if (await WebAuthn.GetAsync(options.OptionsJson) is not { } credential)
+        {
+            _error = "passkey-cancelled";
+            return;
+        }
+
+        await Auth.LoginPasskeyAsync(credential);
+        await Session.RefreshAsync();
+        Navigation.NavigateTo(SafeReturnUrl);
     });
 
     private async Task SecondFactorAsync() => await RunAsync(async () =>

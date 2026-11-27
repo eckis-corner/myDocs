@@ -207,6 +207,13 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 112 | Hauptschlüssel als Ausdruck | Seite „Sicherung“: Der Administrator gibt einen frischen Code seiner Authenticator-App ein und sieht den Hauptschlüssel als **24 Wörter** (BIP-39, Wortliste wie myLife) zum Drucken; die Anzeige steht im Protokoll. Zurückschreiben: `master-key restore "<24 Wörter>" --confirm`. |
 | 113 | Betrieb | Installationsanleitung `docs/betrieb/installation.md` (Port 8090, `client_max_body_size 110m`, eigener Projektordner neben myLife) und Abnahme-Checkliste `docs/betrieb/abnahme.md`. |
 
+## Runde 11 (27.11.2026, M1.2b Passkeys)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 114 | Passkeys | Mit den Passkeys von ASP.NET Core Identity 10 (kein Fido2NetLib). Ein Passkey **ersetzt nach dem Passwort den Code** der Authenticator-App (wie myLife); passwortloses Anmelden gibt es nicht. Registrieren und Entfernen unter Benutzermenü → Sicherheit; dort steht auch, wie viele Wiederherstellungscodes übrig sind. Der Ursprung wird gegen den `Origin`-Header geprüft, den Browser bei POST mitschicken. |
+| 115 | Schritt nach dem Passwort | Identity legt den Zustand der Passkey-Zeremonie im Zwischen-Cookie ab und verliert dabei den Benutzer aus dem Passwort-Schritt. myDocs hält ihn in einem eigenen, signierten Cookie (`mydocs.passkey-step`, Data Protection, 5 Minuten, nur für `/api/auth`) fest; der Passkey muss zu genau diesem Konto gehören. Ein fehlgeschlagener Passkey zählt als Fehlversuch für die Sperre. |
+
 ## Offen
 
 | Thema | Was fehlt |

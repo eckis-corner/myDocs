@@ -40,6 +40,8 @@ public sealed class ServerFixture : WebApplicationFactory<Program>, IAsyncLifeti
     {
         var client = CreateClient(new WebApplicationFactoryClientOptions { BaseAddress = new Uri("https://localhost"), HandleCookies = true });
         client.DefaultRequestHeaders.Add(ApiHeaders.Csrf, ApiHeaders.CsrfValue);
+        // Browser schicken bei POST den Origin-Header mit; Identity prüft damit den Ursprung von Passkeys.
+        client.DefaultRequestHeaders.Add("Origin", "https://localhost");
         return client;
     }
 

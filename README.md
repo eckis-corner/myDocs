@@ -6,7 +6,7 @@ myDocs verwaltet Versicherungen, Konten, Verträge, Abos, Urkunden und alles and
 
 myDocs ist der Alltag, [myLife](https://github.com/eckis-corner/myLife) der Notfall. Was im Ernstfall gebraucht wird, übernimmt myLife per Abgleich aus myDocs, verschlüsselt im Browser.
 
-> **Status:** In Entwicklung, Meilenstein M1 (Grundgerüst). Noch nicht für echte Daten.
+> **Status:** Meilenstein M1 (Grundgerüst) fertig, Abnahme auf der Synology steht aus ([Checkliste](docs/betrieb/abnahme.md)). Echte Daten erst ab M2.
 
 ## Merkmale (geplant)
 
@@ -28,6 +28,8 @@ myDocs ist der Alltag, [myLife](https://github.com/eckis-corner/myLife) der Notf
 | [docs/objekttypen.md](docs/objekttypen.md) | Lebenszyklus-Muster, Zusatztypen, Prüfregeln, Aufbewahrung |
 | [docs/entscheidungen.md](docs/entscheidungen.md) | Entscheidungsprotokoll und offene Punkte |
 | [docs/meilensteine.md](docs/meilensteine.md) | Umsetzungsplan |
+| [docs/betrieb/installation.md](docs/betrieb/installation.md) | Installation auf der Synology, Sicherung, Rücksicherung, Hauptschlüssel, Updates |
+| [docs/betrieb/abnahme.md](docs/betrieb/abnahme.md) | Checkliste für die Abnahme von M1 |
 | [PROMPT.md](PROMPT.md) | Ursprüngliche Idee |
 
 ## Entwickeln

@@ -21,6 +21,7 @@ Gebraucht werden drei Konten mit eigenen Mail-Adressen: **A** (Administrator), *
 - [ ] Abmelden, neu anmelden: erst Passwort, dann Code. Derselbe Code ein zweites Mal wird abgelehnt
 - [ ] Anmeldung mit einem Wiederherstellungscode klappt; derselbe Code klappt kein zweites Mal
 - [ ] Fünfmal falsches Passwort: Konto für 15 Minuten gesperrt
+- [ ] Benutzermenü → Sicherheit: Passkey hinzugefügt (Laptop oder Smartphone); bei der nächsten Anmeldung nach dem Passwort „Mit Passkey bestätigen“; die Authenticator-App geht weiterhin
 
 ## 3. Benutzer und Haushalt (als A)
 

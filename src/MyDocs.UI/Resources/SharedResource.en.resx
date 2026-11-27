@@ -47,6 +47,8 @@
   <data name="Audit_object-restored" xml:space="preserve"><value>Entry restored</value></data>
   <data name="Audit_object-shared" xml:space="preserve"><value>Sharing changed</value></data>
   <data name="Audit_object-viewed" xml:space="preserve"><value>Entry viewed (shared)</value></data>
+  <data name="Audit_passkey-added" xml:space="preserve"><value>Passkey added</value></data>
+  <data name="Audit_passkey-removed" xml:space="preserve"><value>Passkey removed</value></data>
   <data name="Audit_setup-completed" xml:space="preserve"><value>myDocs set up</value></data>
   <data name="Audit_trash-purged" xml:space="preserve"><value>Trash emptied</value></data>
   <data name="Audit_user-changed" xml:space="preserve"><value>Account changed</value></data>
@@ -62,6 +64,8 @@
   <data name="AuthError_auth-locked" xml:space="preserve"><value>Too many failed attempts. The account is locked for 15 minutes.</value></data>
   <data name="AuthError_email-invalid" xml:space="preserve"><value>The email address is invalid.</value></data>
   <data name="AuthError_http-429" xml:space="preserve"><value>Too many requests. Please wait a minute.</value></data>
+  <data name="AuthError_passkey-cancelled" xml:space="preserve"><value>Confirming with the passkey was cancelled.</value></data>
+  <data name="AuthError_passkey-invalid" xml:space="preserve"><value>The passkey was not accepted.</value></data>
   <data name="AuthError_password-weak" xml:space="preserve"><value>The password is too short.</value></data>
   <data name="AuthError_server-unreachable" xml:space="preserve"><value>The server cannot be reached. Please try again later.</value></data>
   <data name="AuthError_setup-code-invalid" xml:space="preserve"><value>The setup code is incorrect.</value></data>
@@ -140,6 +144,7 @@
   <data name="LoginSubmit" xml:space="preserve"><value>Log in</value></data>
   <data name="LoginTitle" xml:space="preserve"><value>Log in</value></data>
   <data name="LoginTotpText" xml:space="preserve"><value>Enter the six-digit code from your authenticator app.</value></data>
+  <data name="LoginUsePasskey" xml:space="preserve"><value>Confirm with passkey</value></data>
   <data name="LoginUseRecovery" xml:space="preserve"><value>No access to the app? Use a recovery code</value></data>
   <data name="LoginUseTotp" xml:space="preserve"><value>Use a code from the authenticator app</value></data>
   <data name="Logout" xml:space="preserve"><value>Log out</value></data>
@@ -182,6 +187,16 @@
   <data name="OpenMenu" xml:space="preserve"><value>Open menu</value></data>
   <data name="OwnerHousehold" xml:space="preserve"><value>Household</value></data>
   <data name="OwnerMe" xml:space="preserve"><value>Me (private)</value></data>
+  <data name="PasskeyAdd" xml:space="preserve"><value>Add passkey</value></data>
+  <data name="PasskeyAdded" xml:space="preserve"><value>Passkey saved.</value></data>
+  <data name="PasskeyCancelled" xml:space="preserve"><value>Cancelled.</value></data>
+  <data name="PasskeyName" xml:space="preserve"><value>Name</value></data>
+  <data name="PasskeyNameExample" xml:space="preserve"><value>My device</value></data>
+  <data name="PasskeyRemoveConfirm" xml:space="preserve"><value>Remove passkey “{0}”?</value></data>
+  <data name="PasskeyUnsupported" xml:space="preserve"><value>This browser does not support passkeys.</value></data>
+  <data name="PasskeysIntro" xml:space="preserve"><value>After the password, a passkey replaces the code from the authenticator app: fingerprint, face or device PIN is enough. The authenticator app remains as a fallback.</value></data>
+  <data name="PasskeysNone" xml:space="preserve"><value>No passkey yet.</value></data>
+  <data name="PasskeysTitle" xml:space="preserve"><value>Passkeys</value></data>
   <data name="Password" xml:space="preserve"><value>Password</value></data>
   <data name="PasswordHelp" xml:space="preserve"><value>At least {0} characters. A sentence of several words is easy to remember and secure.</value></data>
   <data name="PersonCreate" xml:space="preserve"><value>Add person</value></data>
@@ -190,6 +205,8 @@
   <data name="PersonNameFromAccount" xml:space="preserve"><value>The name comes from the account; the administrator can change it.</value></data>
   <data name="Print" xml:space="preserve"><value>Print</value></data>
   <data name="RecoveryCode" xml:space="preserve"><value>Recovery code</value></data>
+  <data name="RecoveryCodesLeft" xml:space="preserve"><value>{0} of 10 recovery codes left.</value></data>
+  <data name="RecoveryCodesTitle" xml:space="preserve"><value>Recovery codes</value></data>
   <data name="Reload" xml:space="preserve"><value>Reload</value></data>
   <data name="Restore" xml:space="preserve"><value>Restore</value></data>
   <data name="Role_guest" xml:space="preserve"><value>Guest</value></data>
@@ -202,6 +219,7 @@
   <data name="SearchNoHits" xml:space="preserve"><value>No results for “{0}”.</value></data>
   <data name="SearchPlaceholder" xml:space="preserve"><value>Search …</value></data>
   <data name="SearchTitle" xml:space="preserve"><value>Search</value></data>
+  <data name="SecurityTitle" xml:space="preserve"><value>Security</value></data>
   <data name="SetupCode" xml:space="preserve"><value>Setup code</value></data>
   <data name="SetupCodeHelp" xml:space="preserve"><value>Shown in the container log, for example in Container Manager under mydocs-app → Log. After every restart a new code applies.</value></data>
   <data name="SetupDone" xml:space="preserve"><value>Go to myDocs</value></data>

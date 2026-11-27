@@ -1,4 +1,6 @@
 using System.Security.Claims;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Identity;
 using MyDocs.Server.Data;
 using MyDocs.Server.Infrastructure.Audit;
@@ -9,7 +11,7 @@ using MyDocs.Shared.Auth;
 namespace MyDocs.Server.Api;
 
 /// <summary>Anmeldung mit Passwort und zweitem Faktor (40), Abmelden, eigenes Konto.</summary>
-internal static class AuthEndpoints
+internal static partial class AuthEndpoints
 {
     public const string RateLimitPolicy = "auth";
 
@@ -18,6 +20,8 @@ internal static class AuthEndpoints
         var group = app.MapGroup("/api/auth");
         group.MapPost("/login", LoginAsync).AllowAnonymous().RequireRateLimiting(RateLimitPolicy);
         group.MapPost("/login/2fa", TwoFactorAsync).AllowAnonymous().RequireRateLimiting(RateLimitPolicy);
+        group.MapPost("/login/passkey/options", PasskeyOptionsAsync).AllowAnonymous().RequireRateLimiting(RateLimitPolicy);
+        group.MapPost("/login/passkey", PasskeyAsync).AllowAnonymous().RequireRateLimiting(RateLimitPolicy);
         group.MapPost("/logout", async (SignInManager<AppUser> signIn, ClaimsPrincipal principal, AuditLog audit) =>
         {
             if (principal.Identity?.IsAuthenticated == true)
@@ -58,7 +62,7 @@ internal static class AuthEndpoints
 
         if (result.RequiresTwoFactor)
         {
-            return TypedResults.Ok(new LoginResultDto(TwoFactorRequired: true));
+            return TypedResults.Ok(new LoginResultDto(TwoFactorRequired: true, PasskeyAvailable: (await users.GetPasskeysAsync(user)).Count > 0));
         }
 
         if (result.Succeeded)
@@ -97,6 +101,88 @@ internal static class AuthEndpoints
         await audit.WriteAsync(AuditActions.Login, pending?.Id, details: request.IsRecoveryCode ? "Wiederherstellungscode" : null);
         return TypedResults.NoContent();
     }
+
+    private const string PasskeyStepCookie = "mydocs.passkey-step";
+
+    /// <summary>
+    /// Zweiter Faktor per Passkey: nur nach dem Passwort und nur für die Passkeys dieses Kontos. Identity legt den
+    /// Zustand der Zeremonie im Zwischen-Cookie ab und vergisst dabei, wer das Passwort schon eingegeben hat; das hält
+    /// ein eigenes, signiertes Cookie fest (5 Minuten).
+    /// </summary>
+    private static async Task<IResult> PasskeyOptionsAsync(SignInManager<AppUser> signIn, IDataProtectionProvider protection, HttpContext context)
+    {
+        if (await signIn.GetTwoFactorAuthenticationUserAsync() is not { } pending)
+        {
+            return ApiProblems.Of(AuthErrors.Invalid, StatusCodes.Status401Unauthorized);
+        }
+
+        var options = await signIn.MakePasskeyRequestOptionsAsync(pending);
+        context.Response.Cookies.Append(PasskeyStepCookie, StepProtector(protection).Protect(pending.Id.ToString(), TimeSpan.FromMinutes(5)), new CookieOptions
+        {
+            HttpOnly = true,
+            SameSite = SameSiteMode.Strict,
+            Secure = context.Request.IsHttps,
+            MaxAge = TimeSpan.FromMinutes(5),
+            Path = "/api/auth",
+        });
+        return TypedResults.Ok(new PasskeyOptionsDto(options));
+    }
+
+    private static ITimeLimitedDataProtector StepProtector(IDataProtectionProvider protection) =>
+        protection.CreateProtector("myDocs.PasskeyStep.v1").ToTimeLimitedDataProtector();
+
+    /// <summary>Konto, das das Passwort eingegeben und danach Passkey-Optionen geholt hat; null ohne gültiges Cookie.</summary>
+    private static async Task<AppUser?> PasskeyStepUserAsync(HttpContext context, IDataProtectionProvider protection, UserManager<AppUser> users)
+    {
+        if (context.Request.Cookies[PasskeyStepCookie] is not { Length: > 0 } value)
+        {
+            return null;
+        }
+
+        try
+        {
+            return await users.FindByIdAsync(StepProtector(protection).Unprotect(value));
+        }
+        catch (System.Security.Cryptography.CryptographicException)
+        {
+            return null;
+        }
+    }
+
+    private static async Task<IResult> PasskeyAsync(PasskeyCredentialRequest request, SignInManager<AppUser> signIn, UserManager<AppUser> users, AuditLog audit,
+        IDataProtectionProvider protection, HttpContext context, ILoggerFactory loggers)
+    {
+        if (await PasskeyStepUserAsync(context, protection, users) is not { } pending)
+        {
+            return ApiProblems.Of(AuthErrors.Invalid, StatusCodes.Status401Unauthorized);
+        }
+
+        context.Response.Cookies.Delete(PasskeyStepCookie, new CookieOptions { Path = "/api/auth" });
+
+        if (await users.IsLockedOutAsync(pending))
+        {
+            return ApiProblems.Of(AuthErrors.Locked, StatusCodes.Status429TooManyRequests);
+        }
+
+        var result = await signIn.PerformPasskeyAssertionAsync(request.CredentialJson ?? string.Empty);
+        if (!result.Succeeded || result.User.Id != pending.Id)
+        {
+            LogPasskeyRejected(loggers.CreateLogger(typeof(AuthEndpoints)), result.Failure?.Message ?? "anderes Konto");
+            await users.AccessFailedAsync(pending);
+            await audit.WriteAsync(AuditActions.LoginFailed, pending.Id, details: "Passkey");
+            return ApiProblems.Of(AuthErrors.PasskeyInvalid, StatusCodes.Status401Unauthorized);
+        }
+
+        await users.AddOrUpdatePasskeyAsync(pending, result.Passkey);
+        await users.ResetAccessFailedCountAsync(pending);
+        await signIn.Context.SignOutAsync(IdentityConstants.TwoFactorUserIdScheme);
+        await signIn.SignInWithClaimsAsync(pending, isPersistent: false, [new Claim("amr", "passkey")]);
+        await audit.WriteAsync(AuditActions.Login, pending.Id, details: "Passkey");
+        return TypedResults.NoContent();
+    }
+
+    [LoggerMessage(Level = LogLevel.Warning, Message = "Anmeldung mit Passkey abgelehnt: {Reason}")]
+    private static partial void LogPasskeyRejected(ILogger logger, string reason);
 
     private static async Task<IResult> MeAsync(ClaimsPrincipal principal, UserManager<AppUser> users, MyDocsDbContext db, CancellationToken ct)
     {

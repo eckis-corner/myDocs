@@ -19,6 +19,7 @@ public static class AuthErrors
     public const string PasswordWeak = "password-weak";
     public const string EmailInvalid = "email-invalid";
     public const string ActivationInvalid = "activation-invalid";
+    public const string PasskeyInvalid = "passkey-invalid";
 }
 
 public sealed record SetupStatusDto(bool Required);
@@ -37,7 +38,16 @@ public sealed record RecoveryCodesDto(IReadOnlyList<string> Codes);
 
 public sealed record LoginRequest(string Email, string Password);
 
-public sealed record LoginResultDto(bool TwoFactorRequired);
+/// <param name="PasskeyAvailable">Das Konto hat einen Passkey; er ersetzt den Code der Authenticator-App.</param>
+public sealed record LoginResultDto(bool TwoFactorRequired, bool PasskeyAvailable = false);
+
+/// <summary>Antwort des Authenticators (navigator.credentials) als JSON.</summary>
+public sealed record PasskeyCredentialRequest(string CredentialJson, string? Name = null);
+
+/// <summary>Optionen für navigator.credentials.create bzw. get als JSON.</summary>
+public sealed record PasskeyOptionsDto(string OptionsJson);
+
+public sealed record PasskeyDto(string Id, string Name, DateTimeOffset CreatedAt);
 
 /// <summary>Zweiter Faktor: Code der Authenticator-App oder ein Wiederherstellungscode.</summary>
 public sealed record LoginTwoFactorRequest(string Code, bool IsRecoveryCode);

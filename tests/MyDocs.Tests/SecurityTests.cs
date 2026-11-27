@@ -16,6 +16,8 @@ public sealed class SecurityTests(ServerFixture server) : IClassFixture<ServerFi
         "GET /api/setup/status", "POST /api/setup/start", "POST /api/setup/finish",
         // Anmeldung, zweiter Faktor (mit dem Zwischen-Cookie von Identity), Abmelden
         "POST /api/auth/login", "POST /api/auth/login/2fa", "POST /api/auth/logout",
+        // Passkey als zweiter Faktor, nur mit dem Zwischen-Cookie nach dem Passwort (M1.2b)
+        "POST /api/auth/login/passkey/options", "POST /api/auth/login/passkey",
         // Aktivierung über den Link des Administrators (Einmal-Token im #-Teil der Adresse)
         "POST /api/activation/info", "POST /api/activation/start", "POST /api/activation/finish",
     };

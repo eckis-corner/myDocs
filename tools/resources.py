@@ -340,6 +340,28 @@ TEXTS: dict[str, tuple[str, str]] = {
     "Audit_backup-created": ("Sicherung erstellt", "Backup created"),
     "Audit_backup-failed": ("Sicherung fehlgeschlagen", "Backup failed"),
     "Audit_master-key-shown": ("Hauptschlüssel angezeigt", "Master key shown"),
+    # Passkeys und Sicherheit (M1.2b)
+    "SecurityTitle": ("Sicherheit", "Security"),
+    "PasskeysTitle": ("Passkeys", "Passkeys"),
+    "PasskeysIntro": (
+        "Ein Passkey ersetzt nach dem Passwort den Code der Authenticator-App: Fingerabdruck, Gesicht oder PIN des Geräts genügen. Die Authenticator-App bleibt als Rückfall.",
+        "After the password, a passkey replaces the code from the authenticator app: fingerprint, face or device PIN is enough. The authenticator app remains as a fallback.",
+    ),
+    "PasskeysNone": ("Noch kein Passkey.", "No passkey yet."),
+    "PasskeyName": ("Bezeichnung", "Name"),
+    "PasskeyNameExample": ("Mein Gerät", "My device"),
+    "PasskeyAdd": ("Passkey hinzufügen", "Add passkey"),
+    "PasskeyAdded": ("Passkey gespeichert.", "Passkey saved."),
+    "PasskeyCancelled": ("Abgebrochen.", "Cancelled."),
+    "PasskeyRemoveConfirm": ("Passkey „{0}“ entfernen?", "Remove passkey “{0}”?"),
+    "PasskeyUnsupported": ("Dieser Browser kann keine Passkeys.", "This browser does not support passkeys."),
+    "LoginUsePasskey": ("Mit Passkey bestätigen", "Confirm with passkey"),
+    "RecoveryCodesTitle": ("Wiederherstellungscodes", "Recovery codes"),
+    "RecoveryCodesLeft": ("Noch {0} von 10 Wiederherstellungscodes übrig.", "{0} of 10 recovery codes left."),
+    "AuthError_passkey-invalid": ("Der Passkey wurde nicht angenommen.", "The passkey was not accepted."),
+    "AuthError_passkey-cancelled": ("Die Bestätigung mit dem Passkey wurde abgebrochen.", "Confirming with the passkey was cancelled."),
+    "Audit_passkey-added": ("Passkey hinzugefügt", "Passkey added"),
+    "Audit_passkey-removed": ("Passkey entfernt", "Passkey removed"),
 }
 
 HEADER = """<?xml version="1.0" encoding="utf-8"?>

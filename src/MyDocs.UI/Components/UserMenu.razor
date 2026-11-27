@@ -9,6 +9,7 @@
                  AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" data-testid="user-menu">
             <MudMenuItem Disabled>@context.User.Identity?.Name</MudMenuItem>
             <MudDivider />
+            <MudMenuItem Icon="@Icons.Material.Outlined.Security" Href="account/security">@L["SecurityTitle"]</MudMenuItem>
             <MudMenuItem Icon="@Icons.Material.Outlined.History" Href="account/audit">@L["AuditTitle"]</MudMenuItem>
             @if (context.User.IsInRole(HouseholdRoles.Admin))
             {

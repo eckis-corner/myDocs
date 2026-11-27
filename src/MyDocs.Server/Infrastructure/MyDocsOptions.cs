@@ -13,6 +13,25 @@ public sealed class MyDocsOptions
     /// <summary>Anfragen je Minute und IP an Anmeldung und Einrichtung.</summary>
     public int AuthRequestsPerMinute { get; set; } = 30;
 
+    /// <summary>
+    /// Sicherungsschlüssel: 32 Byte als Base64, aus <c>MYDOCS_BACKUP_KEY</c> in der <c>.env</c>. Ohne ihn gibt es keine
+    /// automatische Sicherung. Er gehört getrennt von den Sicherungen aufbewahrt.
+    /// </summary>
+    public string? BackupKey { get; set; }
+
+    /// <summary>Uhrzeit der täglichen Sicherung (Ortszeit, volle Stunde).</summary>
+    public int BackupHour { get; set; } = 3;
+
+    /// <summary>Generationen: je Tag, je Woche, je Monat die neueste Sicherung.</summary>
+    public int BackupKeepDaily { get; set; } = 7;
+
+    public int BackupKeepWeekly { get; set; } = 4;
+
+    public int BackupKeepMonthly { get; set; } = 6;
+
+    /// <summary>Dokumente mitsichern (verschlüsselt, wie sie im Volume liegen).</summary>
+    public bool BackupIncludeDocuments { get; set; } = true;
+
     /// <summary>Größte Datei in Megabyte (78); später vom Administrator einstellbar.</summary>
     public int MaxFileSizeMegabytes { get; set; } = 100;
 }

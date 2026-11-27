@@ -30,6 +30,8 @@
   <data name="AuditTitle" xml:space="preserve"><value>Protokoll</value></data>
   <data name="Audit_activated" xml:space="preserve"><value>Konto aktiviert</value></data>
   <data name="Audit_admin-view" xml:space="preserve"><value>Admin-Einsicht</value></data>
+  <data name="Audit_backup-created" xml:space="preserve"><value>Sicherung erstellt</value></data>
+  <data name="Audit_backup-failed" xml:space="preserve"><value>Sicherung fehlgeschlagen</value></data>
   <data name="Audit_document-deleted" xml:space="preserve"><value>Dokument gelöscht</value></data>
   <data name="Audit_document-downloaded" xml:space="preserve"><value>Dokument geöffnet</value></data>
   <data name="Audit_document-restored" xml:space="preserve"><value>Dokument wiederhergestellt</value></data>
@@ -38,6 +40,7 @@
   <data name="Audit_login" xml:space="preserve"><value>Angemeldet</value></data>
   <data name="Audit_login-failed" xml:space="preserve"><value>Anmeldung fehlgeschlagen</value></data>
   <data name="Audit_logout" xml:space="preserve"><value>Abgemeldet</value></data>
+  <data name="Audit_master-key-shown" xml:space="preserve"><value>Hauptschlüssel angezeigt</value></data>
   <data name="Audit_object-changed" xml:space="preserve"><value>Eintrag geändert</value></data>
   <data name="Audit_object-created" xml:space="preserve"><value>Eintrag angelegt</value></data>
   <data name="Audit_object-deleted" xml:space="preserve"><value>Eintrag gelöscht</value></data>
@@ -64,6 +67,17 @@
   <data name="AuthError_setup-code-invalid" xml:space="preserve"><value>Der Einrichtungscode stimmt nicht.</value></data>
   <data name="AuthError_setup-done" xml:space="preserve"><value>myDocs ist bereits eingerichtet.</value></data>
   <data name="BackToHome" xml:space="preserve"><value>Zur Übersicht</value></data>
+  <data name="BackupDaily" xml:space="preserve"><value>Tägliche Sicherung</value></data>
+  <data name="BackupDone" xml:space="preserve"><value>Sicherung erstellt.</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>Die Sicherung ist fehlgeschlagen. Details stehen im Protokoll des Containers.</value></data>
+  <data name="BackupIntro" xml:space="preserve"><value>myDocs sichert jeden Tag Datenbank, Dateien und Schlüssel verschlüsselt in data/app/backup. Das Synology-Backup übernimmt den Ordner von dort.</value></data>
+  <data name="BackupLast" xml:space="preserve"><value>Letzte Sicherung</value></data>
+  <data name="BackupLastError" xml:space="preserve"><value>Letzter Fehler am {0}: {1}</value></data>
+  <data name="BackupNever" xml:space="preserve"><value>noch keine</value></data>
+  <data name="BackupNext" xml:space="preserve"><value>Nächste</value></data>
+  <data name="BackupNotConfigured" xml:space="preserve"><value>Es ist kein Sicherungsschlüssel eingerichtet (MYDOCS_BACKUP_KEY in der .env). Ohne ihn gibt es keine automatische Sicherung.</value></data>
+  <data name="BackupNow" xml:space="preserve"><value>Jetzt sichern</value></data>
+  <data name="BackupTitle" xml:space="preserve"><value>Sicherung</value></data>
   <data name="BirthDate" xml:space="preserve"><value>Geburtsdatum</value></data>
   <data name="Cancel" xml:space="preserve"><value>Abbrechen</value></data>
   <data name="Close" xml:space="preserve"><value>Schließen</value></data>
@@ -129,6 +143,12 @@
   <data name="LoginUseRecovery" xml:space="preserve"><value>Kein Zugriff auf die App? Wiederherstellungscode verwenden</value></data>
   <data name="LoginUseTotp" xml:space="preserve"><value>Code aus der Authenticator-App verwenden</value></data>
   <data name="Logout" xml:space="preserve"><value>Abmelden</value></data>
+  <data name="MasterKeyHide" xml:space="preserve"><value>Ausblenden</value></data>
+  <data name="MasterKeyIntro" xml:space="preserve"><value>Mit dem Hauptschlüssel sind alle Dokumente verschlüsselt. Ohne ihn lassen sie sich nicht mehr öffnen, auch nicht aus einer Sicherung. Drucke ihn als 24 Wörter aus und bewahre ihn getrennt von der Synology auf, etwa beim Notfallordner. Zum Anzeigen brauchst du einen Code aus deiner Authenticator-App.</value></data>
+  <data name="MasterKeyRestoreHint" xml:space="preserve"><value>Wiederherstellen: docker compose run --rm app master-key restore "wort1 … wort24" --confirm (siehe Installationsanleitung).</value></data>
+  <data name="MasterKeyShow" xml:space="preserve"><value>Hauptschlüssel anzeigen</value></data>
+  <data name="MasterKeyTitle" xml:space="preserve"><value>Hauptschlüssel</value></data>
+  <data name="MasterKeyWarning" xml:space="preserve"><value>Wer diese Wörter und die Dateien hat, kann alle Dokumente lesen. Nicht abfotografieren, nicht per Mail verschicken. Die Anzeige steht im Protokoll.</value></data>
   <data name="NavAdmin" xml:space="preserve"><value>Verwaltung</value></data>
   <data name="NavAreas" xml:space="preserve"><value>Bereiche</value></data>
   <data name="NavHome" xml:space="preserve"><value>Übersicht</value></data>
@@ -168,6 +188,7 @@
   <data name="PersonDeleteConfirm" xml:space="preserve"><value>{0} entfernen?</value></data>
   <data name="PersonLogin" xml:space="preserve"><value>Konto</value></data>
   <data name="PersonNameFromAccount" xml:space="preserve"><value>Der Name kommt aus dem Konto; ändern kann ihn der Administrator.</value></data>
+  <data name="Print" xml:space="preserve"><value>Drucken</value></data>
   <data name="RecoveryCode" xml:space="preserve"><value>Wiederherstellungscode</value></data>
   <data name="Reload" xml:space="preserve"><value>Neu laden</value></data>
   <data name="Restore" xml:space="preserve"><value>Wiederherstellen</value></data>

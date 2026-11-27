@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.ChangeTracking;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace MyDocs.Server.Data;
 
@@ -176,4 +177,27 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
         (a, b) => JsonSerializer.Serialize(a, JsonOptions) == JsonSerializer.Serialize(b, JsonOptions),
         value => JsonSerializer.Serialize(value, JsonOptions).GetHashCode(StringComparison.Ordinal),
         value => JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(value, JsonOptions), JsonOptions)!);
+}
+
+/// <summary>
+/// Kontext außerhalb der laufenden App, etwa für die Rücksicherung: mit denselben Einstellungen wie in Program.cs
+/// (snake_case, Identity-Schema Version 3), sonst baut EF Core ein anderes Modell.
+/// </summary>
+public static class MyDocsDbContextFactory
+{
+    public static Microsoft.Extensions.DependencyInjection.ServiceProvider CreateServices(string connectionString)
+    {
+        var services = new Microsoft.Extensions.DependencyInjection.ServiceCollection();
+        Microsoft.Extensions.DependencyInjection.LoggingServiceCollectionExtensions.AddLogging(services);
+        Configure(services, connectionString);
+        services.AddIdentityCore<AppUser>(identity => identity.Stores.SchemaVersion = IdentitySchemaVersions.Version3)
+            .AddRoles<IdentityRole<Guid>>()
+            .AddEntityFrameworkStores<MyDocsDbContext>();
+        return Microsoft.Extensions.DependencyInjection.ServiceCollectionContainerBuilderExtensions.BuildServiceProvider(services);
+    }
+
+    /// <summary>Die Datenbank-Einstellungen, gemeinsam für App und Werkzeuge.</summary>
+    public static void Configure(Microsoft.Extensions.DependencyInjection.IServiceCollection services, string? connectionString) =>
+        Microsoft.Extensions.DependencyInjection.EntityFrameworkServiceCollectionExtensions.AddDbContext<MyDocsDbContext>(services,
+            db => db.UseNpgsql(connectionString).UseSnakeCaseNamingConvention());
 }

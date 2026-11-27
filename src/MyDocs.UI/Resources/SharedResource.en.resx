@@ -30,6 +30,8 @@
   <data name="AuditTitle" xml:space="preserve"><value>Log</value></data>
   <data name="Audit_activated" xml:space="preserve"><value>Account activated</value></data>
   <data name="Audit_admin-view" xml:space="preserve"><value>Admin view</value></data>
+  <data name="Audit_backup-created" xml:space="preserve"><value>Backup created</value></data>
+  <data name="Audit_backup-failed" xml:space="preserve"><value>Backup failed</value></data>
   <data name="Audit_document-deleted" xml:space="preserve"><value>Document deleted</value></data>
   <data name="Audit_document-downloaded" xml:space="preserve"><value>Document opened</value></data>
   <data name="Audit_document-restored" xml:space="preserve"><value>Document restored</value></data>
@@ -38,6 +40,7 @@
   <data name="Audit_login" xml:space="preserve"><value>Logged in</value></data>
   <data name="Audit_login-failed" xml:space="preserve"><value>Login failed</value></data>
   <data name="Audit_logout" xml:space="preserve"><value>Logged out</value></data>
+  <data name="Audit_master-key-shown" xml:space="preserve"><value>Master key shown</value></data>
   <data name="Audit_object-changed" xml:space="preserve"><value>Entry changed</value></data>
   <data name="Audit_object-created" xml:space="preserve"><value>Entry created</value></data>
   <data name="Audit_object-deleted" xml:space="preserve"><value>Entry deleted</value></data>
@@ -64,6 +67,17 @@
   <data name="AuthError_setup-code-invalid" xml:space="preserve"><value>The setup code is incorrect.</value></data>
   <data name="AuthError_setup-done" xml:space="preserve"><value>myDocs has already been set up.</value></data>
   <data name="BackToHome" xml:space="preserve"><value>Back to overview</value></data>
+  <data name="BackupDaily" xml:space="preserve"><value>Daily backup</value></data>
+  <data name="BackupDone" xml:space="preserve"><value>Backup created.</value></data>
+  <data name="BackupFailed" xml:space="preserve"><value>The backup failed. Details are in the container log.</value></data>
+  <data name="BackupIntro" xml:space="preserve"><value>myDocs backs up the database, files and keys every day, encrypted, to data/app/backup. Synology backup takes the folder from there.</value></data>
+  <data name="BackupLast" xml:space="preserve"><value>Last backup</value></data>
+  <data name="BackupLastError" xml:space="preserve"><value>Last error on {0}: {1}</value></data>
+  <data name="BackupNever" xml:space="preserve"><value>none yet</value></data>
+  <data name="BackupNext" xml:space="preserve"><value>Next</value></data>
+  <data name="BackupNotConfigured" xml:space="preserve"><value>No backup key is configured (MYDOCS_BACKUP_KEY in .env). Without it there is no automatic backup.</value></data>
+  <data name="BackupNow" xml:space="preserve"><value>Back up now</value></data>
+  <data name="BackupTitle" xml:space="preserve"><value>Backup</value></data>
   <data name="BirthDate" xml:space="preserve"><value>Date of birth</value></data>
   <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Close" xml:space="preserve"><value>Close</value></data>
@@ -129,6 +143,12 @@
   <data name="LoginUseRecovery" xml:space="preserve"><value>No access to the app? Use a recovery code</value></data>
   <data name="LoginUseTotp" xml:space="preserve"><value>Use a code from the authenticator app</value></data>
   <data name="Logout" xml:space="preserve"><value>Log out</value></data>
+  <data name="MasterKeyHide" xml:space="preserve"><value>Hide</value></data>
+  <data name="MasterKeyIntro" xml:space="preserve"><value>All documents are encrypted with the master key. Without it they can no longer be opened, not even from a backup. Print it as 24 words and keep it away from the Synology, for example with your emergency folder. To show it you need a code from your authenticator app.</value></data>
+  <data name="MasterKeyRestoreHint" xml:space="preserve"><value>Restore: docker compose run --rm app master-key restore “word1 … word24” --confirm (see installation guide).</value></data>
+  <data name="MasterKeyShow" xml:space="preserve"><value>Show master key</value></data>
+  <data name="MasterKeyTitle" xml:space="preserve"><value>Master key</value></data>
+  <data name="MasterKeyWarning" xml:space="preserve"><value>Whoever has these words and the files can read all documents. Do not photograph them or send them by email. Showing them is recorded in the log.</value></data>
   <data name="NavAdmin" xml:space="preserve"><value>Administration</value></data>
   <data name="NavAreas" xml:space="preserve"><value>Areas</value></data>
   <data name="NavHome" xml:space="preserve"><value>Overview</value></data>
@@ -168,6 +188,7 @@
   <data name="PersonDeleteConfirm" xml:space="preserve"><value>Remove {0}?</value></data>
   <data name="PersonLogin" xml:space="preserve"><value>Account</value></data>
   <data name="PersonNameFromAccount" xml:space="preserve"><value>The name comes from the account; the administrator can change it.</value></data>
+  <data name="Print" xml:space="preserve"><value>Print</value></data>
   <data name="RecoveryCode" xml:space="preserve"><value>Recovery code</value></data>
   <data name="Reload" xml:space="preserve"><value>Reload</value></data>
   <data name="Restore" xml:space="preserve"><value>Restore</value></data>

@@ -13,6 +13,8 @@ services:
     environment:
       ConnectionStrings__MyDocs: "Host=db;Port=5432;Database=mydocs;Username=mydocs;Password=${POSTGRES_PASSWORD:?POSTGRES_PASSWORD fehlt in .env};Gss Encryption Mode=Disable"
       MyDocs__DataDirectory: /data
+      # Sicherungsschlüssel (32 Byte Base64); ohne ihn keine automatische Sicherung
+      MyDocs__BackupKey: ${MYDOCS_BACKUP_KEY:-}
       TZ: ${TZ:-Europe/Berlin}
     ports:
       - "${MYDOCS_PORT:-8090}:8080"

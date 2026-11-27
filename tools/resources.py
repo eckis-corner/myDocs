@@ -301,6 +301,45 @@ TEXTS: dict[str, tuple[str, str]] = {
         "Admin-Einsicht aktiv: Du siehst auch private Einträge anderer. Jeder Zugriff wird den Eigentümern angezeigt.",
         "Admin view active: you also see private entries of others. Every access is shown to the owners.",
     ),
+    # Sicherung und Hauptschlüssel (M1.7b)
+    "BackupTitle": ("Sicherung", "Backup"),
+    "BackupDaily": ("Tägliche Sicherung", "Daily backup"),
+    "BackupIntro": (
+        "myDocs sichert jeden Tag Datenbank, Dateien und Schlüssel verschlüsselt in data/app/backup. Das Synology-Backup übernimmt den Ordner von dort.",
+        "myDocs backs up the database, files and keys every day, encrypted, to data/app/backup. Synology backup takes the folder from there.",
+    ),
+    "BackupNotConfigured": (
+        "Es ist kein Sicherungsschlüssel eingerichtet (MYDOCS_BACKUP_KEY in der .env). Ohne ihn gibt es keine automatische Sicherung.",
+        "No backup key is configured (MYDOCS_BACKUP_KEY in .env). Without it there is no automatic backup.",
+    ),
+    "BackupLast": ("Letzte Sicherung", "Last backup"),
+    "BackupNext": ("Nächste", "Next"),
+    "BackupNever": ("noch keine", "none yet"),
+    "BackupNow": ("Jetzt sichern", "Back up now"),
+    "BackupDone": ("Sicherung erstellt.", "Backup created."),
+    "BackupFailed": ("Die Sicherung ist fehlgeschlagen. Details stehen im Protokoll des Containers.", "The backup failed. Details are in the container log."),
+    "BackupLastError": ("Letzter Fehler am {0}: {1}", "Last error on {0}: {1}"),
+    "MasterKeyTitle": ("Hauptschlüssel", "Master key"),
+    "MasterKeyIntro": (
+        "Mit dem Hauptschlüssel sind alle Dokumente verschlüsselt. Ohne ihn lassen sie sich nicht mehr öffnen, auch nicht aus einer Sicherung. "
+        "Drucke ihn als 24 Wörter aus und bewahre ihn getrennt von der Synology auf, etwa beim Notfallordner. Zum Anzeigen brauchst du einen Code aus deiner Authenticator-App.",
+        "All documents are encrypted with the master key. Without it they can no longer be opened, not even from a backup. "
+        "Print it as 24 words and keep it away from the Synology, for example with your emergency folder. To show it you need a code from your authenticator app.",
+    ),
+    "MasterKeyShow": ("Hauptschlüssel anzeigen", "Show master key"),
+    "MasterKeyHide": ("Ausblenden", "Hide"),
+    "MasterKeyWarning": (
+        "Wer diese Wörter und die Dateien hat, kann alle Dokumente lesen. Nicht abfotografieren, nicht per Mail verschicken. Die Anzeige steht im Protokoll.",
+        "Whoever has these words and the files can read all documents. Do not photograph them or send them by email. Showing them is recorded in the log.",
+    ),
+    "MasterKeyRestoreHint": (
+        "Wiederherstellen: docker compose run --rm app master-key restore \"wort1 … wort24\" --confirm (siehe Installationsanleitung).",
+        "Restore: docker compose run --rm app master-key restore \"word1 … word24\" --confirm (see installation guide).",
+    ),
+    "Print": ("Drucken", "Print"),
+    "Audit_backup-created": ("Sicherung erstellt", "Backup created"),
+    "Audit_backup-failed": ("Sicherung fehlgeschlagen", "Backup failed"),
+    "Audit_master-key-shown": ("Hauptschlüssel angezeigt", "Master key shown"),
 }
 
 HEADER = """<?xml version="1.0" encoding="utf-8"?>

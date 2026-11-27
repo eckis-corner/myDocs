@@ -25,14 +25,19 @@ builder.Services.AddSerilog((services, configuration) => configuration
 var options = builder.Configuration.GetSection(MyDocsOptions.SectionName).Get<MyDocsOptions>() ?? new MyDocsOptions();
 builder.Services.Configure<MyDocsOptions>(builder.Configuration.GetSection(MyDocsOptions.SectionName));
 
+// Notfall-Befehle von der Kommandozeile, bei gestoppter App: restore, master-key restore (M1.7b).
+if (MyDocs.Server.Infrastructure.Backup.BackupCli.Handles(args))
+{
+    return await MyDocs.Server.Infrastructure.Backup.BackupCli.RunAsync(args, builder.Configuration, options);
+}
+
 var dataDirectory = Path.GetFullPath(options.DataDirectory);
 Directory.CreateDirectory(Path.Combine(dataDirectory, "keys"));
 builder.Services.AddDataProtection()
     .SetApplicationName("myDocs")
     .PersistKeysToFileSystem(new DirectoryInfo(Path.Combine(dataDirectory, "keys")));
 
-builder.Services.AddDbContext<MyDocsDbContext>(db =>
-    db.UseNpgsql(builder.Configuration.GetConnectionString("MyDocs")).UseSnakeCaseNamingConvention());
+MyDocsDbContextFactory.Configure(builder.Services, builder.Configuration.GetConnectionString("MyDocs"));
 
 builder.Services.AddHealthChecks()
     .AddDbContextCheck<MyDocsDbContext>("database", tags: ["ready"]);
@@ -100,6 +105,8 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<MyDocs.Server.Infrastructure.Audit.AuditLog>();
 builder.Services.AddSingleton<TrashPurge>();
 builder.Services.AddHostedService(services => services.GetRequiredService<TrashPurge>());
+builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Backup.BackupService>();
+builder.Services.AddHostedService(services => services.GetRequiredService<MyDocs.Server.Infrastructure.Backup.BackupService>());
 // Uploads bis zur Grenze aus den Einstellungen (78) plus Platz für den Multipart-Rahmen.
 var maxRequestBytes = (options.MaxFileSizeMegabytes + 1) * 1024L * 1024L;
 builder.Services.AddAuthorizationBuilder()
@@ -155,6 +162,7 @@ app.MapObjectEndpoints();
 app.MapDocumentEndpoints(maxRequestBytes);
 app.MapSearchEndpoints();
 app.MapAuditEndpoints();
+app.MapAdminBackupEndpoints();
 
 app.MapStaticAssets();
 // Die Seiten sind nur die leere Hülle (kein Prerendering); [Authorize] prüft der Client. Geschützt sind die Daten:
@@ -170,6 +178,7 @@ app.Services.GetRequiredService<MyDocs.Server.Infrastructure.Files.MasterKey>();
 await MyDocs.Server.Infrastructure.Search.SearchIndex.BackfillAsync(app.Services);
 
 await app.RunAsync();
+return 0;
 
 static Task WriteStatusAsync(HttpResponse response, int status, string code)
 {

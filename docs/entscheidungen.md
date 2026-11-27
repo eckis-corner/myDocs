@@ -198,6 +198,15 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 108 | Admin-Einsicht | Umsetzung von 31: Schalter im Benutzermenü mit Rückfrage, deutliches Band „Admin-Einsicht aktiv“, gilt bis zum Neuladen oder Abmelden. Der Client schickt dann `X-MyDocs-Admin-View: 1`; ohne Rolle Administrator ist der Header wirkungslos. In der Admin-Einsicht sieht der Administrator alle Einträge, Dokumente und Suchtreffer, **ändert aber nichts**. Jeder Zugriff auf einen fremden privaten Eintrag, auch in Listen und Suche, erscheint als „Admin-Einsicht“ im Protokoll des Eigentümers. |
 | 109 | Papierkorb leeren | Hintergrunddienst einmal täglich: Einträge und Dokumente, die länger als 30 Tage gelöscht sind, sowie Dokumente ohne Eintrag verschwinden endgültig, mit Versionen, Freigaben und Historie. Die verschlüsselte Datei wird erst gelöscht, wenn keine Version mehr auf sie verweist. Die Einträge im Protokoll bleiben. |
 
+## Runde 10 (27.11.2026, M1.7b Sicherung und Betrieb)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 110 | Sicherung | Übernommen von myLife: täglich zur Uhrzeit (Standard 3 Uhr) eine Sicherung `mydocs-<Datum>-<Uhrzeit>.mdbak` in `data/app/backup`, Format `MYDOCSBK` (AES-256-GCM in 1-MiB-Blöcken, Schlüssel per HKDF aus `MYDOCS_BACKUP_KEY` und einem Salz je Sicherung). Inhalt: Datenbank als Schnappschuss (`COPY … FORMAT binary` in REPEATABLE READ), der Ordner `keys` mit Data Protection und Hauptschlüssel, die verschlüsselten Dateien. Generationen 7 Tage, 4 Wochen, 6 Monate. Einstellungen bis zur Einstellungsseite über Umgebungsvariablen. Seite „Sicherung“ mit Status und „Jetzt sichern“. |
+| 111 | Rücksicherung | `docker compose run --rm app restore <Datei> --confirm` bei gestoppter App: Schema neu, Migrationen bis zum Stand der Sicherung, Tabellen leeren (Migrationen legen auch Daten an), Daten per `COPY`, Dateien und Schlüssel zurück, danach die übrigen Migrationen. Der Kontext für die Rücksicherung entsteht mit denselben Einstellungen wie in der App (`MyDocsDbContextFactory`). |
+| 112 | Hauptschlüssel als Ausdruck | Seite „Sicherung“: Der Administrator gibt einen frischen Code seiner Authenticator-App ein und sieht den Hauptschlüssel als **24 Wörter** (BIP-39, Wortliste wie myLife) zum Drucken; die Anzeige steht im Protokoll. Zurückschreiben: `master-key restore "<24 Wörter>" --confirm`. |
+| 113 | Betrieb | Installationsanleitung `docs/betrieb/installation.md` (Port 8090, `client_max_body_size 110m`, eigener Projektordner neben myLife) und Abnahme-Checkliste `docs/betrieb/abnahme.md`. |
+
 ## Offen
 
 | Thema | Was fehlt |

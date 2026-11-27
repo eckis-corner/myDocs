@@ -17,3 +17,16 @@ public sealed record UpdateUserRequest(string DisplayName, string Role, bool IsA
 
 /// <summary>Einmal-Token für den Aktivierungslink <c>/activate#{Token}</c>; gültig bis <paramref name="ExpiresAt"/>.</summary>
 public sealed record ActivationLinkDto(Guid UserId, string Token, DateTimeOffset ExpiresAt);
+
+/// <summary>Eine Sicherung im Ordner <c>backup</c>.</summary>
+public sealed record BackupItemDto(string Name, DateTimeOffset CreatedAt, long Size);
+
+/// <summary>Stand der Sicherung: Schlüssel eingerichtet, letzte Sicherung, letzter Fehler, nächster Lauf, Generationen.</summary>
+public sealed record BackupStatusDto(bool Configured, DateTimeOffset? LastSuccessAt, string? LastError, DateTimeOffset? LastErrorAt,
+    DateTimeOffset? NextRunAt, IReadOnlyList<BackupItemDto> Items);
+
+/// <summary>Hauptschlüssel anzeigen (46): nur mit einem frischen Code der eigenen Authenticator-App.</summary>
+public sealed record MasterKeyRequest(string Code);
+
+/// <summary>Der Hauptschlüssel als 24 Wörter (BIP-39) mit dem Zeitpunkt der Anzeige.</summary>
+public sealed record MasterKeyDto(IReadOnlyList<string> Words, DateTimeOffset ShownAt);

@@ -23,6 +23,10 @@
     </PackageReference>
   </ItemGroup>
   <ItemGroup>
+    <!-- BIP-39, englische Wortliste wie in myLife (SHA-256 2f5eed53a4727b4bf8880d8f3f199efc90e58503646d9ff8eff3a2ed3b24dbda) -->
+    <EmbeddedResource Include="Resources\bip39-english.txt" LogicalName="MyDocs.Server.bip39-english.txt" />
+  </ItemGroup>
+  <ItemGroup>
     <InternalsVisibleTo Include="MyDocs.Tests" />
   </ItemGroup>
 </Project>

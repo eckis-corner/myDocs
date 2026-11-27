@@ -26,6 +26,9 @@ public static class AuditActions
     public const string DocumentRestored = "document-restored";
     public const string AdminView = "admin-view";
     public const string TrashPurged = "trash-purged";
+    public const string BackupCreated = "backup-created";
+    public const string BackupFailed = "backup-failed";
+    public const string MasterKeyShown = "master-key-shown";
 }
 
 /// <summary>Ein Eintrag im Audit-Log. Details ohne Inhalte, höchstens Titel.</summary>

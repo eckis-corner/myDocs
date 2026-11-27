@@ -433,3 +433,14 @@ html.mydocs-light .mud-chip-outlined.mud-chip-color-primary {
     top: 0;
     z-index: 10;
 }
+
+/* Hauptschlüssel zum Ausdrucken (M1.7b) */
+.mydocs-recovery-word {
+    font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+}
+
+.mydocs-recovery-number {
+    display: inline-block;
+    min-width: 2.2em;
+    color: var(--mud-palette-text-secondary);
+}

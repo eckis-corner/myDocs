@@ -13,12 +13,12 @@ public sealed class MasterKey
 {
     private const int Length = 32;
     private readonly byte[] _wrapKey;
+    private readonly string _path;
 
     public MasterKey(IOptions<MyDocsOptions> options)
     {
-        var directory = Path.Combine(Path.GetFullPath(options.Value.DataDirectory), "keys");
-        Directory.CreateDirectory(directory);
-        var path = Path.Combine(directory, "master.key");
+        var path = _path = PathIn(options.Value.DataDirectory);
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
         if (!File.Exists(path))
         {
             var created = RandomNumberGenerator.GetBytes(Length);
@@ -42,6 +42,45 @@ public sealed class MasterKey
         _wrapKey = HKDF.DeriveKey(HashAlgorithmName.SHA256, key, Length, info: Encoding.ASCII.GetBytes("mydocs/wrap"));
         NameKey = HKDF.DeriveKey(HashAlgorithmName.SHA256, key, Length, info: Encoding.ASCII.GetBytes("mydocs/blob-name"));
         CryptographicOperations.ZeroMemory(key);
+    }
+
+    internal static string PathIn(string dataDirectory) => Path.Combine(Path.GetFullPath(dataDirectory), "keys", "master.key");
+
+    /// <summary>Der Hauptschlüssel als 24 Wörter zum Ausdrucken (46). Nur für den Administrator mit frischem Code.</summary>
+    public IReadOnlyList<string> ToWords()
+    {
+        var key = File.ReadAllBytes(_path);
+        try
+        {
+            return Bip39.Encode(key);
+        }
+        finally
+        {
+            CryptographicOperations.ZeroMemory(key);
+        }
+    }
+
+    /// <summary>
+    /// Schreibt den Hauptschlüssel aus den 24 Wörtern zurück (Kommandozeile, etwa nach Verlust von <c>data/keys</c>).
+    /// Liefert false, wenn die Wörter nicht stimmen.
+    /// </summary>
+    internal static bool Restore(string dataDirectory, string words)
+    {
+        if (!Bip39.TryDecode(words, out var key))
+        {
+            return false;
+        }
+
+        var path = PathIn(dataDirectory);
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        File.WriteAllBytes(path, key);
+        if (!OperatingSystem.IsWindows())
+        {
+            File.SetUnixFileMode(path, UnixFileMode.UserRead | UnixFileMode.UserWrite);
+        }
+
+        CryptographicOperations.ZeroMemory(key);
+        return true;
     }
 
     /// <summary>Schlüssel für die Dateinamen (HMAC des Inhalts).</summary>

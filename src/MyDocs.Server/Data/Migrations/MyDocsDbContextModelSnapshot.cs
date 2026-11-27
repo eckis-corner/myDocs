@@ -906,7 +906,7 @@ namespace MyDocs.Server.Data.Migrations
 
                             b1.HasKey("IdentityUserPasskeyCredentialId");
 
-                            b1.ToTable("user_passkeys");
+                            b1.ToTable("user_passkeys", (string)null);
 
                             b1
                                 .ToJson("data")

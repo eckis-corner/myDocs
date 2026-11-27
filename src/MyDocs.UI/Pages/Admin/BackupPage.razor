@@ -1,0 +1,142 @@
+@page "/admin/backup"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = HouseholdRoles.Admin)]
+@using MyDocs.Shared.Admin
+@inject IStringLocalizer<SharedResource> L
+@inject AdminClient Admin
+@inject ISnackbar Snackbar
+@inject IJSRuntime Js
+
+<PageTitle>@L["AppName"] – @L["BackupTitle"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h4" HtmlTag="h1" Class="mydocs-no-print">@L["BackupTitle"]</MudText>
+
+    <MudPaper Class="pa-4 mydocs-no-print" Elevation="1">
+        <MudStack Spacing="2">
+            <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["BackupDaily"]</b></MudText>
+            @if (_status is null)
+            {
+                <MudProgressLinear Indeterminate Color="Color.Primary" />
+            }
+            else if (!_status.Configured)
+            {
+                <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined" data-testid="backup-not-configured">@L["BackupNotConfigured"]</MudAlert>
+            }
+            else
+            {
+                <MudText>@L["BackupIntro"]</MudText>
+                @if (_status.LastError is { } error)
+                {
+                    <MudAlert Severity="Severity.Error" Variant="Variant.Outlined">@L["BackupLastError", _status.LastErrorAt?.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) ?? "", error]</MudAlert>
+                }
+                <MudText Typo="Typo.body2">
+                    @L["BackupLast"]: <b>@(_status.LastSuccessAt?.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) ?? L["BackupNever"])</b> ·
+                    @L["BackupNext"]: <b>@(_status.NextRunAt?.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) ?? "–")</b>
+                </MudText>
+                <div>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Backup" OnClick="BackupNowAsync" Disabled="_busy" data-testid="backup-now">@L["BackupNow"]</MudButton>
+                </div>
+                <MudSimpleTable Dense Elevation="0" data-testid="backups">
+                    <tbody>
+                        @foreach (var item in _status.Items)
+                        {
+                            <tr>
+                                <td>@item.CreatedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</td>
+                                <td class="mydocs-muted"><code>@item.Name</code></td>
+                                <td style="text-align: right">@(item.Size / 1024d / 1024d < 1 ? $"{item.Size / 1024d:0} KB" : $"{item.Size / 1024d / 1024d:0.0} MB")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+            }
+        </MudStack>
+    </MudPaper>
+
+    <MudPaper Class="pa-4 mydocs-print" Elevation="1">
+        <MudStack Spacing="2">
+            <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["MasterKeyTitle"]</b></MudText>
+            <MudText>@L["MasterKeyIntro"]</MudText>
+            @if (_words is null)
+            {
+                <EditForm Model="this" OnSubmit="ShowAsync" class="mydocs-no-print">
+                    <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                        <MudTextField T="string" @bind-Value="_code" Label="@L["TotpCode"]" Variant="Variant.Outlined" Margin="Margin.Dense" Style="max-width: 16rem"
+                                      UserAttributes="@(new() { ["autocomplete"] = "one-time-code", ["inputmode"] = "numeric", ["data-testid"] = "master-key-code" })" />
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.Key" data-testid="master-key-show">@L["MasterKeyShow"]</MudButton>
+                    </MudStack>
+                </EditForm>
+            }
+            else
+            {
+                <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined" Class="mydocs-no-print">@L["MasterKeyWarning"]</MudAlert>
+                <MudText Typo="Typo.body2">myDocs · @_shownAt?.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</MudText>
+                <MudSimpleTable Dense Elevation="0" data-testid="master-key-words">
+                    <tbody>
+                        @foreach (var row in _words.Select((w, i) => (Word: w, Number: i + 1)).Chunk(4))
+                        {
+                            <tr>
+                                @foreach (var cell in row)
+                                {
+                                    <td><span class="mydocs-recovery-number">@cell.Number.</span> <span class="mydocs-recovery-word">@cell.Word</span></td>
+                                }
+                            </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+                <MudText Typo="Typo.body2">@L["MasterKeyRestoreHint"]</MudText>
+                <MudStack Row Spacing="2" Class="mydocs-no-print">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Print" OnClick="PrintAsync">@L["Print"]</MudButton>
+                    <MudButton Variant="Variant.Text" OnClick="() => _words = null">@L["MasterKeyHide"]</MudButton>
+                </MudStack>
+            }
+        </MudStack>
+    </MudPaper>
+</MudStack>
+
+@code {
+    private BackupStatusDto? _status;
+    private bool _busy;
+    private string? _code;
+    private IReadOnlyList<string>? _words;
+    private DateTimeOffset? _shownAt;
+
+    protected override async Task OnInitializedAsync() => _status = await Admin.BackupStatusAsync();
+
+    private async Task BackupNowAsync()
+    {
+        _busy = true;
+        try
+        {
+            await Admin.BackupNowAsync();
+            Snackbar.Add(L["BackupDone"], Severity.Success);
+        }
+        catch (ApiException)
+        {
+            Snackbar.Add(L["BackupFailed"], Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+            _status = await Admin.BackupStatusAsync();
+        }
+    }
+
+    private async Task ShowAsync()
+    {
+        try
+        {
+            var key = await Admin.MasterKeyAsync(_code ?? string.Empty);
+            (_words, _shownAt) = (key.Words, key.ShownAt);
+        }
+        catch (ApiException)
+        {
+            Snackbar.Add(L["AuthError_auth-code-invalid"], Severity.Error);
+        }
+        finally
+        {
+            _code = null;
+        }
+    }
+
+    private async Task PrintAsync() => await Js.InvokeVoidAsync("myDocs.print");
+}

@@ -6,6 +6,7 @@ window.myDocs = {
     setDocumentLanguage: (culture) => { document.documentElement.lang = culture; },
     // Heller Modus: Petrol als Schriftfarbe wird dunkler, damit der Kontrast reicht (app.css).
     setLightMode: (light) => { document.documentElement.classList.toggle("mydocs-light", light); },
+    print: () => window.print(),
     copyText: async (text) => {
         try {
             await navigator.clipboard.writeText(text);

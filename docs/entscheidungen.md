@@ -126,6 +126,8 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 71 | Katalogtexte | Quelle ist `catalog-texts.json` in MyCommon.Catalog, abrufbar über `CatalogTexts`. myLife übernimmt die Texte mit `tools/resources.py` in seine eigenen Ressourcen (unverändert, damit `mylife-decrypt` und alle Seiten weiterlaufen). |
 | 72 | Prüfung | `FieldValues.ValidateFields` und `IsVisible` arbeiten über `IFieldValues`. Die gemeinsamen Angaben prüft jede App selbst (myLife: `VaultValidation`). |
 | 73 | GitHub Packages | NuGet verlangt dort auch bei öffentlichen Paketen eine Anmeldung. Apps nutzen `nuget.config` mit Zuordnung `MyCommon.*`; CI und Docker melden sich über `NuGetPackageSourceCredentials_eckiscorner` an. Das Paket muss den Repos myLife und myDocs in den Paket-Einstellungen Lesezugriff für Actions geben. |
+| 74 | Umfang MyCommon.Ui | Farbschema mit Akzentfarbe je App (`EckisTheme`, `AppAccent`), Schrift Titillium Web, `CatalogText` (Texte, Datenblatt-Zeilen der Felder) und `CatalogFields` (Formular der Felder eines Typs, Ablageort-Felder über eine Vorlage der App). Die allgemeinen Texte der Feldtypen (Ja/Nein, Verweise, Fehler) gehören zum Katalog. |
+| 75 | Bleibt in den Apps | Logo, Sprach- und Benutzermenü, Layout und das CSS. Sie hängen in myLife an Sitzung, Tresor und Kulturdienst. Sie werden herausgelöst, sobald myDocs in M1 eigene Gegenstücke hat und klar ist, was beide wirklich teilen. Die Akzentfarbe von myDocs wird in M1 festgelegt. |
 
 ## Offen
 

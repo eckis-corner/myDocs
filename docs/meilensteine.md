@@ -6,7 +6,7 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 **M0.1 Katalog ✅ (27.11.2026, lokal):** `MyCommon.Catalog` mit Schema, Katalog, Feldprüfungen und `catalog-texts.json`; myLife auf Branch `m0-my-common` umgestellt, 283 von 284 Tests grün, 1 übersprungen, wie vorher. Ressourcen von myLife unverändert.
 
-**M0.2 Oberfläche:** `MyCommon.Ui`, siehe unten.
+**M0.2 Oberfläche ✅ (27.11.2026, lokal):** `MyCommon.Ui` mit Theme, Schrift, `CatalogText` und `CatalogFields` (74, 75); myLife nutzt es, 283 von 284 Tests grün, 1 übersprungen, wie vorher. Offen für die Abnahme: Release myLife 1.2 nach dem Merge von `m0-my-common`.
 
 
 - Repo `eckis-corner/my-common`, AGPL-3.0, CI veröffentlicht die Pakete nach GitHub Packages

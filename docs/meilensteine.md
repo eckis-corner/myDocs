@@ -2,7 +2,12 @@
 
 Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nummern verweisen auf das [Entscheidungsprotokoll](entscheidungen.md).
 
-## M0 – my-common herauslösen (51–55)
+## M0 – my-common herauslösen (51–55, 69–73)
+
+**M0.1 Katalog ✅ (27.11.2026, lokal):** `MyCommon.Catalog` mit Schema, Katalog, Feldprüfungen und `catalog-texts.json`; myLife auf Branch `m0-my-common` umgestellt, 283 von 284 Tests grün, 1 übersprungen, wie vorher. Ressourcen von myLife unverändert.
+
+**M0.2 Oberfläche:** `MyCommon.Ui`, siehe unten.
+
 
 - Repo `eckis-corner/my-common`, AGPL-3.0, CI veröffentlicht die Pakete nach GitHub Packages
 - `MyCommon.Catalog`: Schema, `ObjectCatalog`, Auswahllisten, Feldprüfungen, Ressourcen. Neu: `MyLifeRelevant`, Lebenszyklus-Muster, `ReviewRule`

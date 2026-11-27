@@ -117,6 +117,16 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 67 | Echte Daten | Ab M2, nach eigener Abnahme auf der Synology inklusive Test der Rücksicherung. |
 | 68 | Dokumentation | Struktur wie myLife; dieses Protokoll ist die Grundlage. |
 
+## Runde 2 (27.11.2026, Start von M0)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 69 | Paketnamen | **`MyCommon.Catalog`** und **`MyCommon.Ui`** bestätigt (zu 51). |
+| 70 | Aufteilung M0 | **M0.1** Katalog, **M0.2** Oberfläche. Formular und Datenblatt hängen in myLife eng an `VaultService` und brauchen eigene Abstraktionen. |
+| 71 | Katalogtexte | Quelle ist `catalog-texts.json` in MyCommon.Catalog, abrufbar über `CatalogTexts`. myLife übernimmt die Texte mit `tools/resources.py` in seine eigenen Ressourcen (unverändert, damit `mylife-decrypt` und alle Seiten weiterlaufen). |
+| 72 | Prüfung | `FieldValues.ValidateFields` und `IsVisible` arbeiten über `IFieldValues`. Die gemeinsamen Angaben prüft jede App selbst (myLife: `VaultValidation`). |
+| 73 | GitHub Packages | NuGet verlangt dort auch bei öffentlichen Paketen eine Anmeldung. Apps nutzen `nuget.config` mit Zuordnung `MyCommon.*`; CI und Docker melden sich über `NuGetPackageSourceCredentials_eckiscorner` an. Das Paket muss den Repos myLife und myDocs in den Paket-Einstellungen Lesezugriff für Actions geben. |
+
 ## Offen
 
 | Thema | Was fehlt |
@@ -128,4 +138,3 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | Bereiche | Ob myDocs die 15 Bereiche von myLife übernimmt oder eigene Bereiche für die Zusatztypen bekommt |
 | Personen-Stammdaten (5) | Verhältnis zum myLife-Typ „Kontakt“ und zu Benutzern |
 | Größengrenze | Maximale Dateigröße in myDocs (myLife: 25 MB) |
-| Paketnamen (51) | `MyCommon.*` angenommen, Bestätigung ausstehend |

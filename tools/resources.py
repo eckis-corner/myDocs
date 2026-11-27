@@ -484,6 +484,22 @@ TEXTS: dict[str, tuple[str, str]] = {
     "TaskPostponedCount": ("{0}× zurückgestellt", "postponed {0}×"),
     "TaskError_postpone-invalid": ("Bitte ein Datum in den nächsten 30 Tagen wählen.", "Please choose a date within the next 30 days."),
     "TaskError_reason-required": ("Bitte eine Begründung angeben.", "Please give a reason."),
+    # Startseite (M2.3)
+    "DashDue": ("Überfällig und diese Woche", "Overdue and this week"),
+    "DashNothingDue": ("Nichts fällig.", "Nothing due."),
+    "DashDeadlines": ("Fristen in den nächsten 90 Tagen", "Deadlines in the next 90 days"),
+    "DashNoDeadlines": ("Keine Fristen.", "No deadlines."),
+    "DashPayments": ("Regelmäßige Zahlungen", "Regular payments"),
+    "DashPerMonth": ("im Monat", "per month"),
+    "DashInbox": ("Posteingang", "Inbox"),
+    "DashInboxSoon": ("Scanner, Mail und Kamera folgen mit M3.", "Scanner, email and camera follow with M3."),
+    "DashState": ("Zustand des Bestands", "State of the records"),
+    "DashIncomplete": ("{0} Einträge mit fehlenden Angaben", "{0} entries with missing details"),
+    "DashUnreviewed": ("{0} Einträge seit über 12 Monaten nicht geprüft", "{0} entries not reviewed for over 12 months"),
+    "DashMyLife": ("{0} Einträge warten auf den Abgleich mit myLife", "{0} entries waiting for the myLife sync"),
+    "DeadlineKind_task": ("Frist", "Deadline"),
+    "DeadlineKind_expiry": ("läuft ab", "expires"),
+    "DeadlineKind_contract-end": ("endet nach Kündigung", "ends after cancellation"),
 }
 
 HEADER = """<?xml version="1.0" encoding="utf-8"?>

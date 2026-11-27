@@ -4,6 +4,8 @@ using Bunit;
 using Microsoft.Extensions.DependencyInjection;
 using MyDocs.ApiClient;
 using MyDocs.Shared.Auth;
+using MyDocs.Shared.Dashboard;
+using MyDocs.Shared.Tasks;
 using MyDocs.UI;
 using MyDocs.UI.Layout;
 using MyDocs.UI.Pages;
@@ -35,6 +37,37 @@ public sealed class UiTests : BunitContext
         Assert.Contains("Versicherungen", home.Markup, StringComparison.Ordinal);
         Assert.Empty(home.FindAll("[data-testid=area-11]"));
         Assert.Empty(home.FindAll("[data-testid=area-12]"));
+    }
+
+    [Fact]
+    public void HomeShowsTheDashboardAndSwitchesTheScope()
+    {
+        var task = new TaskDto(Guid.NewGuid(), "review", "Haftpflicht prüfen", null, null, new DateOnly(2026, 11, 1), "normal", "open",
+            null, null, null, [], true, DateTimeOffset.UtcNow, "Anna", null, null, 1);
+        var objectId = Guid.NewGuid();
+        var dashboard = new DashboardDto([task], [], 0, [], [new DeadlineItemDto(new DateOnly(2027, 1, 31), DeadlineKinds.Expiry, objectId, "Personalausweis", "id-card", null)],
+            42m, [new PaymentAreaDto(4, 25m, 2)], [new AttentionItemDto(objectId, "Personalausweis", "id-card", ["number"], null)], [], 0) { IncompleteCount = 23 };
+        _api.OnJson("GET /api/dashboard", dashboard);
+
+        var home = Render<Home>();
+
+        home.WaitForAssertion(() => Assert.Contains("Haftpflicht prüfen", home.Find("[data-testid=block-due]").TextContent, StringComparison.Ordinal));
+        Assert.Contains("Personalausweis", home.Find("[data-testid=block-deadlines]").TextContent, StringComparison.Ordinal);
+        Assert.Contains("läuft ab", home.Find("[data-testid=block-deadlines]").TextContent, StringComparison.Ordinal);
+        Assert.Contains("42,00 €", home.Find("[data-testid=monthly-total]").TextContent, StringComparison.Ordinal);
+        Assert.Contains("23 Einträge mit fehlenden Angaben", home.Find("[data-testid=block-state]").TextContent, StringComparison.Ordinal);
+
+        home.FindAll("[data-testid=scope] .mud-toggle-item")[1].Click();
+        home.WaitForAssertion(() => Assert.Equal(2, _api.Calls.Count(c => c == "GET /api/dashboard")));
+    }
+
+    [Fact]
+    public void HomeKeepsTheAreasWhenTheDashboardFails()
+    {
+        var home = Render<Home>();
+
+        home.WaitForAssertion(() => Assert.Empty(home.FindAll(".mud-progress-linear")));
+        Assert.NotEmpty(home.FindAll("[data-testid=area-4]"));
     }
 
     [Fact]

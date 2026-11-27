@@ -2,15 +2,110 @@
 @attribute [Microsoft.AspNetCore.Authorization.Authorize]
 @inject IStringLocalizer<SharedResource> L
 @inject CatalogText Catalog
+@inject DashboardClient Dashboard
+@inject ObjectDirectory Directory
 @inject ObjectClient Objects
+@inject SessionService Session
 @inject NavigationManager Navigation
 
 <PageTitle>@L["AppName"]</PageTitle>
 
 <MudStack Spacing="3">
-    <MudText Typo="Typo.h4" HtmlTag="h1">@L["HomeTitle"]</MudText>
-    <MudText>@L["HomeIntro"]</MudText>
-    <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["HomeAreas"]</b></MudText>
+    <MudStack Row AlignItems="AlignItems.Center" Wrap="Wrap.Wrap" Spacing="2">
+        <MudText Typo="Typo.h4" HtmlTag="h1">@L["HomeTitle"]</MudText>
+        <MudSpacer />
+        <MudToggleGroup T="bool" Value="_mine" ValueChanged="ScopeChanged" Size="Size.Small" Color="Color.Primary" SelectionMode="SelectionMode.SingleSelection" data-testid="scope">
+            <MudToggleItem Value="true" Text="@L["ScopeMine"]" />
+            <MudToggleItem Value="false" Text="@L["ScopeHousehold"]" />
+        </MudToggleGroup>
+    </MudStack>
+
+    @if (_dashboard is null && !_failed)
+    {
+        <MudProgressLinear Indeterminate Color="Color.Primary" />
+    }
+    else if (_dashboard is not null)
+    {
+        <MudGrid Spacing="3">
+            <MudItem xs="12" md="6">
+                <MudPaper Class="pa-4" Elevation="1" Style="height: 100%" data-testid="block-due">
+                    <MudText Typo="Typo.subtitle1" HtmlTag="h2" Class="mb-2"><b>@L["DashDue"]</b></MudText>
+                    @if (_dashboard.Overdue.Count + _dashboard.DueThisWeek.Count == 0)
+                    {
+                        <MudText Typo="Typo.body2" Class="mydocs-muted">@L["DashNothingDue"]</MudText>
+                    }
+                    @foreach (var task in _dashboard.Overdue)
+                    {
+                        <div class="d-flex align-center gap-2 mb-1">
+                            <MudIcon Icon="@Icons.Material.Filled.Error" Color="Color.Error" Size="Size.Small" />
+                            <MudLink Href="tasks">@TaskView.Title(task, L)</MudLink>
+                            <MudText Typo="Typo.caption" Color="Color.Error">@task.DueOn?.ToString("d", CultureInfo.CurrentCulture)</MudText>
+                        </div>
+                    }
+                    @foreach (var task in _dashboard.DueThisWeek)
+                    {
+                        <div class="d-flex align-center gap-2 mb-1">
+                            <MudIcon Icon="@Icons.Material.Outlined.Schedule" Color="Color.Warning" Size="Size.Small" />
+                            <MudLink Href="tasks">@TaskView.Title(task, L)</MudLink>
+                            <MudText Typo="Typo.caption" Class="mydocs-muted">@task.DueOn?.ToString("d", CultureInfo.CurrentCulture)</MudText>
+                        </div>
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="6">
+                <MudPaper Class="pa-4" Elevation="1" Style="height: 100%" data-testid="block-deadlines">
+                    <MudText Typo="Typo.subtitle1" HtmlTag="h2" Class="mb-2"><b>@L["DashDeadlines"]</b></MudText>
+                    @if (_dashboard.Deadlines.Count == 0)
+                    {
+                        <MudText Typo="Typo.body2" Class="mydocs-muted">@L["DashNoDeadlines"]</MudText>
+                    }
+                    @foreach (var deadline in _dashboard.Deadlines)
+                    {
+                        <div class="d-flex align-center gap-2 mb-1">
+                            <MudText Typo="Typo.body2" Style="min-width: 6rem">@deadline.Date.ToString("d", CultureInfo.CurrentCulture)</MudText>
+                            <MudLink Href="@($"object/{deadline.ObjectId}")">@deadline.ObjectTitle</MudLink>
+                            <MudText Typo="Typo.caption" Class="mydocs-muted">@L[$"DeadlineKind_{deadline.Kind}"]</MudText>
+                        </div>
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudPaper Class="pa-4" Elevation="1" Style="height: 100%" data-testid="block-payments">
+                    <MudText Typo="Typo.subtitle1" HtmlTag="h2" Class="mb-2"><b>@L["DashPayments"]</b></MudText>
+                    <MudText Typo="Typo.h5" data-testid="monthly-total">@_dashboard.MonthlyTotal.ToString("N2", CultureInfo.CurrentCulture) € <span class="mydocs-muted" style="font-size: 1rem">@L["DashPerMonth"]</span></MudText>
+                    @foreach (var area in _dashboard.PaymentsByArea)
+                    {
+                        <MudText Typo="Typo.body2">@Catalog.Area(area.Area): @area.Monthly.ToString("N2", CultureInfo.CurrentCulture) € <span class="mydocs-muted">(@area.Count)</span></MudText>
+                    }
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudPaper Class="pa-4" Elevation="1" Style="height: 100%" data-testid="block-inbox">
+                    <MudText Typo="Typo.subtitle1" HtmlTag="h2" Class="mb-2"><b>@L["DashInbox"]</b></MudText>
+                    <MudText Typo="Typo.h5">@_dashboard.InboxCount</MudText>
+                    <MudText Typo="Typo.body2" Class="mydocs-muted">@L["DashInboxSoon"]</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudPaper Class="pa-4" Elevation="1" Style="height: 100%" data-testid="block-state">
+                    <MudText Typo="Typo.subtitle1" HtmlTag="h2" Class="mb-2"><b>@L["DashState"]</b></MudText>
+                    <MudText Typo="Typo.body2">@L["DashIncomplete", _dashboard.IncompleteCount]</MudText>
+                    @foreach (var item in _dashboard.Incomplete.Take(5))
+                    {
+                        <div class="ml-2"><MudLink Href="@($"object/{item.ObjectId}")" Typo="Typo.body2">@item.Title</MudLink></div>
+                    }
+                    <MudText Typo="Typo.body2" Class="mt-2">@L["DashUnreviewed", _dashboard.UnreviewedCount]</MudText>
+                    @foreach (var item in _dashboard.Unreviewed.Take(5))
+                    {
+                        <div class="ml-2"><MudLink Href="@($"object/{item.ObjectId}")" Typo="Typo.body2">@item.Title</MudLink></div>
+                    }
+                    <MudText Typo="Typo.body2" Class="mt-2">@L["DashMyLife", _dashboard.MyLifeSyncOpen]</MudText>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    }
+
+    <MudText Typo="Typo.subtitle1" HtmlTag="h2" Class="mt-2"><b>@L["HomeAreas"]</b></MudText>
     <MudGrid Spacing="2">
         @foreach (var area in Areas.Visible)
         {
@@ -33,10 +128,14 @@
 </MudStack>
 
 @code {
+    private DashboardDto? _dashboard;
     private Dictionary<int, int> _counts = [];
+    private bool _mine = true;
+    private bool _failed;
 
     protected override async Task OnInitializedAsync()
     {
+        await LoadAsync();
         try
         {
             var items = await Objects.ListAsync();
@@ -49,5 +148,26 @@
         catch (HttpRequestException)
         {
         }
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            _dashboard = await Dashboard.GetAsync(_mine);
+            _failed = false;
+        }
+        catch (Exception e) when (e is ApiException or HttpRequestException)
+        {
+            // Ohne Übersicht bleiben die Bereiche nutzbar.
+            _dashboard = null;
+            _failed = true;
+        }
+    }
+
+    private async Task ScopeChanged(bool mine)
+    {
+        _mine = mine;
+        await LoadAsync();
     }
 }

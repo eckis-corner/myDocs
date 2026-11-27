@@ -94,6 +94,21 @@
   <data name="Confirm" xml:space="preserve"><value>Confirm</value></data>
   <data name="Copied" xml:space="preserve"><value>Copied to the clipboard.</value></data>
   <data name="CopyLink" xml:space="preserve"><value>Copy link</value></data>
+  <data name="DashDeadlines" xml:space="preserve"><value>Deadlines in the next 90 days</value></data>
+  <data name="DashDue" xml:space="preserve"><value>Overdue and this week</value></data>
+  <data name="DashInbox" xml:space="preserve"><value>Inbox</value></data>
+  <data name="DashInboxSoon" xml:space="preserve"><value>Scanner, email and camera follow with M3.</value></data>
+  <data name="DashIncomplete" xml:space="preserve"><value>{0} entries with missing details</value></data>
+  <data name="DashMyLife" xml:space="preserve"><value>{0} entries waiting for the myLife sync</value></data>
+  <data name="DashNoDeadlines" xml:space="preserve"><value>No deadlines.</value></data>
+  <data name="DashNothingDue" xml:space="preserve"><value>Nothing due.</value></data>
+  <data name="DashPayments" xml:space="preserve"><value>Regular payments</value></data>
+  <data name="DashPerMonth" xml:space="preserve"><value>per month</value></data>
+  <data name="DashState" xml:space="preserve"><value>State of the records</value></data>
+  <data name="DashUnreviewed" xml:space="preserve"><value>{0} entries not reviewed for over 12 months</value></data>
+  <data name="DeadlineKind_contract-end" xml:space="preserve"><value>ends after cancellation</value></data>
+  <data name="DeadlineKind_expiry" xml:space="preserve"><value>expires</value></data>
+  <data name="DeadlineKind_task" xml:space="preserve"><value>Deadline</value></data>
   <data name="Delete" xml:space="preserve"><value>Delete</value></data>
   <data name="DisplayName" xml:space="preserve"><value>Name</value></data>
   <data name="DocumentDate" xml:space="preserve"><value>Document date</value></data>

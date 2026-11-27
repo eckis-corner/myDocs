@@ -94,6 +94,21 @@
   <data name="Confirm" xml:space="preserve"><value>Bestätigen</value></data>
   <data name="Copied" xml:space="preserve"><value>In die Zwischenablage kopiert.</value></data>
   <data name="CopyLink" xml:space="preserve"><value>Link kopieren</value></data>
+  <data name="DashDeadlines" xml:space="preserve"><value>Fristen in den nächsten 90 Tagen</value></data>
+  <data name="DashDue" xml:space="preserve"><value>Überfällig und diese Woche</value></data>
+  <data name="DashInbox" xml:space="preserve"><value>Posteingang</value></data>
+  <data name="DashInboxSoon" xml:space="preserve"><value>Scanner, Mail und Kamera folgen mit M3.</value></data>
+  <data name="DashIncomplete" xml:space="preserve"><value>{0} Einträge mit fehlenden Angaben</value></data>
+  <data name="DashMyLife" xml:space="preserve"><value>{0} Einträge warten auf den Abgleich mit myLife</value></data>
+  <data name="DashNoDeadlines" xml:space="preserve"><value>Keine Fristen.</value></data>
+  <data name="DashNothingDue" xml:space="preserve"><value>Nichts fällig.</value></data>
+  <data name="DashPayments" xml:space="preserve"><value>Regelmäßige Zahlungen</value></data>
+  <data name="DashPerMonth" xml:space="preserve"><value>im Monat</value></data>
+  <data name="DashState" xml:space="preserve"><value>Zustand des Bestands</value></data>
+  <data name="DashUnreviewed" xml:space="preserve"><value>{0} Einträge seit über 12 Monaten nicht geprüft</value></data>
+  <data name="DeadlineKind_contract-end" xml:space="preserve"><value>endet nach Kündigung</value></data>
+  <data name="DeadlineKind_expiry" xml:space="preserve"><value>läuft ab</value></data>
+  <data name="DeadlineKind_task" xml:space="preserve"><value>Frist</value></data>
   <data name="Delete" xml:space="preserve"><value>Löschen</value></data>
   <data name="DisplayName" xml:space="preserve"><value>Name</value></data>
   <data name="DocumentDate" xml:space="preserve"><value>Datum des Dokuments</value></data>

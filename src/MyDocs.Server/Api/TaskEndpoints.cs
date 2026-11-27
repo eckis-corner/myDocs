@@ -443,7 +443,7 @@ internal static class TaskEndpoints
     private static Task<Guid?> OwnerAsync(MyDocsDbContext db, IReadOnlyCollection<Guid> objectIds, CancellationToken ct) =>
         db.Objects.Where(o => objectIds.Contains(o.Id) && o.OwnerPersonId != null).Select(o => o.OwnerPersonId).FirstOrDefaultAsync(ct);
 
-    private static async Task<List<TaskDto>> ToDtosAsync(List<WorkTask> items, Caller caller, TaskAccess tasks, MyDocsDbContext db, CancellationToken ct)
+    internal static async Task<List<TaskDto>> ToDtosAsync(List<WorkTask> items, Caller caller, TaskAccess tasks, MyDocsDbContext db, CancellationToken ct)
     {
         var ids = items.Select(t => t.Id).ToList();
         var links = await db.TaskObjects.Where(l => ids.Contains(l.TaskId)).ToListAsync(ct);

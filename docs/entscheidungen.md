@@ -234,6 +234,14 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 124 | Eskalation | Der Dienst läuft alle 15 Minuten und ist idempotent. Stufe 1 am Fälligkeitstag, 2 nach 7 Tagen, 3 nach 14 Tagen; eine Prüfung in Stufe 3 setzt „überfällig seit“ am Eintrag. Die Benachrichtigung zu den Stufen kommt mit M2.4. „Wartet auf Dritte“ kommt am Datum wieder, mit Kommentar. |
 | 125 | Abschluss und Zurückstellen | Prüfung und Frist schließen nur mit Ergebnis; das setzt „zuletzt geprüft“, löscht „überfällig“ und (bei Prüfungen) einen festen Termin. Zurückstellen bis höchstens 30 Tage voraus und nur mit Begründung, die als Kommentar am Vorgang steht; die Eskalation beginnt neu, die Zahl der Rückstellungen bleibt sichtbar. |
 
+## Runde 14 (27.11.2026, M2.3 Startseite)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 126 | Blöcke der Startseite | Oben ein Umschalter „Meins“/„Haushalt“, darunter fünf Blöcke: (1) überfällig und bis Sonntag fällig, (2) Fristen der nächsten 90 Tage aus Frist-Vorgängen, Ablaufdaten und dem Vertragsende nach Kündigung, (3) regelmäßige Zahlungen als Summe je Monat und je Bereich, (4) Posteingang, (5) Zustand des Bestands: fehlende Pflicht- und empfohlene Angaben, seit über 12 Monaten nicht geprüft, offene Abgleiche mit myLife. Darunter wie bisher die Bereiche. Listen zeigen höchstens 20 Einträge, die Zahlen gelten für alle. |
+| 127 | Meins | „Meins“ heißt: Vorgänge, für die ich zuständig bin, und Einträge, bei denen ich zuständig oder Eigentümer bin. „Haushalt“ zeigt alles, was ich sehen darf; private Einträge anderer zählen nie mit, auch nicht in den Summen. Vorgänge, die auf Dritte warten, erscheinen erst wieder an ihrem Datum. |
+| 128 | Zahlungen | Umgerechnet auf den Monat: monatlich ×1, vierteljährlich ÷3, halbjährlich ÷6, jährlich ÷12; nur aktive Einträge. Die Veränderung zum Vorjahr folgt, sobald es eine Historie der Beträge gibt. Posteingang zeigt bis M3 null, der Abgleich mit myLife bis M5. Fällt die Übersicht aus, bleiben die Bereiche nutzbar. |
+
 ## Offen
 
 | Thema | Was fehlt |

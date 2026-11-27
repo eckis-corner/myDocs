@@ -27,6 +27,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<SearchClient>();
         services.AddScoped<AuditClient>();
         services.AddScoped<TaskClient>();
+        services.AddScoped<DashboardClient>();
         return services;
     }
 }

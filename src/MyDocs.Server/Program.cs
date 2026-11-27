@@ -167,6 +167,7 @@ app.MapSearchEndpoints();
 app.MapAuditEndpoints();
 app.MapAccountEndpoints();
 app.MapTaskEndpoints();
+app.MapDashboardEndpoints();
 app.MapAdminBackupEndpoints();
 
 app.MapStaticAssets();

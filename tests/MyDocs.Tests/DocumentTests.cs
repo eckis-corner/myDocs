@@ -92,7 +92,9 @@ public sealed class DocumentTests(ServerFixture server) : IClassFixture<ServerFi
         Assert.Equal(content, await download.Content.ReadAsByteArrayAsync(Ct));
 
         // Auf der Platte liegt nur Chiffrat, auch kein Stück des Inhalts.
-        var files = Directory.GetFiles(Path.Combine(server.DataDirectory, "files"), "*", SearchOption.AllDirectories).Where(f => !f.Contains("tmp", StringComparison.Ordinal)).ToList();
+        // Den Ordner für Zwischendateien am Namen erkennen, nicht an „tmp“ irgendwo im Pfad (unter Linux liegt alles in /tmp).
+        var files = Directory.GetFiles(Path.Combine(server.DataDirectory, "files"), "*", SearchOption.AllDirectories)
+            .Where(f => Path.GetFileName(Path.GetDirectoryName(f)) != "tmp").ToList();
         Assert.NotEmpty(files);
         var marker = Encoding.ASCII.GetBytes("GEHEIMER-INHALT-");
         Assert.All(files, f => Assert.Equal(-1, File.ReadAllBytes(f).AsSpan().IndexOf(marker)));

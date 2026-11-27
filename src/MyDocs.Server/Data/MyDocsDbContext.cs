@@ -33,6 +33,8 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
 
     public DbSet<DocumentObject> DocumentObjects => Set<DocumentObject>();
 
+    public DbSet<AuditEntry> AuditLog => Set<AuditEntry>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -134,6 +136,18 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
             entity.HasIndex(x => x.ObjectId);
             entity.HasOne<Document>().WithMany().HasForeignKey(x => x.DocumentId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne<DocObject>().WithMany().HasForeignKey(x => x.ObjectId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<AuditEntry>(entity =>
+        {
+            entity.ToTable("audit_log");
+            entity.Property(x => x.Action).HasMaxLength(50);
+            entity.Property(x => x.Title).HasMaxLength(200);
+            entity.Property(x => x.Ip).HasMaxLength(50);
+            entity.Property(x => x.Details).HasMaxLength(500);
+            entity.HasIndex(x => x.At);
+            entity.HasIndex(x => x.ActorId);
+            entity.HasIndex(x => x.OwnerPersonId);
         });
 
         builder.Entity<SystemSetting>(entity =>

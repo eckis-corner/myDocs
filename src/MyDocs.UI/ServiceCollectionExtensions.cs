@@ -17,6 +17,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<CultureService>();
         services.AddScoped<SessionService>();
         services.AddScoped<ObjectDirectory>();
+        services.AddScoped<AdminViewService>();
         services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<SessionService>());
         services.AddAuthorizationCore();
         services.AddCascadingAuthenticationState();

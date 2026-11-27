@@ -1,7 +1,9 @@
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using MyDocs.Server.Data;
+using MyDocs.Server.Infrastructure.Audit;
 using MyDocs.Server.Infrastructure.Auth;
+using MyDocs.Shared.Audit;
 using MyDocs.Shared.Auth;
 
 namespace MyDocs.Server.Api;
@@ -16,8 +18,13 @@ internal static class AuthEndpoints
         var group = app.MapGroup("/api/auth");
         group.MapPost("/login", LoginAsync).AllowAnonymous().RequireRateLimiting(RateLimitPolicy);
         group.MapPost("/login/2fa", TwoFactorAsync).AllowAnonymous().RequireRateLimiting(RateLimitPolicy);
-        group.MapPost("/logout", async (SignInManager<AppUser> signIn) =>
+        group.MapPost("/logout", async (SignInManager<AppUser> signIn, ClaimsPrincipal principal, AuditLog audit) =>
         {
+            if (principal.Identity?.IsAuthenticated == true)
+            {
+                await audit.WriteAsync(AuditActions.Logout);
+            }
+
             await signIn.SignOutAsync();
             return TypedResults.NoContent();
         }).AllowAnonymous();
@@ -25,7 +32,7 @@ internal static class AuthEndpoints
         return app;
     }
 
-    private static async Task<IResult> LoginAsync(LoginRequest request, UserManager<AppUser> users, SignInManager<AppUser> signIn)
+    private static async Task<IResult> LoginAsync(LoginRequest request, UserManager<AppUser> users, SignInManager<AppUser> signIn, AuditLog audit)
     {
         var user = await users.FindByEmailAsync(request.Email?.Trim() ?? string.Empty);
         if (user is null)
@@ -45,6 +52,7 @@ internal static class AuthEndpoints
         var result = await signIn.PasswordSignInAsync(user, request.Password ?? string.Empty, isPersistent: false, lockoutOnFailure: true);
         if (result.IsLockedOut)
         {
+            await audit.WriteAsync(AuditActions.LoginFailed, user.Id, details: "gesperrt nach Fehlversuchen");
             return ApiProblems.Of(AuthErrors.Locked, StatusCodes.Status429TooManyRequests);
         }
 
@@ -60,11 +68,13 @@ internal static class AuthEndpoints
             return ApiProblems.Of(AuthErrors.TwoFactorMissing, StatusCodes.Status403Forbidden);
         }
 
+        await audit.WriteAsync(AuditActions.LoginFailed, user.Id, details: "Passwort");
         return ApiProblems.Of(AuthErrors.Invalid, StatusCodes.Status401Unauthorized);
     }
 
-    private static async Task<IResult> TwoFactorAsync(LoginTwoFactorRequest request, SignInManager<AppUser> signIn, UserManager<AppUser> users)
+    private static async Task<IResult> TwoFactorAsync(LoginTwoFactorRequest request, SignInManager<AppUser> signIn, UserManager<AppUser> users, AuditLog audit)
     {
+        var pending = await signIn.GetTwoFactorAuthenticationUserAsync();
         var code = (request.Code ?? string.Empty).Replace(" ", string.Empty, StringComparison.Ordinal);
         var result = request.IsRecoveryCode
             ? await signIn.TwoFactorRecoveryCodeSignInAsync(code)
@@ -76,9 +86,15 @@ internal static class AuthEndpoints
 
         if (!result.Succeeded)
         {
+            if (pending is not null)
+            {
+                await audit.WriteAsync(AuditActions.LoginFailed, pending.Id, details: request.IsRecoveryCode ? "Wiederherstellungscode" : "Code");
+            }
+
             return ApiProblems.Of(AuthErrors.CodeInvalid, StatusCodes.Status401Unauthorized);
         }
 
+        await audit.WriteAsync(AuditActions.Login, pending?.Id, details: request.IsRecoveryCode ? "Wiederherstellungscode" : null);
         return TypedResults.NoContent();
     }
 

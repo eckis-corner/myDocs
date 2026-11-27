@@ -1,0 +1,18 @@
+@page "/admin/audit"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = HouseholdRoles.Admin)]
+@inject IStringLocalizer<SharedResource> L
+@inject AuditClient Audit
+
+<PageTitle>@L["AppName"] – @L["AdminAuditTitle"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h4" HtmlTag="h1">@L["AdminAuditTitle"]</MudText>
+    <MudText>@L["AdminAuditIntro"]</MudText>
+    <AuditTable Entries="_entries" ShowIp />
+</MudStack>
+
+@code {
+    private List<AuditEntryDto>? _entries;
+
+    protected override async Task OnInitializedAsync() => _entries = await Audit.AllAsync();
+}

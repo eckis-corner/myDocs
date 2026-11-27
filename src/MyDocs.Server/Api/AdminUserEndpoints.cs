@@ -3,7 +3,9 @@ using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MyDocs.Server.Data;
+using MyDocs.Server.Infrastructure.Audit;
 using MyDocs.Server.Infrastructure.Auth;
+using MyDocs.Shared.Audit;
 using MyDocs.Shared.Admin;
 using MyDocs.Shared.Household;
 
@@ -39,7 +41,7 @@ internal static class AdminUserEndpoints
     }
 
     private static async Task<IResult> CreateAsync(CreateUserRequest request, MyDocsDbContext db, UserManager<AppUser> users,
-        RoleManager<IdentityRole<Guid>> roles, OneTimeTokens tokens, TimeProvider time, CancellationToken ct)
+        RoleManager<IdentityRole<Guid>> roles, OneTimeTokens tokens, AuditLog audit, TimeProvider time, CancellationToken ct)
     {
         if (!MailAddress.TryCreate(request.Email?.Trim(), out var email))
         {
@@ -78,13 +80,14 @@ internal static class AdminUserEndpoints
         await HouseholdAccounts.EnsureRolesAsync(roles);
         await users.AddToRolesAsync(user, request.IsAdmin ? [request.Role, Roles.Admin] : [request.Role]);
         db.Persons.Add(new Person { Id = Guid.CreateVersion7(), DisplayName = user.DisplayName, UserId = user.Id, CreatedAt = user.CreatedAt });
+        audit.Add(AuditActions.UserCreated, title: user.DisplayName, details: $"{user.Email}, {request.Role}{(request.IsAdmin ? ", admin" : string.Empty)}");
         await db.SaveChangesAsync(ct);
         var (token, expires) = await tokens.IssueAsync(user.Id, TokenPurposes.Activation, OneTimeTokens.ActivationLifetime, ct);
         return TypedResults.Ok(new ActivationLinkDto(user.Id, token, expires));
     }
 
     private static async Task<IResult> UpdateAsync(Guid id, UpdateUserRequest request, ClaimsPrincipal principal, MyDocsDbContext db,
-        UserManager<AppUser> users, CancellationToken ct)
+        UserManager<AppUser> users, AuditLog audit, CancellationToken ct)
     {
         if (await users.FindByIdAsync(id.ToString()) is not { } user)
         {
@@ -129,10 +132,11 @@ internal static class AdminUserEndpoints
             await users.UpdateSecurityStampAsync(user);
         }
 
+        await audit.WriteAsync(AuditActions.UserChanged, title: user.DisplayName, details: $"{request.Role}{(request.IsAdmin ? ", admin" : string.Empty)}", ct: ct);
         return TypedResults.Ok(await ToDtoAsync(users, user, null));
     }
 
-    private static async Task<IResult> LockAsync(Guid id, ClaimsPrincipal principal, UserManager<AppUser> users)
+    private static async Task<IResult> LockAsync(Guid id, ClaimsPrincipal principal, UserManager<AppUser> users, AuditLog audit)
     {
         if (await users.FindByIdAsync(id.ToString()) is not { } user)
         {
@@ -152,10 +156,11 @@ internal static class AdminUserEndpoints
         await users.SetLockoutEnabledAsync(user, true);
         await users.SetLockoutEndDateAsync(user, DateTimeOffset.MaxValue);
         await users.UpdateSecurityStampAsync(user);
+        await audit.WriteAsync(AuditActions.UserLocked, title: user.DisplayName);
         return TypedResults.NoContent();
     }
 
-    private static async Task<IResult> UnlockAsync(Guid id, UserManager<AppUser> users)
+    private static async Task<IResult> UnlockAsync(Guid id, UserManager<AppUser> users, AuditLog audit)
     {
         if (await users.FindByIdAsync(id.ToString()) is not { } user)
         {
@@ -164,11 +169,12 @@ internal static class AdminUserEndpoints
 
         await users.SetLockoutEndDateAsync(user, null);
         await users.ResetAccessFailedCountAsync(user);
+        await audit.WriteAsync(AuditActions.UserUnlocked, title: user.DisplayName);
         return TypedResults.NoContent();
     }
 
     /// <summary>Zugang zurücksetzen: Passwort und zweiter Faktor entfallen, alle Sitzungen enden, es gibt einen neuen Aktivierungslink.</summary>
-    private static async Task<IResult> ResetAsync(Guid id, ClaimsPrincipal principal, UserManager<AppUser> users, OneTimeTokens tokens, CancellationToken ct)
+    private static async Task<IResult> ResetAsync(Guid id, ClaimsPrincipal principal, UserManager<AppUser> users, OneTimeTokens tokens, AuditLog audit, CancellationToken ct)
     {
         if (await users.FindByIdAsync(id.ToString()) is not { } user)
         {
@@ -194,6 +200,7 @@ internal static class AdminUserEndpoints
         await users.ResetAuthenticatorKeyAsync(user);
         await users.RemoveAuthenticationTokenAsync(user, "[AspNetUserStore]", "RecoveryCodes");
         await users.UpdateSecurityStampAsync(user);
+        audit.Add(AuditActions.UserReset, title: user.DisplayName);
         var (token, expires) = await tokens.IssueAsync(user.Id, TokenPurposes.Activation, OneTimeTokens.ActivationLifetime, ct);
         return TypedResults.Ok(new ActivationLinkDto(user.Id, token, expires));
     }

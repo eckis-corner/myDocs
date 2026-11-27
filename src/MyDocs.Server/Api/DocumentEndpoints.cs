@@ -6,9 +6,11 @@ using Microsoft.Extensions.Options;
 using Microsoft.Net.Http.Headers;
 using MyDocs.Server.Data;
 using MyDocs.Server.Infrastructure;
+using MyDocs.Server.Infrastructure.Audit;
 using MyDocs.Server.Infrastructure.Files;
 using MyDocs.Server.Infrastructure.Objects;
 using MyDocs.Server.Infrastructure.Search;
+using MyDocs.Shared.Audit;
 using MyDocs.Shared.Documents;
 
 namespace MyDocs.Server.Api;
@@ -39,10 +41,12 @@ internal static class DocumentEndpoints
     private static async Task<IResult> ListAsync(Guid id, ClaimsPrincipal principal, ObjectAccess access, MyDocsDbContext db, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
-        if (!await VisibleObjects(access, caller).AnyAsync(o => o.Id == id, ct))
+        if (await VisibleObjects(access, caller).FirstOrDefaultAsync(o => o.Id == id, ct) is not { } item)
         {
             return NotFound();
         }
+
+        await access.RecordForeignAccessAsync(caller, [item], "documents", ct);
 
         var ids = await db.DocumentObjects.Where(l => l.ObjectId == id).Select(l => l.DocumentId).ToListAsync(ct);
         var documents = await db.Documents.Where(d => ids.Contains(d.Id) && !d.IsDeleted).OrderByDescending(d => d.DocumentDate ?? DateOnly.MinValue).ThenBy(d => d.Title).ToListAsync(ct);
@@ -62,7 +66,7 @@ internal static class DocumentEndpoints
     }
 
     private static async Task<IResult> UploadAsync(Guid id, HttpRequest request, ClaimsPrincipal principal, ObjectAccess access, MyDocsDbContext db,
-        BlobStore blobs, IOptions<MyDocsOptions> options, TimeProvider time, CancellationToken ct)
+        BlobStore blobs, AuditLog audit, IOptions<MyDocsOptions> options, TimeProvider time, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
         if (await access.Visible(caller).FirstOrDefaultAsync(o => o.Id == id, ct) is not { } item)
@@ -94,12 +98,13 @@ internal static class DocumentEndpoints
         db.DocumentObjects.Add(new DocumentObject { DocumentId = document.Id, ObjectId = item.Id });
         db.DocumentVersions.Add(Version(document.Id, 1, upload, caller.UserId, now));
         await SearchIndex.UpdateAsync(db, document, ct);
+        audit.Add(AuditActions.DocumentUploaded, caller.UserId, item.OwnerPersonId, item.Id, document.Id, document.Title, upload.FileName);
         await db.SaveChangesAsync(ct);
         return TypedResults.Ok(await ToDtoAsync(document, caller, access, db, ct));
     }
 
     private static async Task<IResult> AddVersionAsync(Guid id, HttpRequest request, ClaimsPrincipal principal, ObjectAccess access, MyDocsDbContext db,
-        BlobStore blobs, IOptions<MyDocsOptions> options, TimeProvider time, CancellationToken ct)
+        BlobStore blobs, AuditLog audit, IOptions<MyDocsOptions> options, TimeProvider time, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
         if (await FindVisibleAsync(id, caller, access, db, ct) is not { IsDeleted: false } document)
@@ -123,18 +128,22 @@ internal static class DocumentEndpoints
         db.DocumentVersions.Add(Version(id, number, upload, caller.UserId, now));
         document.UpdatedAt = now;
         await SearchIndex.UpdateAsync(db, document, ct);
+        audit.Add(AuditActions.DocumentVersionAdded, caller.UserId, await OwnerAsync(db, id, ct), documentId: id, title: document.Title, details: $"{number}: {upload.FileName}");
         await db.SaveChangesAsync(ct);
         return TypedResults.Ok(await ToDtoAsync(document, caller, access, db, ct));
     }
 
     private static async Task<IResult> ContentAsync(Guid id, int? version, bool? download, ClaimsPrincipal principal, ObjectAccess access,
-        MyDocsDbContext db, BlobStore blobs, HttpResponse response, CancellationToken ct)
+        MyDocsDbContext db, BlobStore blobs, AuditLog audit, HttpResponse response, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
-        if (await FindVisibleAsync(id, caller, access, db, ct) is null)
+        if (await FindVisibleAsync(id, caller, access, db, ct) is not { } document)
         {
             return NotFound();
         }
+
+        var linked = VisibleObjects(access, caller).Where(o => db.DocumentObjects.Any(l => l.DocumentId == id && l.ObjectId == o.Id));
+        await access.RecordForeignAccessAsync(caller, await linked.ToListAsync(ct), "download", ct);
 
         var query = db.DocumentVersions.Where(v => v.DocumentId == id);
         var file = version is { } number
@@ -152,6 +161,8 @@ internal static class DocumentEndpoints
         response.Headers.ContentDisposition = disposition.ToString();
         response.Headers.CacheControl = "private, no-store";
         response.ContentLength = file.Size;
+        await audit.WriteAsync(AuditActions.DocumentDownloaded, caller.UserId, await OwnerAsync(db, id, ct), documentId: id, title: document.Title,
+            details: $"{file.Number}: {file.FileName}", ct: ct);
         return TypedResults.Stream(output => blobs.CopyToAsync(file.BlobHash, output, ct), inline ? file.ContentType : "application/octet-stream");
     }
 
@@ -220,7 +231,7 @@ internal static class DocumentEndpoints
         return TypedResults.Ok(await ToDtoAsync(document, caller, access, db, ct));
     }
 
-    private static async Task<IResult> DeleteAsync(Guid id, ClaimsPrincipal principal, ObjectAccess access, MyDocsDbContext db, TimeProvider time, CancellationToken ct)
+    private static async Task<IResult> DeleteAsync(Guid id, ClaimsPrincipal principal, ObjectAccess access, MyDocsDbContext db, AuditLog audit, TimeProvider time, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
         if (await FindVisibleAsync(id, caller, access, db, ct) is not { IsDeleted: false } document)
@@ -235,11 +246,12 @@ internal static class DocumentEndpoints
 
         document.IsDeleted = true;
         document.DeletedAt = time.GetUtcNow();
+        audit.Add(AuditActions.DocumentDeleted, caller.UserId, await OwnerAsync(db, id, ct), documentId: id, title: document.Title);
         await db.SaveChangesAsync(ct);
         return TypedResults.NoContent();
     }
 
-    private static async Task<IResult> RestoreAsync(Guid id, ClaimsPrincipal principal, ObjectAccess access, MyDocsDbContext db, CancellationToken ct)
+    private static async Task<IResult> RestoreAsync(Guid id, ClaimsPrincipal principal, ObjectAccess access, MyDocsDbContext db, AuditLog audit, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
         if (await FindVisibleAsync(id, caller, access, db, ct) is not { IsDeleted: true } document)
@@ -254,6 +266,7 @@ internal static class DocumentEndpoints
 
         document.IsDeleted = false;
         document.DeletedAt = null;
+        audit.Add(AuditActions.DocumentRestored, caller.UserId, await OwnerAsync(db, id, ct), documentId: id, title: document.Title);
         await db.SaveChangesAsync(ct);
         return TypedResults.Ok(await ToDtoAsync(document, caller, access, db, ct));
     }
@@ -356,6 +369,13 @@ internal static class DocumentEndpoints
         return new DocumentDto(document.Id, document.Title, document.DocumentDate, document.Note, versions, objects,
             !document.IsDeleted && await CanEditAsync(document.Id, caller, access, db, ct), document.UpdatedAt, document.DeletedAt);
     }
+
+    /// <summary>Eigentümer eines privaten Objekts, zu dem das Dokument gehört; er sieht die Einträge im Protokoll.</summary>
+    private static Task<Guid?> OwnerAsync(MyDocsDbContext db, Guid documentId, CancellationToken ct) =>
+        (from l in db.DocumentObjects
+         join o in db.Objects on l.ObjectId equals o.Id
+         where l.DocumentId == documentId && o.OwnerPersonId != null
+         select o.OwnerPersonId).FirstOrDefaultAsync(ct);
 
     private static IResult NotFound() => ApiProblems.Of(DocumentErrors.NotFound, StatusCodes.Status404NotFound);
 

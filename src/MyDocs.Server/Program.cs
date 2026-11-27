@@ -96,6 +96,10 @@ builder.Services.AddScoped<OneTimeTokens>();
 builder.Services.AddScoped<MyDocs.Server.Infrastructure.Objects.ObjectAccess>();
 builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Files.MasterKey>();
 builder.Services.AddScoped<MyDocs.Server.Infrastructure.Files.BlobStore>();
+builder.Services.AddHttpContextAccessor();
+builder.Services.AddScoped<MyDocs.Server.Infrastructure.Audit.AuditLog>();
+builder.Services.AddSingleton<TrashPurge>();
+builder.Services.AddHostedService(services => services.GetRequiredService<TrashPurge>());
 // Uploads bis zur Grenze aus den Einstellungen (78) plus Platz für den Multipart-Rahmen.
 var maxRequestBytes = (options.MaxFileSizeMegabytes + 1) * 1024L * 1024L;
 builder.Services.AddAuthorizationBuilder()
@@ -150,6 +154,7 @@ app.MapPersonEndpoints();
 app.MapObjectEndpoints();
 app.MapDocumentEndpoints(maxRequestBytes);
 app.MapSearchEndpoints();
+app.MapAuditEndpoints();
 
 app.MapStaticAssets();
 // Die Seiten sind nur die leere Hülle (kein Prerendering); [Authorize] prüft der Client. Geschützt sind die Daten:

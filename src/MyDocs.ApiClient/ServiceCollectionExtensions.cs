@@ -25,6 +25,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ObjectClient>();
         services.AddScoped<DocumentClient>();
         services.AddScoped<SearchClient>();
+        services.AddScoped<AuditClient>();
         return services;
     }
 }

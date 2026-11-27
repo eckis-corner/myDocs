@@ -306,6 +306,71 @@ namespace MyDocs.Server.Data.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("MyDocs.Server.Data.AuditEntry", b =>
+                {
+                    b.Property<long>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint")
+                        .HasColumnName("id");
+
+                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<long>("Id"));
+
+                    b.Property<string>("Action")
+                        .IsRequired()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("action");
+
+                    b.Property<Guid?>("ActorId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("actor_id");
+
+                    b.Property<DateTimeOffset>("At")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("at");
+
+                    b.Property<string>("Details")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("details");
+
+                    b.Property<Guid?>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("document_id");
+
+                    b.Property<string>("Ip")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("ip");
+
+                    b.Property<Guid?>("ObjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("object_id");
+
+                    b.Property<Guid?>("OwnerPersonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_person_id");
+
+                    b.Property<string>("Title")
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.HasKey("Id")
+                        .HasName("pk_audit_log");
+
+                    b.HasIndex("ActorId")
+                        .HasDatabaseName("ix_audit_log_actor_id");
+
+                    b.HasIndex("At")
+                        .HasDatabaseName("ix_audit_log_at");
+
+                    b.HasIndex("OwnerPersonId")
+                        .HasDatabaseName("ix_audit_log_owner_person_id");
+
+                    b.ToTable("audit_log", (string)null);
+                });
+
             modelBuilder.Entity("MyDocs.Server.Data.Blob", b =>
                 {
                     b.Property<string>("Hash")

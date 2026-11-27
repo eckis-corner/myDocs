@@ -3,7 +3,9 @@ using System.Security.Claims;
 using Microsoft.EntityFrameworkCore;
 using MyCommon.Catalog;
 using MyDocs.Server.Data;
+using MyDocs.Server.Infrastructure.Audit;
 using MyDocs.Server.Infrastructure.Objects;
+using MyDocs.Shared.Audit;
 using MyDocs.Shared.Objects;
 
 namespace MyDocs.Server.Api;
@@ -41,6 +43,7 @@ internal static class ObjectEndpoints
         }
 
         var items = await query.OrderBy(o => o.Title).ToListAsync(ct);
+        await access.RecordForeignAccessAsync(caller, items, "list", ct);
         return TypedResults.Ok(items.Select(Summary).ToList());
     }
 
@@ -56,11 +59,17 @@ internal static class ObjectEndpoints
         var caller = await access.CallerAsync(principal, ct);
         var item = await access.Visible(caller).FirstOrDefaultAsync(o => o.Id == id, ct)
             ?? await access.Visible(caller, deleted: true).FirstOrDefaultAsync(o => o.Id == id, ct);
-        return item is null ? NotFound() : TypedResults.Ok(await ToDtoAsync(item, caller, access, db, ct));
+        if (item is null)
+        {
+            return NotFound();
+        }
+
+        await access.RecordForeignAccessAsync(caller, [item], null, ct);
+        return TypedResults.Ok(await ToDtoAsync(item, caller, access, db, ct));
     }
 
     private static async Task<IResult> CreateAsync(ObjectSaveRequest request, ClaimsPrincipal principal, ObjectAccess access,
-        MyDocsDbContext db, TimeProvider time, CancellationToken ct)
+        MyDocsDbContext db, AuditLog audit, TimeProvider time, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
         if (MyDocsCatalog.Find(request.TypeKey) is not { } type)
@@ -98,12 +107,13 @@ internal static class ObjectEndpoints
         };
         Apply(item, request.Data);
         db.Objects.Add(item);
+        audit.Add(AuditActions.ObjectCreated, caller.UserId, item.OwnerPersonId, item.Id, title: item.Title);
         await db.SaveChangesAsync(ct);
         return TypedResults.Ok(await ToDtoAsync(item, caller, access, db, ct));
     }
 
     private static async Task<IResult> UpdateAsync(Guid id, ObjectSaveRequest request, ClaimsPrincipal principal, ObjectAccess access,
-        MyDocsDbContext db, TimeProvider time, CancellationToken ct)
+        MyDocsDbContext db, AuditLog audit, TimeProvider time, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
         if (await access.Visible(caller).FirstOrDefaultAsync(o => o.Id == id, ct) is not { } item)
@@ -140,12 +150,14 @@ internal static class ObjectEndpoints
         }
 
         db.Entry(item).Property(o => o.Version).OriginalValue = request.Version;
+        var previousOwner = item.OwnerPersonId;
         var before = Snapshot(item);
         item.OwnerPersonId = request.OwnerPersonId;
         item.ResponsiblePersonId = request.ResponsiblePersonId;
         Apply(item, request.Data);
         item.UpdatedAt = time.GetUtcNow();
-        AddHistory(db, item, before, Snapshot(item), caller.UserId, item.UpdatedAt);
+        var changes = AddHistory(db, item, before, Snapshot(item), caller.UserId, item.UpdatedAt);
+        audit.Add(AuditActions.ObjectChanged, caller.UserId, item.OwnerPersonId ?? previousOwner, item.Id, title: item.Title, details: string.Join(", ", changes));
         if (item.OwnerPersonId is null)
         {
             // Im Haushalt gibt es keine Freigaben; sie gelten nur für private Objekte.
@@ -164,7 +176,7 @@ internal static class ObjectEndpoints
         return TypedResults.Ok(await ToDtoAsync(item, caller, access, db, ct));
     }
 
-    private static async Task<IResult> DeleteAsync(Guid id, ClaimsPrincipal principal, ObjectAccess access, MyDocsDbContext db, TimeProvider time, CancellationToken ct)
+    private static async Task<IResult> DeleteAsync(Guid id, ClaimsPrincipal principal, ObjectAccess access, MyDocsDbContext db, AuditLog audit, TimeProvider time, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
         if (await access.Visible(caller).FirstOrDefaultAsync(o => o.Id == id, ct) is not { } item)
@@ -180,11 +192,12 @@ internal static class ObjectEndpoints
         item.IsDeleted = true;
         item.DeletedAt = time.GetUtcNow();
         AddHistory(db, item, new() { ["deleted"] = null }, new() { ["deleted"] = "true" }, caller.UserId, item.DeletedAt.Value);
+        audit.Add(AuditActions.ObjectDeleted, caller.UserId, item.OwnerPersonId, item.Id, title: item.Title);
         await db.SaveChangesAsync(ct);
         return TypedResults.NoContent();
     }
 
-    private static async Task<IResult> RestoreAsync(Guid id, ClaimsPrincipal principal, ObjectAccess access, MyDocsDbContext db, TimeProvider time, CancellationToken ct)
+    private static async Task<IResult> RestoreAsync(Guid id, ClaimsPrincipal principal, ObjectAccess access, MyDocsDbContext db, AuditLog audit, TimeProvider time, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
         if (await access.Visible(caller, deleted: true).FirstOrDefaultAsync(o => o.Id == id, ct) is not { } item)
@@ -200,12 +213,13 @@ internal static class ObjectEndpoints
         item.IsDeleted = false;
         item.DeletedAt = null;
         AddHistory(db, item, new() { ["deleted"] = "true" }, new() { ["deleted"] = null }, caller.UserId, time.GetUtcNow());
+        audit.Add(AuditActions.ObjectRestored, caller.UserId, item.OwnerPersonId, item.Id, title: item.Title);
         await db.SaveChangesAsync(ct);
         return TypedResults.Ok(await ToDtoAsync(item, caller, access, db, ct));
     }
 
     private static async Task<IResult> SharesAsync(Guid id, List<ObjectShareDto> shares, ClaimsPrincipal principal, ObjectAccess access,
-        MyDocsDbContext db, CancellationToken ct)
+        MyDocsDbContext db, AuditLog audit, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
         if (await access.Visible(caller).FirstOrDefaultAsync(o => o.Id == id, ct) is not { } item)
@@ -223,6 +237,9 @@ internal static class ObjectEndpoints
         var known = await db.Users.Where(u => wanted.Select(w => w.UserId).Contains(u.Id)).Select(u => u.Id).ToListAsync(ct);
         db.ObjectShares.RemoveRange(await db.ObjectShares.Where(s => s.ObjectId == id).ToListAsync(ct));
         db.ObjectShares.AddRange(wanted.Where(w => known.Contains(w.UserId)).Select(w => new ObjectShare { ObjectId = id, UserId = w.UserId, CanEdit = w.CanEdit }));
+        var names = await db.Users.Where(u => known.Contains(u.Id)).ToDictionaryAsync(u => u.Id, u => u.DisplayName, ct);
+        audit.Add(AuditActions.ObjectShared, caller.UserId, item.OwnerPersonId, item.Id, title: item.Title,
+            details: string.Join(", ", wanted.Where(w => names.ContainsKey(w.UserId)).Select(w => $"{names[w.UserId]}: {(w.CanEdit ? "bearbeiten" : "lesen")}")));
         await db.SaveChangesAsync(ct);
         return TypedResults.Ok(await ToDtoAsync(item, caller, access, db, ct));
     }
@@ -230,10 +247,13 @@ internal static class ObjectEndpoints
     private static async Task<IResult> HistoryAsync(Guid id, ClaimsPrincipal principal, ObjectAccess access, MyDocsDbContext db, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
-        if (!await access.Visible(caller).AnyAsync(o => o.Id == id, ct) && !await access.Visible(caller, deleted: true).AnyAsync(o => o.Id == id, ct))
+        var item = await access.Visible(caller).FirstOrDefaultAsync(o => o.Id == id, ct) ?? await access.Visible(caller, deleted: true).FirstOrDefaultAsync(o => o.Id == id, ct);
+        if (item is null)
         {
             return NotFound();
         }
+
+        await access.RecordForeignAccessAsync(caller, [item], "history", ct);
 
         var entries = await (from h in db.ObjectHistory
                              join u in db.Users on h.ActorId equals u.Id into actors
@@ -291,8 +311,9 @@ internal static class ObjectEndpoints
         return values;
     }
 
-    private static void AddHistory(MyDocsDbContext db, DocObject item, Dictionary<string, string?> before, Dictionary<string, string?> after, Guid actor, DateTimeOffset at)
+    private static List<string> AddHistory(MyDocsDbContext db, DocObject item, Dictionary<string, string?> before, Dictionary<string, string?> after, Guid actor, DateTimeOffset at)
     {
+        var changed = new List<string>();
         foreach (var key in before.Keys.Union(after.Keys).Order(StringComparer.Ordinal))
         {
             var old = before.GetValueOrDefault(key);
@@ -300,8 +321,11 @@ internal static class ObjectEndpoints
             if (old != now)
             {
                 db.ObjectHistory.Add(new ObjectHistoryEntry { ObjectId = item.Id, At = at, ActorId = actor, Field = key, OldValue = old, NewValue = now });
+                changed.Add(key.StartsWith("field:", StringComparison.Ordinal) ? key[6..] : key);
             }
         }
+
+        return changed;
     }
 
     private static ObjectSummaryDto Summary(DocObject o) =>

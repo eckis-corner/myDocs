@@ -1,0 +1,70 @@
+@* Einträge des Audit-Logs als Tabelle mit Filter. *@
+@inject IStringLocalizer<SharedResource> L
+
+<MudTable T="AuditEntryDto" Items="Entries" Loading="Entries is null" Dense Hover Filter="Matches" data-testid="audit">
+    <ToolBarContent>
+        <MudTextField T="string" @bind-Value="_filter" Placeholder="@L["Filter"]" Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                      Immediate Clearable Class="mt-0" />
+    </ToolBarContent>
+    <HeaderContent>
+        <MudTh>@L["AuditAt"]</MudTh>
+        <MudTh>@L["AuditActor"]</MudTh>
+        <MudTh>@L["AuditAction"]</MudTh>
+        <MudTh>@L["AuditSubject"]</MudTh>
+        @if (ShowIp)
+        {
+            <MudTh>IP</MudTh>
+        }
+    </HeaderContent>
+    <RowTemplate>
+        <MudTd DataLabel="@L["AuditAt"]" Style="white-space: nowrap">@context.At.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</MudTd>
+        <MudTd DataLabel="@L["AuditActor"]">@(context.ActorName ?? L["AuditSystem"])</MudTd>
+        <MudTd DataLabel="@L["AuditAction"]">
+            @if (context.Action == AuditActions.AdminView)
+            {
+                <MudChip T="string" Size="Size.Small" Color="Color.Warning" Variant="Variant.Outlined">@Action(context)</MudChip>
+            }
+            else
+            {
+                @Action(context)
+            }
+        </MudTd>
+        <MudTd DataLabel="@L["AuditSubject"]">
+            @if (context.ObjectId is { } objectId)
+            {
+                <MudLink Href="@($"object/{objectId}")">@context.Title</MudLink>
+            }
+            else
+            {
+                @context.Title
+            }
+            @if (!string.IsNullOrWhiteSpace(context.Details))
+            {
+                <span class="mydocs-muted"> · @context.Details</span>
+            }
+        </MudTd>
+        @if (ShowIp)
+        {
+            <MudTd DataLabel="IP" Class="mydocs-muted">@context.Ip</MudTd>
+        }
+    </RowTemplate>
+    <NoRecordsContent><MudText>@L["AuditEmpty"]</MudText></NoRecordsContent>
+    <PagerContent><MudTablePager PageSizeOptions="[50, 100, 250]" RowsPerPageString="@L["RowsPerPage"]" /></PagerContent>
+</MudTable>
+
+@code {
+    private string? _filter;
+
+    [Parameter] public List<AuditEntryDto>? Entries { get; set; }
+
+    [Parameter] public bool ShowIp { get; set; }
+
+    private string Action(AuditEntryDto entry) => L[$"Audit_{entry.Action}"];
+
+    private bool Matches(AuditEntryDto entry) =>
+        string.IsNullOrWhiteSpace(_filter)
+        || (entry.Title ?? string.Empty).Contains(_filter, StringComparison.CurrentCultureIgnoreCase)
+        || (entry.ActorName ?? string.Empty).Contains(_filter, StringComparison.CurrentCultureIgnoreCase)
+        || Action(entry).Contains(_filter, StringComparison.CurrentCultureIgnoreCase)
+        || (entry.Details ?? string.Empty).Contains(_filter, StringComparison.CurrentCultureIgnoreCase);
+}

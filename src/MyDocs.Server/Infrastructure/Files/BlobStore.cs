@@ -73,6 +73,16 @@ public sealed class BlobStore(MyDocsDbContext db, MasterKey master, IOptions<MyD
 
     internal string PathOf(string hash) => Path.Combine(Root, hash[..2], hash);
 
+    /// <summary>Entfernt die verschlüsselte Datei, nachdem ihr Eintrag gelöscht ist.</summary>
+    public void Delete(string hash)
+    {
+        var path = PathOf(hash);
+        if (File.Exists(path))
+        {
+            File.Delete(path);
+        }
+    }
+
     /// <summary>Zählt mit, rechnet den HMAC des Klartexts und bricht bei Überschreiten der Grenze ab.</summary>
     private sealed class CountingStream(Stream inner, IncrementalHash hmac, long maxBytes) : Stream
     {

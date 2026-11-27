@@ -68,6 +68,12 @@ internal static class SearchEndpoints
             })
             .OrderByDescending(d => d.Rank).ThenBy(d => d.Title).Take(Limit).ToListAsync(ct);
 
+        if (caller.AdminView)
+        {
+            var touched = objects.Select(o => o.Id).Concat(documents.Select(d => d.Object.Id)).Distinct().ToList();
+            await access.RecordForeignAccessAsync(caller, await db.Objects.Where(o => touched.Contains(o.Id)).ToListAsync(ct), "search", ct);
+        }
+
         var hits = objects.Select(o => (o.Rank, Hit: new SearchHitDto(SearchKinds.Entry, o.Id, o.Title, o.TypeKey, null, null, Snippet(o.SearchText, query))))
             .Concat(documents.Select(d => (d.Rank, Hit: new SearchHitDto(SearchKinds.Document, d.Id, d.Title, null, d.Object.Id, d.Object.Title, Snippet(d.SearchText, query)))))
             .OrderByDescending(h => h.Rank).Take(Limit).Select(h => h.Hit).ToList();

@@ -426,3 +426,10 @@ html.mydocs-light .mud-chip-outlined.mud-chip-color-primary {
         display: none;
     }
 }
+
+/* Admin-Einsicht (M1.7): Band über dem Inhalt, solange sie eingeschaltet ist */
+.mydocs-admin-view {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}

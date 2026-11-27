@@ -51,6 +51,7 @@
                     <MudNavMenu Class="mydocs-nav mydocs-nav-account">
                         <MudNavGroup Title="@L["NavAdmin"]" Icon="@Icons.Material.Outlined.AdminPanelSettings" Expanded="false" data-testid="nav-admin">
                             <MudNavLink Href="admin/users" Icon="@Icons.Material.Outlined.People">@L["UsersTitle"]</MudNavLink>
+                            <MudNavLink Href="admin/audit" Icon="@Icons.Material.Outlined.ReceiptLong">@L["AdminAuditTitle"]</MudNavLink>
                         </MudNavGroup>
                     </MudNavMenu>
                 </Authorized>
@@ -59,6 +60,11 @@
     </MudDrawer>
 
     <MudMainContent Class="mydocs-main" role="main">
+        @if (ServiceProvider.GetService<AdminViewService>() is { IsOn: true } adminView)
+        {
+            <MudAlert Severity="Severity.Warning" Variant="Variant.Filled" Square Dense Class="mydocs-admin-view" data-testid="admin-view-banner"
+                      ShowCloseIcon CloseIconClicked="() => adminView.Set(false)">@L["AdminViewBanner"]</MudAlert>
+        }
         <MudContainer MaxWidth="MaxWidth.Large" Class="py-6 flex-grow-1" id="main-content" tabindex="-1">
             <ErrorBoundary>
                 <ChildContent>
@@ -93,6 +99,11 @@
 
     protected override async Task OnInitializedAsync()
     {
+        if (ServiceProvider.GetService<AdminViewService>() is { } adminView)
+        {
+            adminView.Changed += () => InvokeAsync(StateHasChanged);
+        }
+
         if (ServiceProvider.GetService<AppInfoClient>() is not { } appInfo)
         {
             return;

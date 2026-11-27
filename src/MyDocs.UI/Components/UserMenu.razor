@@ -1,6 +1,7 @@
 @inject IStringLocalizer<SharedResource> L
 @inject SessionService Session
 @inject NavigationManager Navigation
+@inject AdminViewService AdminView
 
 <AuthorizeView>
     <Authorized>
@@ -8,14 +9,35 @@
                  AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" data-testid="user-menu">
             <MudMenuItem Disabled>@context.User.Identity?.Name</MudMenuItem>
             <MudDivider />
+            <MudMenuItem Icon="@Icons.Material.Outlined.History" Href="account/audit">@L["AuditTitle"]</MudMenuItem>
+            @if (context.User.IsInRole(HouseholdRoles.Admin))
+            {
+                <MudMenuItem Icon="@(AdminView.IsOn ? Icons.Material.Filled.VisibilityOff : Icons.Material.Outlined.Visibility)" OnClick="ToggleAdminViewAsync" data-testid="admin-view-toggle">
+                    @(AdminView.IsOn ? L["AdminViewOff"] : L["AdminViewOn"])
+                </MudMenuItem>
+            }
             <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="LogoutAsync" data-testid="logout">@L["Logout"]</MudMenuItem>
         </MudMenu>
     </Authorized>
 </AuthorizeView>
 
 @code {
+    [Inject] private IDialogService Dialogs { get; set; } = default!;
+
+    private async Task ToggleAdminViewAsync()
+    {
+        if (!AdminView.IsOn && await Dialogs.ShowMessageBoxAsync(L["AdminViewOn"], L["AdminViewConfirm"].Value, L["AdminViewOn"], L["Cancel"]) != true)
+        {
+            return;
+        }
+
+        AdminView.Set(!AdminView.IsOn);
+        Navigation.NavigateTo(Navigation.Uri, forceLoad: false);
+    }
+
     private async Task LogoutAsync()
     {
+        AdminView.Set(false);
         await Session.LogoutAsync();
         Navigation.NavigateTo("login");
     }

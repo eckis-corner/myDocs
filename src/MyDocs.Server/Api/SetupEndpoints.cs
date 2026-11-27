@@ -70,7 +70,7 @@ internal static class SetupEndpoints
     }
 
     private static async Task<IResult> FinishAsync(SetupFinishRequest request, MyDocsDbContext db, UserManager<AppUser> users,
-        SignInManager<AppUser> signIn, RoleManager<IdentityRole<Guid>> roles, SetupTokenService tokens, TimeProvider time, CancellationToken ct)
+        SignInManager<AppUser> signIn, RoleManager<IdentityRole<Guid>> roles, SetupTokenService tokens, Infrastructure.Audit.AuditLog audit, TimeProvider time, CancellationToken ct)
     {
         if (!await IsRequiredAsync(db, ct))
         {
@@ -97,6 +97,7 @@ internal static class SetupEndpoints
         await HouseholdAccounts.EnsureRolesAsync(roles);
         await users.AddToRolesAsync(user, [Roles.Admin, HouseholdRoles.Member]);
         db.Persons.Add(new Person { Id = Guid.CreateVersion7(), DisplayName = user.DisplayName, UserId = user.Id, CreatedAt = time.GetUtcNow() });
+        audit.Add(MyDocs.Shared.Audit.AuditActions.SetupCompleted, user.Id, title: user.DisplayName);
         await db.SaveChangesAsync(ct);
         tokens.Revoke();
         await signIn.SignInAsync(user, isPersistent: false);

@@ -59,7 +59,7 @@ internal static class ActivationEndpoints
     }
 
     private static async Task<IResult> FinishAsync(ActivationFinishRequest request, OneTimeTokens tokens, UserManager<AppUser> users,
-        SignInManager<AppUser> signIn, CancellationToken ct)
+        SignInManager<AppUser> signIn, Infrastructure.Audit.AuditLog audit, CancellationToken ct)
     {
         if (await tokens.FindAsync(request.Token, TokenPurposes.Activation, ct) is not { } entry
             || await users.FindByIdAsync(entry.UserId.ToString()) is not { TwoFactorEnabled: false } user
@@ -73,6 +73,7 @@ internal static class ActivationEndpoints
             return ApiProblems.Of(AuthErrors.CodeInvalid);
         }
 
+        audit.Add(MyDocs.Shared.Audit.AuditActions.Activated, user.Id, title: user.DisplayName);
         await tokens.ConsumeAsync(entry, ct);
         await signIn.SignInAsync(user, isPersistent: false);
         return TypedResults.Ok(codes);

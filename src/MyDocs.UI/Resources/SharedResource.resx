@@ -11,9 +11,46 @@
   <data name="ActivateTitle" xml:space="preserve"><value>Konto aktivieren</value></data>
   <data name="ActivationLinkText" xml:space="preserve"><value>Gib diesen Link an {0} weiter. Er gilt einmal und bis {1}. Wer ihn hat, kann das Konto aktivieren, also nur auf sicherem Weg verschicken.</value></data>
   <data name="ActivationLinkTitle" xml:space="preserve"><value>Aktivierungslink</value></data>
+  <data name="AdminAuditIntro" xml:space="preserve"><value>Alle Ereignisse der Instanz. IP-Adressen sind gekürzt.</value></data>
+  <data name="AdminAuditTitle" xml:space="preserve"><value>Gesamtes Protokoll</value></data>
+  <data name="AdminViewBanner" xml:space="preserve"><value>Admin-Einsicht aktiv: Du siehst auch private Einträge anderer. Jeder Zugriff wird den Eigentümern angezeigt.</value></data>
+  <data name="AdminViewConfirm" xml:space="preserve"><value>Mit der Admin-Einsicht siehst du auch die privaten Einträge der anderen, nur zum Lesen. Jeder Zugriff erscheint im Protokoll der Person, der der Eintrag gehört.</value></data>
+  <data name="AdminViewOff" xml:space="preserve"><value>Admin-Einsicht ausschalten</value></data>
+  <data name="AdminViewOn" xml:space="preserve"><value>Admin-Einsicht einschalten</value></data>
   <data name="AppName" xml:space="preserve"><value>myDocs</value></data>
   <data name="AreaEmpty" xml:space="preserve"><value>Noch keine Einträge.</value></data>
   <data name="AreaNotAvailable" xml:space="preserve"><value>Diesen Bereich führt myDocs nicht.</value></data>
+  <data name="AuditAction" xml:space="preserve"><value>Was</value></data>
+  <data name="AuditActor" xml:space="preserve"><value>Wer</value></data>
+  <data name="AuditAt" xml:space="preserve"><value>Zeitpunkt</value></data>
+  <data name="AuditEmpty" xml:space="preserve"><value>Noch keine Einträge.</value></data>
+  <data name="AuditIntro" xml:space="preserve"><value>Was du getan hast und was andere mit deinen privaten Einträgen und Dokumenten getan haben, auch jede Einsicht durch den Administrator.</value></data>
+  <data name="AuditSubject" xml:space="preserve"><value>Betrifft</value></data>
+  <data name="AuditSystem" xml:space="preserve"><value>System</value></data>
+  <data name="AuditTitle" xml:space="preserve"><value>Protokoll</value></data>
+  <data name="Audit_activated" xml:space="preserve"><value>Konto aktiviert</value></data>
+  <data name="Audit_admin-view" xml:space="preserve"><value>Admin-Einsicht</value></data>
+  <data name="Audit_document-deleted" xml:space="preserve"><value>Dokument gelöscht</value></data>
+  <data name="Audit_document-downloaded" xml:space="preserve"><value>Dokument geöffnet</value></data>
+  <data name="Audit_document-restored" xml:space="preserve"><value>Dokument wiederhergestellt</value></data>
+  <data name="Audit_document-uploaded" xml:space="preserve"><value>Dokument hochgeladen</value></data>
+  <data name="Audit_document-version-added" xml:space="preserve"><value>Neue Version hochgeladen</value></data>
+  <data name="Audit_login" xml:space="preserve"><value>Angemeldet</value></data>
+  <data name="Audit_login-failed" xml:space="preserve"><value>Anmeldung fehlgeschlagen</value></data>
+  <data name="Audit_logout" xml:space="preserve"><value>Abgemeldet</value></data>
+  <data name="Audit_object-changed" xml:space="preserve"><value>Eintrag geändert</value></data>
+  <data name="Audit_object-created" xml:space="preserve"><value>Eintrag angelegt</value></data>
+  <data name="Audit_object-deleted" xml:space="preserve"><value>Eintrag gelöscht</value></data>
+  <data name="Audit_object-restored" xml:space="preserve"><value>Eintrag wiederhergestellt</value></data>
+  <data name="Audit_object-shared" xml:space="preserve"><value>Freigaben geändert</value></data>
+  <data name="Audit_object-viewed" xml:space="preserve"><value>Eintrag angesehen (Freigabe)</value></data>
+  <data name="Audit_setup-completed" xml:space="preserve"><value>myDocs eingerichtet</value></data>
+  <data name="Audit_trash-purged" xml:space="preserve"><value>Papierkorb geleert</value></data>
+  <data name="Audit_user-changed" xml:space="preserve"><value>Konto geändert</value></data>
+  <data name="Audit_user-created" xml:space="preserve"><value>Konto angelegt</value></data>
+  <data name="Audit_user-locked" xml:space="preserve"><value>Konto gesperrt</value></data>
+  <data name="Audit_user-reset" xml:space="preserve"><value>Zugang zurückgesetzt</value></data>
+  <data name="Audit_user-unlocked" xml:space="preserve"><value>Konto entsperrt</value></data>
   <data name="AuthError_activation-invalid" xml:space="preserve"><value>Der Link ist ungültig, abgelaufen oder schon benutzt. Bitte den Administrator um einen neuen.</value></data>
   <data name="AuthError_auth-2fa-missing" xml:space="preserve"><value>Für dieses Konto ist kein zweiter Faktor eingerichtet. Bitte wende dich an den Administrator.</value></data>
   <data name="AuthError_auth-code-invalid" xml:space="preserve"><value>Der Code stimmt nicht oder wurde schon verwendet.</value></data>

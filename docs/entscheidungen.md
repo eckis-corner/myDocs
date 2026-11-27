@@ -188,6 +188,16 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 103 | Verfahren | PostgreSQL-Volltext mit Konfiguration `german` (Wortstämme, gespeicherte Spalte `search_vector`, GIN-Index), dazu `ILIKE` für Teilwörter und `word_similarity` aus `pg_trgm` (> 0,5) für Tippfehler, beide über einen GIN-Trigramm-Index. Rangfolge aus `ts_rank` plus Ähnlichkeit, höchstens 50 Treffer. Mindestens zwei Zeichen. |
 | 104 | Rechte und Oberfläche | Die Rechte stecken in der Abfrage (26); Dokumente nur über sichtbare, nicht gelöschte Objekte. Suchfeld in der Kopfzeile, Seite „Suche“ mit Treffern und der Zeile, in der der Begriff vorkommt. Ein Dokument-Treffer führt zu seinem Objekt. |
 
+## Runde 9 (27.11.2026, M1.7a Protokoll, Admin-Einsicht, Papierkorb)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 105 | Aufteilung M1.7 | **M1.7a** Protokoll, Admin-Einsicht, Papierkorb; **M1.7b** Sicherung, `restore`, Hauptschlüssel als Ausdruck, Installationsanleitung. |
+| 106 | Was protokolliert wird | Anmelden, fehlgeschlagene Anmeldung (Passwort, Code, Sperre), Abmelden, Einrichtung, Aktivierung, alle Aktionen der Benutzerverwaltung; Anlegen, Ändern (mit den geänderten Feldern, ohne Werte), Löschen, Wiederherstellen und Freigeben von Einträgen; Hochladen, neue Version, Öffnen, Löschen und Wiederherstellen von Dokumenten; Leeren des Papierkorbs. **Ansehen** nur, wenn jemand einen fremden privaten Eintrag öffnet (Freigabe oder Admin-Einsicht); jeden Blick auf Haushaltseinträge zu speichern, machte das Protokoll unbrauchbar. Titel werden mitgeschrieben, Inhalte nicht. IP gekürzt (IPv4 ohne letztes Byte, IPv6 auf /48). |
+| 107 | Wer was sieht | Jede Person: eigene Aktionen und alles, was andere mit ihren privaten Einträgen und Dokumenten tun, Seite „Protokoll“ im Benutzermenü. Administrator: gesamtes Protokoll unter Verwaltung. |
+| 108 | Admin-Einsicht | Umsetzung von 31: Schalter im Benutzermenü mit Rückfrage, deutliches Band „Admin-Einsicht aktiv“, gilt bis zum Neuladen oder Abmelden. Der Client schickt dann `X-MyDocs-Admin-View: 1`; ohne Rolle Administrator ist der Header wirkungslos. In der Admin-Einsicht sieht der Administrator alle Einträge, Dokumente und Suchtreffer, **ändert aber nichts**. Jeder Zugriff auf einen fremden privaten Eintrag, auch in Listen und Suche, erscheint als „Admin-Einsicht“ im Protokoll des Eigentümers. |
+| 109 | Papierkorb leeren | Hintergrunddienst einmal täglich: Einträge und Dokumente, die länger als 30 Tage gelöscht sind, sowie Dokumente ohne Eintrag verschwinden endgültig, mit Versionen, Freigaben und Historie. Die verschlüsselte Datei wird erst gelöscht, wenn keine Version mehr auf sie verweist. Die Einträge im Protokoll bleiben. |
+
 ## Offen
 
 | Thema | Was fehlt |

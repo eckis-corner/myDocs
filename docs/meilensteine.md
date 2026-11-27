@@ -31,6 +31,10 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 **M1.6 Suche ✅ (27.11.2026, lokal):** Volltext mit Wortstämmen, Teilwörter, Tippfehler, Auswahlwerte in beiden Sprachen, Dokumentnamen, Rechte in der Abfrage, Suchfeld und Seite „Suche“ (102–104). 69 Tests grün.
 
+**M1.7a Protokoll, Admin-Einsicht, Papierkorb ✅ (27.11.2026, lokal):** Audit-Log mit Seiten für jede Person und den Administrator, Admin-Einsicht nur zum Lesen mit Band und Protokoll für den Eigentümer, tägliches Leeren des Papierkorbs (105–109). 79 Tests grün.
+
+**M1.7b Sicherung und Betrieb:** tägliche verschlüsselte Sicherung, `restore`, Hauptschlüssel als 24 Wörter, Installationsanleitung.
+
 **M1.2b Passkeys:** als zweiter Faktor statt TOTP, mit den Passkeys von ASP.NET Core Identity 10.
 
 

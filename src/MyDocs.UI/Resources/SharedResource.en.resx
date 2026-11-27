@@ -35,6 +35,24 @@
   <data name="CopyLink" xml:space="preserve"><value>Copy link</value></data>
   <data name="Delete" xml:space="preserve"><value>Delete</value></data>
   <data name="DisplayName" xml:space="preserve"><value>Name</value></data>
+  <data name="DocumentDate" xml:space="preserve"><value>Document date</value></data>
+  <data name="DocumentDeleteConfirm" xml:space="preserve"><value>Delete “{0}”? All versions go to the trash.</value></data>
+  <data name="DocumentError_forbidden" xml:space="preserve"><value>You do not have permission for this.</value></data>
+  <data name="DocumentError_http-413" xml:space="preserve"><value>The file is too large.</value></data>
+  <data name="DocumentError_needs-object" xml:space="preserve"><value>A document belongs to at least one entry.</value></data>
+  <data name="DocumentError_no-file" xml:space="preserve"><value>No file received.</value></data>
+  <data name="DocumentError_not-found" xml:space="preserve"><value>This document does not exist or you may not see it.</value></data>
+  <data name="DocumentError_title-required" xml:space="preserve"><value>Please enter a title.</value></data>
+  <data name="DocumentError_too-large" xml:space="preserve"><value>The file is too large (at most {1} MB).</value></data>
+  <data name="DocumentNewVersion" xml:space="preserve"><value>Upload new version</value></data>
+  <data name="DocumentTitle" xml:space="preserve"><value>Title</value></data>
+  <data name="DocumentUpload" xml:space="preserve"><value>Upload</value></data>
+  <data name="DocumentVersionAdded" xml:space="preserve"><value>New version saved.</value></data>
+  <data name="DocumentVersionDownload" xml:space="preserve"><value>Version {0} of {1} ({2})</value></data>
+  <data name="DocumentVersions" xml:space="preserve"><value>{0} versions</value></data>
+  <data name="DocumentsEmpty" xml:space="preserve"><value>No documents yet. Upload policies, contracts, letters or photos, up to {0} MB each.</value></data>
+  <data name="DocumentsTitle" xml:space="preserve"><value>Documents</value></data>
+  <data name="Download" xml:space="preserve"><value>Download</value></data>
   <data name="Edit" xml:space="preserve"><value>Edit</value></data>
   <data name="Email" xml:space="preserve"><value>Email address</value></data>
   <data name="ErrorUnhandled" xml:space="preserve"><value>An unexpected error has occurred.</value></data>

@@ -94,6 +94,10 @@ builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFac
 builder.Services.Configure<SecurityStampValidatorOptions>(stamp => stamp.ValidationInterval = TimeSpan.FromMinutes(1));
 builder.Services.AddScoped<OneTimeTokens>();
 builder.Services.AddScoped<MyDocs.Server.Infrastructure.Objects.ObjectAccess>();
+builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Files.MasterKey>();
+builder.Services.AddScoped<MyDocs.Server.Infrastructure.Files.BlobStore>();
+// Uploads bis zur Grenze aus den Einstellungen (78) plus Platz für den Multipart-Rahmen.
+var maxRequestBytes = (options.MaxFileSizeMegabytes + 1) * 1024L * 1024L;
 builder.Services.AddAuthorizationBuilder()
     .AddPolicy(Roles.Admin, policy => policy.RequireRole(Roles.Admin))
     .AddPolicy(PersonEndpoints.MemberPolicy, policy => policy.RequireRole(MyDocs.Shared.Household.HouseholdRoles.Member));
@@ -144,6 +148,7 @@ app.MapActivationEndpoints();
 app.MapAdminUserEndpoints();
 app.MapPersonEndpoints();
 app.MapObjectEndpoints();
+app.MapDocumentEndpoints(maxRequestBytes);
 
 app.MapStaticAssets();
 // Die Seiten sind nur die leere Hülle (kein Prerendering); [Authorize] prüft der Client. Geschützt sind die Daten:
@@ -154,6 +159,8 @@ app.MapRazorComponents<App>()
     .AllowAnonymous();
 
 await DatabaseMigrator.MigrateAsync(app.Services);
+// Hauptschlüssel beim Start anlegen bzw. prüfen, nicht erst beim ersten Upload.
+app.Services.GetRequiredService<MyDocs.Server.Infrastructure.Files.MasterKey>();
 
 await app.RunAsync();
 

@@ -1,0 +1,31 @@
+@* Vorschau im Browser: PDF im Rahmen, Bilder direkt. Nur für die Typen aus Previews.InlineTypes. *@
+@inject IStringLocalizer<SharedResource> L
+
+<MudDialog>
+    <DialogContent>
+        @if (Previews.IsImage(ContentType))
+        {
+            <img src="@Url" alt="@Title" style="max-width: 100%; max-height: 75vh; display: block; margin: 0 auto" data-testid="preview-image" />
+        }
+        else
+        {
+            <iframe src="@Url" title="@Title" class="mydocs-preview-frame" data-testid="preview-frame"></iframe>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton Href="@DownloadUrl" StartIcon="@Icons.Material.Filled.Download">@L["Download"]</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => Dialog.Close()">@L["Close"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance Dialog { get; set; } = default!;
+
+    [Parameter] public string Url { get; set; } = string.Empty;
+
+    [Parameter] public string DownloadUrl { get; set; } = string.Empty;
+
+    [Parameter] public string Title { get; set; } = string.Empty;
+
+    [Parameter] public string ContentType { get; set; } = string.Empty;
+}

@@ -304,6 +304,36 @@ namespace MyDocs.Server.Data.Migrations
                     b.ToTable("users", (string)null);
                 });
 
+            modelBuilder.Entity("MyDocs.Server.Data.Blob", b =>
+                {
+                    b.Property<string>("Hash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("hash");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<int>("RefCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("ref_count");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size");
+
+                    b.Property<byte[]>("WrappedKey")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("wrapped_key");
+
+                    b.HasKey("Hash")
+                        .HasName("pk_blobs");
+
+                    b.ToTable("blobs", (string)null);
+                });
+
             modelBuilder.Entity("MyDocs.Server.Data.DocObject", b =>
                 {
                     b.Property<Guid>("Id")
@@ -392,6 +422,130 @@ namespace MyDocs.Server.Data.Migrations
                         .HasDatabaseName("ix_objects_type_key");
 
                     b.ToTable("objects", (string)null);
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.Document", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<DateTimeOffset?>("DeletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("deleted_at");
+
+                    b.Property<DateOnly?>("DocumentDate")
+                        .HasColumnType("date")
+                        .HasColumnName("document_date");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("boolean")
+                        .HasColumnName("is_deleted");
+
+                    b.Property<string>("Note")
+                        .HasMaxLength(2000)
+                        .HasColumnType("character varying(2000)")
+                        .HasColumnName("note");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("title");
+
+                    b.Property<DateTimeOffset>("UpdatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("updated_at");
+
+                    b.HasKey("Id")
+                        .HasName("pk_documents");
+
+                    b.ToTable("documents", (string)null);
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.DocumentObject", b =>
+                {
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("document_id");
+
+                    b.Property<Guid>("ObjectId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("object_id");
+
+                    b.HasKey("DocumentId", "ObjectId")
+                        .HasName("pk_document_objects");
+
+                    b.HasIndex("ObjectId")
+                        .HasDatabaseName("ix_document_objects_object_id");
+
+                    b.ToTable("document_objects", (string)null);
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.DocumentVersion", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("BlobHash")
+                        .IsRequired()
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("blob_hash");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("content_type");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<Guid>("CreatedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("created_by");
+
+                    b.Property<Guid>("DocumentId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("document_id");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("file_name");
+
+                    b.Property<int>("Number")
+                        .HasColumnType("integer")
+                        .HasColumnName("number");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size");
+
+                    b.HasKey("Id")
+                        .HasName("pk_document_versions");
+
+                    b.HasIndex("BlobHash")
+                        .HasDatabaseName("ix_document_versions_blob_hash");
+
+                    b.HasIndex("DocumentId", "Number")
+                        .IsUnique()
+                        .HasDatabaseName("ix_document_versions_document_id_number");
+
+                    b.ToTable("document_versions", (string)null);
                 });
 
             modelBuilder.Entity("MyDocs.Server.Data.ObjectHistoryEntry", b =>
@@ -698,6 +852,40 @@ namespace MyDocs.Server.Data.Migrations
                         .HasForeignKey("ResponsiblePersonId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_objects_persons_responsible_person_id");
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.DocumentObject", b =>
+                {
+                    b.HasOne("MyDocs.Server.Data.Document", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_document_objects_documents_document_id");
+
+                    b.HasOne("MyDocs.Server.Data.DocObject", null)
+                        .WithMany()
+                        .HasForeignKey("ObjectId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_document_objects_objects_object_id");
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.DocumentVersion", b =>
+                {
+                    b.HasOne("MyDocs.Server.Data.Blob", null)
+                        .WithMany()
+                        .HasForeignKey("BlobHash")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_document_versions_blobs_blob_hash");
+
+                    b.HasOne("MyDocs.Server.Data.Document", null)
+                        .WithMany()
+                        .HasForeignKey("DocumentId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_document_versions_documents_document_id");
                 });
 
             modelBuilder.Entity("MyDocs.Server.Data.ObjectHistoryEntry", b =>

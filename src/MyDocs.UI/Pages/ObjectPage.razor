@@ -72,6 +72,8 @@ else
                 <ObjectDatasheet Type="_type" Item="_item" />
             </MudPaper>
 
+            <DocumentList ObjectId="_item.Id" CanEdit="_item.CanEdit" />
+
             @if (_item.OwnerPersonId is not null && _item.OwnerPersonId == Session.Me?.PersonId && _item.DeletedAt is null)
             {
                 <MudPaper Class="pa-4" Elevation="1" data-testid="object-shares">

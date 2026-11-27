@@ -1,0 +1,36 @@
+@* Angaben eines Dokuments: Titel, Datum, Notiz. *@
+@inject IStringLocalizer<SharedResource> L
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudTextField T="string" @bind-Value="_title" Label="@L["DocumentTitle"]" Variant="Variant.Outlined" Required MaxLength="200"
+                          UserAttributes="@(new() { ["data-testid"] = "document-title" })" />
+            <MudDatePicker Label="@L["DocumentDate"]" @bind-Date="_date" Variant="Variant.Outlined" Editable Clearable />
+            <MudTextField T="string" @bind-Value="_note" Label="@L["Note"]" Variant="Variant.Outlined" Lines="2" MaxLength="2000" />
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="() => Dialog.Cancel()">@L["Cancel"]</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save" data-testid="document-save">@L["Save"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private string? _title;
+    private DateTime? _date;
+    private string? _note;
+
+    [CascadingParameter] private IMudDialogInstance Dialog { get; set; } = default!;
+
+    [Parameter] public DocumentDto Document { get; set; } = default!;
+
+    protected override void OnInitialized()
+    {
+        _title = Document.Title;
+        _date = Document.DocumentDate?.ToDateTime(TimeOnly.MinValue);
+        _note = Document.Note;
+    }
+
+    private void Save() => Dialog.Close(DialogResult.Ok(new DocumentUpdateRequest(_title ?? string.Empty, _date is { } d ? DateOnly.FromDateTime(d) : null, _note)));
+}

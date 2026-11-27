@@ -31,7 +31,9 @@ public sealed class ObjectPageTests : BunitContext
             .OnJson("GET /api/persons", new List<PersonDto> { new(Anna, "Anna", null, AnnaUser, null) })
             .OnJson("GET /api/objects", new List<ObjectSummaryDto> { new(PolicyId, "insurance", "Haftpflicht", null, Anna, null, DateTimeOffset.UtcNow, fields) })
             .OnJson($"GET /api/objects/{PolicyId}", new ObjectDto(PolicyId, "insurance", new ObjectData { Title = "Haftpflicht", Fields = new(fields) }, null, Anna, [],
-                CanEdit: true, CanManage: true, Version: 7, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, null));
+                CanEdit: true, CanManage: true, Version: 7, DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, null))
+            .OnJson($"GET /api/objects/{PolicyId}/documents", new List<MyDocs.Shared.Documents.DocumentDto>())
+            .OnJson("GET /api/info", new MyDocs.Shared.AppInfoDto("0.1.0", 100));
     }
 
     [Fact]

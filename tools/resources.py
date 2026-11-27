@@ -224,6 +224,26 @@ TEXTS: dict[str, tuple[str, str]] = {
     ),
     "ObjectError_owner-invalid": ("So lässt sich das Eigentum nicht ändern.", "Ownership cannot be changed this way."),
     "ObjectError_http-404": ("Nicht gefunden.", "Not found."),
+    # Dokumente (M1.5)
+    "DocumentsTitle": ("Dokumente", "Documents"),
+    "DocumentsEmpty": ("Noch keine Dokumente. Lade Policen, Verträge, Schreiben oder Fotos hoch, je bis {0} MB.",
+                       "No documents yet. Upload policies, contracts, letters or photos, up to {0} MB each."),
+    "DocumentUpload": ("Hochladen", "Upload"),
+    "DocumentNewVersion": ("Neue Version hochladen", "Upload new version"),
+    "DocumentVersionAdded": ("Neue Version gespeichert.", "New version saved."),
+    "DocumentVersions": ("{0} Versionen", "{0} versions"),
+    "DocumentVersionDownload": ("Version {0} vom {1} ({2})", "Version {0} of {1} ({2})"),
+    "DocumentTitle": ("Bezeichnung", "Title"),
+    "DocumentDate": ("Datum des Dokuments", "Document date"),
+    "DocumentDeleteConfirm": ("„{0}“ löschen? Alle Versionen kommen in den Papierkorb.", "Delete “{0}”? All versions go to the trash."),
+    "Download": ("Herunterladen", "Download"),
+    "DocumentError_too-large": ("Die Datei ist zu groß (höchstens {1} MB).", "The file is too large (at most {1} MB)."),
+    "DocumentError_no-file": ("Keine Datei erhalten.", "No file received."),
+    "DocumentError_not-found": ("Dieses Dokument gibt es nicht oder du darfst es nicht sehen.", "This document does not exist or you may not see it."),
+    "DocumentError_forbidden": ("Dafür fehlt die Berechtigung.", "You do not have permission for this."),
+    "DocumentError_needs-object": ("Ein Dokument gehört zu mindestens einem Eintrag.", "A document belongs to at least one entry."),
+    "DocumentError_title-required": ("Bitte eine Bezeichnung eingeben.", "Please enter a title."),
+    "DocumentError_http-413": ("Die Datei ist zu groß.", "The file is too large."),
 }
 
 HEADER = """<?xml version="1.0" encoding="utf-8"?>

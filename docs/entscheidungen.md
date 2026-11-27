@@ -170,6 +170,16 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 95 | Historie und Papierkorb | Jede Änderung von Titel, Feldern, Notizen, Ablaufdatum, Eigentum und Zuständigkeit landet mit Wer und Wann in `object_history`, ebenso Löschen und Wiederherstellen. Gelöschte Objekte liegen im Papierkorb, bis jemand mit Verwaltungsrecht sie wiederherstellt; das endgültige Leeren nach 30 Tagen kommt mit M1.7. |
 | 96 | Admin-Einsicht | Wandert nach **M1.7**, weil jeder Zugriff im Audit-Log des Eigentümers erscheinen soll (31) und das Audit-Log mit M1.7 kommt. Bis dahin sieht auch der Administrator fremde private Objekte nicht. |
 
+## Runde 7 (27.11.2026, M1.5 Dokumente)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 97 | Server-Hauptschlüssel | 32 Byte in `data/keys/master.key` (Rechte 600), angelegt beim ersten Start. Daraus per HKDF ein Schlüssel zum Verpacken der Dateischlüssel und einer für die Dateinamen. Ausdruck als 24 Wörter und Sicherung folgen mit M1.7 (46). |
+| 98 | Verschlüsselung | Jede Datei hat einen eigenen Zufallsschlüssel, verpackt mit dem Hauptschlüssel (AES-256-GCM). Inhalt in Blöcken von 1 MiB mit AES-256-GCM, Nonce aus der Blocknummer, letzter Block in der AAD markiert (Format `MDB1`). Klartext liegt nie auf der Platte: Uploads werden beim Lesen verschlüsselt, Downloads beim Senden entschlüsselt. |
+| 99 | Dateinamen und Duplikate | Dateiname ist der HMAC-SHA-256 des Klartexts (`files/ab/ab…`). Gleicher Inhalt liegt nur einmal da (Referenzzähler); ohne Hauptschlüssel lässt sich nicht prüfen, ob eine bekannte Datei vorhanden ist (ändert 22: HMAC statt reinem SHA-256). |
+| 100 | Dokumente und Rechte | Dokument mit Titel, Datum, Notiz und unveränderlichen Versionen. Zuordnung zu einem oder mehreren Objekten, mindestens einem. Rechte erbt das Dokument von seinen Objekten (33): Wer eines sieht, sieht und lädt herunter; wer eines bearbeiten darf, lädt Versionen hoch, ändert die Angaben, ordnet zu und löscht. Zuordnen nur zu Objekten, die man selbst bearbeiten darf. |
+| 101 | Vorschau | Direkt im Browser nur PDF, PNG, JPEG, GIF und WebP. Alles andere, vor allem SVG und HTML, nur als Download mit `application/octet-stream`. Office-Vorschau kommt mit M3 (Worker). Grenze 100 MB je Datei (78) gilt im Browser und auf dem Server. |
+
 ## Offen
 
 | Thema | Was fehlt |

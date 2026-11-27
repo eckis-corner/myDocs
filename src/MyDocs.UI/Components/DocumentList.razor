@@ -1,0 +1,219 @@
+@* Dokumente eines Objekts (M1.5): hochladen, neue Version, Vorschau, Download, Angaben ändern, löschen. *@
+@inject IStringLocalizer<SharedResource> L
+@inject DocumentClient Documents
+@inject AppInfoClient AppInfo
+@inject IDialogService Dialogs
+@inject ISnackbar Snackbar
+
+<MudPaper Class="pa-4" Elevation="1" data-testid="documents">
+    <MudStack Row AlignItems="AlignItems.Center" Class="mb-2">
+        <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["DocumentsTitle"]</b></MudText>
+        <MudSpacer />
+        @if (CanEdit)
+        {
+            <InputFile id="@_uploadId" class="mydocs-hidden-input" OnChange="UploadAsync" multiple data-testid="document-input" />
+            <MudButton HtmlTag="label" for="@_uploadId" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.UploadFile"
+                       Disabled="_busy" data-testid="document-upload">@L["DocumentUpload"]</MudButton>
+        }
+    </MudStack>
+    @if (_busy)
+    {
+        <MudProgressLinear Indeterminate Color="Color.Primary" Class="mb-2" />
+    }
+
+    @if (_documents is null)
+    {
+        <MudProgressLinear Indeterminate Color="Color.Primary" />
+    }
+    else if (_documents.Count == 0)
+    {
+        <MudText Typo="Typo.body2" Class="mydocs-muted">@L["DocumentsEmpty", _maxMb]</MudText>
+    }
+    else
+    {
+        <MudSimpleTable Dense Elevation="0" Hover>
+            <tbody>
+                @foreach (var document in _documents)
+                {
+                    <tr data-testid="document-row">
+                        <td>
+                            <MudStack Spacing="0">
+                                @if (Previews.InlineTypes.Contains(document.Current.ContentType))
+                                {
+                                    <MudLink OnClick="() => PreviewAsync(document)">@document.Title</MudLink>
+                                }
+                                else
+                                {
+                                    <MudLink Href="@DocumentClient.ContentUrl(document.Id, download: true)">@document.Title</MudLink>
+                                }
+                                <MudText Typo="Typo.caption" Class="mydocs-muted">
+                                    @document.Current.FileName · @FormatSize(document.Current.Size)@(document.DocumentDate is { } date ? $" · {date.ToString("d", CultureInfo.CurrentCulture)}" : string.Empty)
+                                    @if (document.Versions.Count > 1)
+                                    {
+                                        <text> · @L["DocumentVersions", document.Versions.Count]</text>
+                                    }
+                                </MudText>
+                            </MudStack>
+                        </td>
+                        <td style="text-align: right; white-space: nowrap">
+                            @if (CanEdit && document.CanEdit)
+                            {
+                                <InputFile id="@($"version-{document.Id}")" class="mydocs-hidden-input" OnChange="args => AddVersionAsync(document, args)" />
+                                <MudTooltip Text="@L["DocumentNewVersion"]">
+                                    <MudIconButton HtmlTag="label" for="@($"version-{document.Id}")" Icon="@Icons.Material.Outlined.Upload" aria-label="@L["DocumentNewVersion"]" Size="Size.Small" />
+                                </MudTooltip>
+                            }
+                            <MudTooltip Text="@L["Download"]">
+                                <MudIconButton Icon="@Icons.Material.Filled.Download" Href="@DocumentClient.ContentUrl(document.Id, download: true)" aria-label="@L["Download"]" Size="Size.Small" />
+                            </MudTooltip>
+                            <MudMenu Icon="@Icons.Material.Filled.MoreVert" AriaLabel="@L["Actions"]" Dense Size="Size.Small" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                                @if (CanEdit && document.CanEdit)
+                                {
+                                    <MudMenuItem Icon="@Icons.Material.Outlined.Edit" OnClick="() => EditAsync(document)">@L["Edit"]</MudMenuItem>
+                                }
+                                @foreach (var version in document.Versions.Skip(1))
+                                {
+                                    <MudMenuItem Icon="@Icons.Material.Outlined.History" Href="@DocumentClient.ContentUrl(document.Id, version.Number, download: true)">
+                                        @L["DocumentVersionDownload", version.Number, version.CreatedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture), version.CreatedByName]
+                                    </MudMenuItem>
+                                }
+                                @if (CanEdit && document.CanEdit)
+                                {
+                                    <MudMenuItem Icon="@Icons.Material.Outlined.Delete" IconColor="Color.Error" OnClick="() => DeleteAsync(document)">@L["Delete"]</MudMenuItem>
+                                }
+                            </MudMenu>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </MudSimpleTable>
+    }
+</MudPaper>
+
+@code {
+    private List<DocumentDto>? _documents;
+    private bool _busy;
+    private int _maxMb = 100;
+
+    [Parameter, EditorRequired] public Guid ObjectId { get; set; }
+
+    [Parameter] public bool CanEdit { get; set; }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        try
+        {
+            _documents = await Documents.ListAsync(ObjectId);
+        }
+        catch (ApiException exception)
+        {
+            _documents = [];
+            Snackbar.Add(L[$"DocumentError_{exception.Code}"], Severity.Error);
+        }
+
+        try
+        {
+            _maxMb = (await AppInfo.GetAsync())?.MaxFileSizeMegabytes ?? _maxMb;
+        }
+        catch (HttpRequestException)
+        {
+        }
+    }
+
+    private long MaxBytes => _maxMb * 1024L * 1024L;
+
+    private readonly string _uploadId = $"upload-{Guid.NewGuid():N}";
+
+    private async Task UploadAsync(InputFileChangeEventArgs args)
+    {
+        var files = args.GetMultipleFiles(20);
+
+        await RunAsync(async () =>
+        {
+            foreach (var file in files)
+            {
+                if (file.Size > MaxBytes)
+                {
+                    Snackbar.Add(L["DocumentError_too-large", file.Name, _maxMb], Severity.Warning);
+                    continue;
+                }
+
+                await using var stream = file.OpenReadStream(MaxBytes);
+                await Documents.UploadAsync(ObjectId, stream, file.Name, file.ContentType);
+            }
+        });
+    }
+
+    private async Task AddVersionAsync(DocumentDto document, InputFileChangeEventArgs args)
+    {
+        var file = args.File;
+
+        if (file.Size > MaxBytes)
+        {
+            Snackbar.Add(L["DocumentError_too-large", file.Name, _maxMb], Severity.Warning);
+            return;
+        }
+
+        await RunAsync(async () =>
+        {
+            await using var stream = file.OpenReadStream(MaxBytes);
+            await Documents.AddVersionAsync(document.Id, stream, file.Name, file.ContentType);
+            Snackbar.Add(L["DocumentVersionAdded"], Severity.Success);
+        });
+    }
+
+    private async Task PreviewAsync(DocumentDto document)
+    {
+        var parameters = new DialogParameters<DocumentPreviewDialog>
+        {
+            { d => d.Url, DocumentClient.ContentUrl(document.Id) },
+            { d => d.DownloadUrl, DocumentClient.ContentUrl(document.Id, download: true) },
+            { d => d.Title, document.Title },
+            { d => d.ContentType, document.Current.ContentType },
+        };
+        await Dialogs.ShowAsync<DocumentPreviewDialog>(document.Title, parameters, new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true, CloseButton = true });
+    }
+
+    private async Task EditAsync(DocumentDto document)
+    {
+        var parameters = new DialogParameters<DocumentDialog> { { d => d.Document, document } };
+        var dialog = await Dialogs.ShowAsync<DocumentDialog>(L["Edit"], parameters, new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        if (await dialog.Result is { Canceled: false, Data: DocumentUpdateRequest request })
+        {
+            await RunAsync(() => Documents.UpdateAsync(document.Id, request));
+        }
+    }
+
+    private async Task DeleteAsync(DocumentDto document)
+    {
+        if (await Dialogs.ShowMessageBoxAsync(L["Delete"], L["DocumentDeleteConfirm", document.Title].Value, L["Delete"], L["Cancel"]) == true)
+        {
+            await RunAsync(() => Documents.DeleteAsync(document.Id));
+        }
+    }
+
+    private async Task RunAsync(Func<Task> action)
+    {
+        _busy = true;
+        try
+        {
+            await action();
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"DocumentError_{exception.Code}"], Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+            _documents = await Documents.ListAsync(ObjectId);
+        }
+    }
+
+    private static string FormatSize(long bytes) => bytes switch
+    {
+        < 1024 => $"{bytes} B",
+        < 1024 * 1024 => $"{bytes / 1024d:0.#} KB",
+        _ => $"{bytes / 1024d / 1024d:0.#} MB",
+    };
+}

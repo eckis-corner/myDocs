@@ -7,7 +7,8 @@ internal static class InfoEndpoints
 {
     public static IEndpointRouteBuilder MapInfoEndpoints(this IEndpointRouteBuilder app)
     {
-        app.MapGet("/api/info", () => TypedResults.Ok(new AppInfoDto(AppVersion)))
+        app.MapGet("/api/info", (Microsoft.Extensions.Options.IOptions<MyDocs.Server.Infrastructure.MyDocsOptions> options) =>
+                TypedResults.Ok(new AppInfoDto(AppVersion, options.Value.MaxFileSizeMegabytes)))
             .WithName("GetAppInfo");
         return app;
     }

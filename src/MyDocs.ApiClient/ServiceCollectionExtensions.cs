@@ -23,6 +23,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<AdminClient>();
         services.AddScoped<PersonClient>();
         services.AddScoped<ObjectClient>();
+        services.AddScoped<DocumentClient>();
         return services;
     }
 }

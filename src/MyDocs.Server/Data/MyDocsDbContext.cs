@@ -25,6 +25,14 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
 
     public DbSet<ObjectHistoryEntry> ObjectHistory => Set<ObjectHistoryEntry>();
 
+    public DbSet<Blob> Blobs => Set<Blob>();
+
+    public DbSet<Document> Documents => Set<Document>();
+
+    public DbSet<DocumentVersion> DocumentVersions => Set<DocumentVersion>();
+
+    public DbSet<DocumentObject> DocumentObjects => Set<DocumentObject>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -87,6 +95,39 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
             entity.ToTable("object_history");
             entity.Property(x => x.Field).HasMaxLength(200);
             entity.HasIndex(x => new { x.ObjectId, x.At });
+            entity.HasOne<DocObject>().WithMany().HasForeignKey(x => x.ObjectId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<Blob>(entity =>
+        {
+            entity.ToTable("blobs");
+            entity.HasKey(x => x.Hash);
+            entity.Property(x => x.Hash).HasMaxLength(64);
+        });
+
+        builder.Entity<Document>(entity =>
+        {
+            entity.ToTable("documents");
+            entity.Property(x => x.Title).HasMaxLength(200);
+            entity.Property(x => x.Note).HasMaxLength(2000);
+        });
+
+        builder.Entity<DocumentVersion>(entity =>
+        {
+            entity.ToTable("document_versions");
+            entity.Property(x => x.FileName).HasMaxLength(255);
+            entity.Property(x => x.ContentType).HasMaxLength(200);
+            entity.HasIndex(x => new { x.DocumentId, x.Number }).IsUnique();
+            entity.HasOne<Document>().WithMany().HasForeignKey(x => x.DocumentId).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<Blob>().WithMany().HasForeignKey(x => x.BlobHash).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<DocumentObject>(entity =>
+        {
+            entity.ToTable("document_objects");
+            entity.HasKey(x => new { x.DocumentId, x.ObjectId });
+            entity.HasIndex(x => x.ObjectId);
+            entity.HasOne<Document>().WithMany().HasForeignKey(x => x.DocumentId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne<DocObject>().WithMany().HasForeignKey(x => x.ObjectId).OnDelete(DeleteBehavior.Cascade);
         });
 

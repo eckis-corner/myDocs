@@ -34,7 +34,17 @@
         <div class="mydocs-drawer-body">
             <MudNavMenu Class="mydocs-nav mydocs-nav-main">
                 <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Dashboard">@L["NavHome"]</MudNavLink>
+                <MudNavLink Href="household" Icon="@Icons.Material.Outlined.Diversity3" data-testid="nav-household">@L["HouseholdTitle"]</MudNavLink>
             </MudNavMenu>
+            <AuthorizeView Roles="@HouseholdRoles.Admin">
+                <Authorized>
+                    <MudNavMenu Class="mydocs-nav mydocs-nav-account">
+                        <MudNavGroup Title="@L["NavAdmin"]" Icon="@Icons.Material.Outlined.AdminPanelSettings" Expanded="false" data-testid="nav-admin">
+                            <MudNavLink Href="admin/users" Icon="@Icons.Material.Outlined.People">@L["UsersTitle"]</MudNavLink>
+                        </MudNavGroup>
+                    </MudNavMenu>
+                </Authorized>
+            </AuthorizeView>
         </div>
     </MudDrawer>
 

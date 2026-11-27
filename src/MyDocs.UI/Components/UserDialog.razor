@@ -1,0 +1,47 @@
+@* Konto anlegen oder ändern: Name, Rolle im Haushalt, Administrator. Die E-Mail-Adresse steht nach dem Anlegen fest. *@
+@inject IStringLocalizer<SharedResource> L
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudTextField T="string" @bind-Value="_name" Label="@L["DisplayName"]" Variant="Variant.Outlined" Required
+                          UserAttributes="@(new() { ["data-testid"] = "user-name" })" />
+            <MudTextField T="string" @bind-Value="_email" Label="@L["Email"]" Variant="Variant.Outlined" InputType="InputType.Email" Required
+                          ReadOnly="User is not null" UserAttributes="@(new() { ["data-testid"] = "user-email" })" />
+            <MudSelect T="string" @bind-Value="_role" Label="@L["HouseholdRole"]" Variant="Variant.Outlined" HelperText="@L["HouseholdRoleHelp"]">
+                @foreach (var role in HouseholdRoles.All)
+                {
+                    <MudSelectItem T="string" Value="@role">@L[$"Role_{role}"]</MudSelectItem>
+                }
+            </MudSelect>
+            <MudSwitch T="bool" @bind-Value="_admin" Label="@L["IsAdmin"]" Color="Color.Primary" Disabled="_role != HouseholdRoles.Member" />
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="() => Dialog.Cancel()">@L["Cancel"]</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save" data-testid="user-save">@L["Save"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private string? _name;
+    private string? _email;
+    private string _role = HouseholdRoles.Member;
+    private bool _admin;
+
+    [CascadingParameter] private IMudDialogInstance Dialog { get; set; } = default!;
+
+    /// <summary>Zu änderndes Konto; null für ein neues.</summary>
+    [Parameter] public MyDocs.Shared.Admin.AdminUserDto? User { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (User is not null)
+        {
+            (_name, _email, _role, _admin) = (User.DisplayName, User.Email, User.Role, User.IsAdmin);
+        }
+    }
+
+    private void Save() => Dialog.Close(DialogResult.Ok(new MyDocs.Shared.Admin.CreateUserRequest(
+        _email ?? string.Empty, _name ?? string.Empty, _role, _admin && _role == HouseholdRoles.Member)));
+}

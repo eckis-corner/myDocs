@@ -57,9 +57,10 @@ public sealed class SessionService(AuthClient auth) : AuthenticationStateProvide
         }
 
         List<Claim> claims = [new(ClaimTypes.NameIdentifier, Me.Id.ToString()), new(ClaimTypes.Name, Me.DisplayName), new(ClaimTypes.Email, Me.Email)];
+        claims.Add(new(ClaimTypes.Role, Me.Role));
         if (Me.IsAdmin)
         {
-            claims.Add(new(ClaimTypes.Role, "admin"));
+            claims.Add(new(ClaimTypes.Role, MyDocs.Shared.Household.HouseholdRoles.Admin));
         }
 
         return new AuthenticationState(new ClaimsPrincipal(new ClaimsIdentity(claims, "mydocs")));

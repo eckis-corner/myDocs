@@ -16,6 +16,15 @@ public sealed class AuthClient(HttpClient http)
     public Task<RecoveryCodesDto> FinishSetupAsync(SetupFinishRequest request, CancellationToken ct = default) =>
         PostAsync<SetupFinishRequest, RecoveryCodesDto>("api/setup/finish", request, ct);
 
+    public Task<ActivationInfoDto> GetActivationAsync(string token, CancellationToken ct = default) =>
+        PostAsync<ActivationTokenRequest, ActivationInfoDto>("api/activation/info", new(token), ct);
+
+    public Task<TotpSetupDto> StartActivationAsync(ActivationStartRequest request, CancellationToken ct = default) =>
+        PostAsync<ActivationStartRequest, TotpSetupDto>("api/activation/start", request, ct);
+
+    public Task<RecoveryCodesDto> FinishActivationAsync(ActivationFinishRequest request, CancellationToken ct = default) =>
+        PostAsync<ActivationFinishRequest, RecoveryCodesDto>("api/activation/finish", request, ct);
+
     public Task<LoginResultDto> LoginAsync(LoginRequest request, CancellationToken ct = default) =>
         PostAsync<LoginRequest, LoginResultDto>("api/auth/login", request, ct);
 

@@ -1,0 +1,34 @@
+@* Aktivierungslink zum Weitergeben (bis der Mailversand kommt): einmal gültig, sieben Tage. *@
+@inject IStringLocalizer<SharedResource> L
+@inject IJSRuntime Js
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudText>@L["ActivationLinkText", Name, Expires.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)]</MudText>
+            <MudTextField T="string" Value="@Link" ReadOnly Variant="Variant.Outlined" Lines="3" UserAttributes="@(new() { ["data-testid"] = "activation-link" })" />
+            @if (_copied)
+            {
+                <MudText Typo="Typo.body2" Color="Color.Success">@L["Copied"]</MudText>
+            }
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="CopyAsync" StartIcon="@Icons.Material.Filled.ContentCopy">@L["CopyLink"]</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => Dialog.Close()">@L["Close"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private bool _copied;
+
+    [CascadingParameter] private IMudDialogInstance Dialog { get; set; } = default!;
+
+    [Parameter] public string Link { get; set; } = string.Empty;
+
+    [Parameter] public string Name { get; set; } = string.Empty;
+
+    [Parameter] public DateTimeOffset Expires { get; set; }
+
+    private async Task CopyAsync() => _copied = await Js.InvokeAsync<bool>("myDocs.copyText", Link);
+}

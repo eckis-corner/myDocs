@@ -148,6 +148,17 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 83 | Sitzung | Cookie `mydocs.session` (HttpOnly, SameSite=Strict, Secure), 30 Minuten gleitend. Zwischen Passwort und zweitem Faktor das Cookie `mydocs.2fa`, 5 Minuten. Sperre nach 5 Fehlversuchen für 15 Minuten, Rate-Limit 30 Anfragen je Minute und IP an Einrichtung und Anmeldung. Unbekannte Adressen antworten gleich und gleich langsam wie falsche Passwörter. |
 | 84 | Datenbank-Namen | snake_case über EFCore.NamingConventions; die Tabellen von Identity heißen `users`, `roles`, `user_tokens` usw. Identity-Schema Version 3 (mit `user_passkeys`). |
 
+## Runde 5 (27.11.2026, M1.3 Benutzer, Personen, Haushalt)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 85 | Reihenfolge | M1.3 vor den Passkeys (M1.2b); für den Anfang reicht TOTP. |
+| 86 | Neues Konto | Der Administrator gibt Name, E-Mail-Adresse und Rolle ein. myDocs erzeugt einen **Aktivierungslink** `/activate#<Token>`: 256 Bit, nur als SHA-256 gespeichert, **einmal gültig, 7 Tage**. Das Token steht hinter `#` und landet damit in keinem Server-Protokoll. Bis zum Mailversand gibt der Administrator den Link selbst weiter. Über den Link legt die Person Passwort, Authenticator-App und Wiederherstellungscodes fest. |
+| 87 | Rollen | Identity-Rollen `member` und `guest` für den Haushalt (32), dazu `admin` als Zusatzrecht. **Administratoren sind immer Mitglied.** Lesen dürfen alle Angemeldeten, ändern nur Mitglieder (Policy `member`). |
+| 88 | Verwaltung | Der Administrator ändert Name, Rolle und Admin-Recht, **sperrt und entsperrt** und **setzt den Zugang zurück** (Passwort, zweiter Faktor und Wiederherstellungscodes entfallen, neuer Aktivierungslink). Das eigene Konto lässt sich weder sperren, zurücksetzen noch herabstufen; der letzte aktive Administrator bleibt immer erhalten. Neue Rechte, Sperre und Zurücksetzen beenden laufende Sitzungen nach spätestens einer Minute (Security Stamp). Löschen von Konten folgt, wenn es Objekte gibt. |
+| 89 | Personen | Tabelle `persons` (Name, Geburtsdatum, Notiz, optional Konto). Jedes Konto ist genau eine Person, ihr Name ist der des Kontos. Mitglieder legen Personen ohne Konto an, ändern und entfernen sie (Papierkorb-Kennzeichen). Personen mit Konto lassen sich nicht entfernen. |
+| 90 | Aktualisierung | Die Migration `Household` macht bestehende Administratoren zu Mitgliedern und legt für jedes Konto eine Person an. |
+
 ## Offen
 
 | Thema | Was fehlt |

@@ -23,6 +23,8 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 **M1.2 Einrichtung und Anmeldung ✅ (27.11.2026, lokal):** Einrichtungsassistent mit Code, Administrator, TOTP und Wiederherstellungscodes; Anmeldung mit Passwort und Einmal-Code, Abmelden, Benutzermenü; CSRF-Header, Sperre, Rate-Limit; Test, dass jeder API-Endpunkt eine Anmeldung verlangt (80–84). 26 Tests grün, Ablauf lokal gegen PostgreSQL durchgespielt.
 
+**M1.3 Benutzer, Personen, Haushalt ✅ (27.11.2026, lokal):** Benutzerverwaltung mit Aktivierungslink, Rollen Mitglied, Gast und Administrator, Sperren und Zurücksetzen, Seite „Haushalt“ mit Personen (85–90). 37 Tests grün, Migration gegen den Stand aus M1.2 durchgespielt.
+
 **M1.2b Passkeys:** als zweiter Faktor statt TOTP, mit den Passkeys von ASP.NET Core Identity 10.
 
 

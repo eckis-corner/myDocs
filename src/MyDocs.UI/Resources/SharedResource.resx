@@ -5,9 +5,17 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Actions" xml:space="preserve"><value>Aktionen</value></data>
+  <data name="ActivateFinish" xml:space="preserve"><value>Konto aktivieren</value></data>
+  <data name="ActivateIntro" xml:space="preserve"><value>Hallo {0}, der Administrator hat ein Konto für dich angelegt. Lege jetzt dein Passwort fest und richte danach die Authenticator-App ein.</value></data>
+  <data name="ActivateTitle" xml:space="preserve"><value>Konto aktivieren</value></data>
+  <data name="ActivationLinkText" xml:space="preserve"><value>Gib diesen Link an {0} weiter. Er gilt einmal und bis {1}. Wer ihn hat, kann das Konto aktivieren, also nur auf sicherem Weg verschicken.</value></data>
+  <data name="ActivationLinkTitle" xml:space="preserve"><value>Aktivierungslink</value></data>
   <data name="AppName" xml:space="preserve"><value>myDocs</value></data>
+  <data name="AuthError_activation-invalid" xml:space="preserve"><value>Der Link ist ungültig, abgelaufen oder schon benutzt. Bitte den Administrator um einen neuen.</value></data>
   <data name="AuthError_auth-2fa-missing" xml:space="preserve"><value>Für dieses Konto ist kein zweiter Faktor eingerichtet. Bitte wende dich an den Administrator.</value></data>
   <data name="AuthError_auth-code-invalid" xml:space="preserve"><value>Der Code stimmt nicht oder wurde schon verwendet.</value></data>
+  <data name="AuthError_auth-disabled" xml:space="preserve"><value>Dieses Konto ist gesperrt. Bitte wende dich an den Administrator.</value></data>
   <data name="AuthError_auth-invalid" xml:space="preserve"><value>E-Mail-Adresse oder Passwort stimmen nicht.</value></data>
   <data name="AuthError_auth-locked" xml:space="preserve"><value>Zu viele Fehlversuche. Das Konto ist für 15 Minuten gesperrt.</value></data>
   <data name="AuthError_email-invalid" xml:space="preserve"><value>Die E-Mail-Adresse ist ungültig.</value></data>
@@ -17,7 +25,15 @@
   <data name="AuthError_setup-code-invalid" xml:space="preserve"><value>Der Einrichtungscode stimmt nicht.</value></data>
   <data name="AuthError_setup-done" xml:space="preserve"><value>myDocs ist bereits eingerichtet.</value></data>
   <data name="BackToHome" xml:space="preserve"><value>Zur Übersicht</value></data>
+  <data name="BirthDate" xml:space="preserve"><value>Geburtsdatum</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Abbrechen</value></data>
+  <data name="Close" xml:space="preserve"><value>Schließen</value></data>
+  <data name="Confirm" xml:space="preserve"><value>Bestätigen</value></data>
+  <data name="Copied" xml:space="preserve"><value>In die Zwischenablage kopiert.</value></data>
+  <data name="CopyLink" xml:space="preserve"><value>Link kopieren</value></data>
+  <data name="Delete" xml:space="preserve"><value>Löschen</value></data>
   <data name="DisplayName" xml:space="preserve"><value>Name</value></data>
+  <data name="Edit" xml:space="preserve"><value>Bearbeiten</value></data>
   <data name="Email" xml:space="preserve"><value>E-Mail-Adresse</value></data>
   <data name="ErrorUnhandled" xml:space="preserve"><value>Ein unerwarteter Fehler ist aufgetreten.</value></data>
   <data name="HomeAreas" xml:space="preserve"><value>Bereiche</value></data>
@@ -25,6 +41,20 @@
   <data name="HomeStatusUnreachable" xml:space="preserve"><value>Der Server ist nicht erreichbar. Bitte versuche es später erneut.</value></data>
   <data name="HomeStatusVersion" xml:space="preserve"><value>Version</value></data>
   <data name="HomeTitle" xml:space="preserve"><value>Willkommen bei myDocs</value></data>
+  <data name="HouseholdError_auth-forbidden" xml:space="preserve"><value>Dafür fehlt die Berechtigung.</value></data>
+  <data name="HouseholdError_email-invalid" xml:space="preserve"><value>Die E-Mail-Adresse ist ungültig.</value></data>
+  <data name="HouseholdError_email-taken" xml:space="preserve"><value>Für diese E-Mail-Adresse gibt es schon ein Konto.</value></data>
+  <data name="HouseholdError_last-admin" xml:space="preserve"><value>Das ist der letzte aktive Administrator.</value></data>
+  <data name="HouseholdError_name-required" xml:space="preserve"><value>Bitte einen Namen eingeben.</value></data>
+  <data name="HouseholdError_not-found" xml:space="preserve"><value>Nicht gefunden.</value></data>
+  <data name="HouseholdError_not-self" xml:space="preserve"><value>Das geht nicht beim eigenen Konto.</value></data>
+  <data name="HouseholdError_person-has-user" xml:space="preserve"><value>Personen mit Konto lassen sich nicht entfernen.</value></data>
+  <data name="HouseholdError_role-invalid" xml:space="preserve"><value>Diese Rolle gibt es nicht. Administratoren sind immer Mitglied.</value></data>
+  <data name="HouseholdIntro" xml:space="preserve"><value>Alle Personen des Haushalts: wer sich anmelden kann und wer ohne eigenes Konto vorkommt, etwa die Kinder als versicherte Personen.</value></data>
+  <data name="HouseholdRole" xml:space="preserve"><value>Rolle im Haushalt</value></data>
+  <data name="HouseholdRoleHelp" xml:space="preserve"><value>Mitglieder lesen und ändern den gemeinsamen Bestand, Gäste lesen nur.</value></data>
+  <data name="HouseholdTitle" xml:space="preserve"><value>Haushalt</value></data>
+  <data name="IsAdmin" xml:space="preserve"><value>Administrator</value></data>
   <data name="Language" xml:space="preserve"><value>Sprache</value></data>
   <data name="LanguageName_de" xml:space="preserve"><value>Deutsch</value></data>
   <data name="LanguageName_en" xml:space="preserve"><value>English</value></data>
@@ -37,14 +67,24 @@
   <data name="LoginUseRecovery" xml:space="preserve"><value>Kein Zugriff auf die App? Wiederherstellungscode verwenden</value></data>
   <data name="LoginUseTotp" xml:space="preserve"><value>Code aus der Authenticator-App verwenden</value></data>
   <data name="Logout" xml:space="preserve"><value>Abmelden</value></data>
+  <data name="NavAdmin" xml:space="preserve"><value>Verwaltung</value></data>
   <data name="NavHome" xml:space="preserve"><value>Übersicht</value></data>
+  <data name="No" xml:space="preserve"><value>Nein</value></data>
   <data name="NotFoundText" xml:space="preserve"><value>Die aufgerufene Seite gibt es nicht.</value></data>
   <data name="NotFoundTitle" xml:space="preserve"><value>Seite nicht gefunden</value></data>
+  <data name="Note" xml:space="preserve"><value>Notiz</value></data>
   <data name="OpenMenu" xml:space="preserve"><value>Menü öffnen</value></data>
   <data name="Password" xml:space="preserve"><value>Passwort</value></data>
   <data name="PasswordHelp" xml:space="preserve"><value>Mindestens {0} Zeichen. Ein Satz aus mehreren Wörtern ist leicht zu merken und sicher.</value></data>
+  <data name="PersonCreate" xml:space="preserve"><value>Person hinzufügen</value></data>
+  <data name="PersonDeleteConfirm" xml:space="preserve"><value>{0} entfernen?</value></data>
+  <data name="PersonLogin" xml:space="preserve"><value>Konto</value></data>
+  <data name="PersonNameFromAccount" xml:space="preserve"><value>Der Name kommt aus dem Konto; ändern kann ihn der Administrator.</value></data>
   <data name="RecoveryCode" xml:space="preserve"><value>Wiederherstellungscode</value></data>
   <data name="Reload" xml:space="preserve"><value>Neu laden</value></data>
+  <data name="Role_guest" xml:space="preserve"><value>Gast</value></data>
+  <data name="Role_member" xml:space="preserve"><value>Mitglied</value></data>
+  <data name="Save" xml:space="preserve"><value>Speichern</value></data>
   <data name="SetupCode" xml:space="preserve"><value>Einrichtungscode</value></data>
   <data name="SetupCodeHelp" xml:space="preserve"><value>Steht im Protokoll des Containers, etwa im Container Manager unter mydocs-app → Protokoll. Nach jedem Neustart gilt ein neuer Code.</value></data>
   <data name="SetupDone" xml:space="preserve"><value>Zu myDocs</value></data>
@@ -61,5 +101,18 @@
   <data name="SkipToContent" xml:space="preserve"><value>Zum Inhalt springen</value></data>
   <data name="ToggleDarkMode" xml:space="preserve"><value>Hell/Dunkel umschalten</value></data>
   <data name="TotpCode" xml:space="preserve"><value>Code aus der Authenticator-App</value></data>
+  <data name="UserCreate" xml:space="preserve"><value>Konto anlegen</value></data>
+  <data name="UserLock" xml:space="preserve"><value>Sperren</value></data>
+  <data name="UserLockConfirm" xml:space="preserve"><value>{0} sperren? Laufende Sitzungen enden innerhalb einer Minute.</value></data>
   <data name="UserMenu" xml:space="preserve"><value>Konto</value></data>
+  <data name="UserReset" xml:space="preserve"><value>Zugang zurücksetzen</value></data>
+  <data name="UserResetConfirm" xml:space="preserve"><value>Passwort und zweiter Faktor von {0} werden gelöscht, alle Sitzungen enden. Danach gibt es einen neuen Aktivierungslink.</value></data>
+  <data name="UserState" xml:space="preserve"><value>Zustand</value></data>
+  <data name="UserState_active" xml:space="preserve"><value>aktiv</value></data>
+  <data name="UserState_locked" xml:space="preserve"><value>gesperrt</value></data>
+  <data name="UserState_pending" xml:space="preserve"><value>wartet auf Aktivierung</value></data>
+  <data name="UserUnlock" xml:space="preserve"><value>Entsperren</value></data>
+  <data name="UsersIntro" xml:space="preserve"><value>Nur du als Administrator legst Konten an. Jedes neue Konto bekommt einen Aktivierungslink, den du selbst weitergibst, etwa per Messenger. Er gilt einmal und sieben Tage.</value></data>
+  <data name="UsersTitle" xml:space="preserve"><value>Benutzer</value></data>
+  <data name="Yes" xml:space="preserve"><value>Ja</value></data>
 </root>

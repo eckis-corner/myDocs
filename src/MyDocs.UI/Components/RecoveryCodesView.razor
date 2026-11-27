@@ -1,0 +1,24 @@
+@* Wiederherstellungscodes einmal anzeigen; weiter erst nach dem Häkchen „sicher aufbewahrt“. *@
+@inject IStringLocalizer<SharedResource> L
+
+<MudStack Spacing="3">
+    <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">@L["SetupRecoveryText"]</MudAlert>
+    <MudSimpleTable Dense Elevation="0" data-testid="setup-recovery">
+        <tbody>
+            @foreach (var pair in Codes.Chunk(2))
+            {
+                <tr>@foreach (var recovery in pair) { <td><code>@recovery</code></td> }</tr>
+            }
+        </tbody>
+    </MudSimpleTable>
+    <MudCheckBox T="bool" @bind-Value="_saved" Label="@L["SetupRecoverySaved"]" Color="Color.Primary" data-testid="setup-saved" />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="!_saved" OnClick="OnDone" data-testid="setup-done">@L["SetupDone"]</MudButton>
+</MudStack>
+
+@code {
+    private bool _saved;
+
+    [Parameter, EditorRequired] public IReadOnlyList<string> Codes { get; set; } = [];
+
+    [Parameter, EditorRequired] public EventCallback OnDone { get; set; }
+}

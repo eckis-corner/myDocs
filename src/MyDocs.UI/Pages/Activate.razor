@@ -1,0 +1,126 @@
+@page "/activate"
+@layout CenteredLayout
+@inject IStringLocalizer<SharedResource> L
+@inject AuthClient Auth
+@inject SessionService Session
+@inject NavigationManager Navigation
+@inject IJSRuntime Js
+
+<PageTitle>@L["AppName"] – @L["ActivateTitle"]</PageTitle>
+
+<MudPaper Class="pa-6" Elevation="1">
+    <MudText Typo="Typo.h5" HtmlTag="h1" Class="mb-2">@L["ActivateTitle"]</MudText>
+
+    @if (_error is not null)
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-4" data-testid="activate-error">@L[$"AuthError_{_error}"]</MudAlert>
+    }
+
+    @if (_info is null)
+    {
+        @if (_error is null)
+        {
+            <MudProgressLinear Indeterminate Color="Color.Primary" />
+        }
+    }
+    else
+    {
+        <MudText Typo="Typo.caption" Class="mydocs-muted mb-4 d-block">@L["SetupStepOf", _step, 3]</MudText>
+        @switch (_step)
+        {
+            case 1:
+                <EditForm Model="this" OnSubmit="StartAsync">
+                    <MudStack Spacing="3">
+                        <MudText>@L["ActivateIntro", _info.DisplayName]</MudText>
+                        <MudTextField T="string" Value="@_info.Email" Label="@L["Email"]" Variant="Variant.Outlined" ReadOnly
+                                      UserAttributes="@(new() { ["autocomplete"] = "username" })" />
+                        <MudTextField T="string" @bind-Value="_password" Label="@L["Password"]" HelperText="@L["PasswordHelp", PasswordRules.MinLength]"
+                                      Variant="Variant.Outlined" InputType="InputType.Password"
+                                      UserAttributes="@(new() { ["autocomplete"] = "new-password", ["data-testid"] = "activate-password" })" Required />
+                        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy" data-testid="activate-start">@L["SetupNext"]</MudButton>
+                    </MudStack>
+                </EditForm>
+                break;
+            case 2:
+                <TotpEnrollment @ref="_enrollment" Setup="_totp!" OnCode="FinishAsync" Busy="_busy" SubmitText="@L["ActivateFinish"]" />
+                break;
+            default:
+                <RecoveryCodesView Codes="_recoveryCodes" OnDone="DoneAsync" />
+                break;
+        }
+    }
+</MudPaper>
+
+@code {
+    private string? _token;
+    private ActivationInfoDto? _info;
+    private int _step = 1;
+    private string? _password;
+    private TotpSetupDto? _totp;
+    private TotpEnrollment? _enrollment;
+    private IReadOnlyList<string> _recoveryCodes = [];
+    private bool _busy;
+    private string? _error;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (!firstRender)
+        {
+            return;
+        }
+
+        _token = await Js.InvokeAsync<string?>("myDocs.getFragment");
+        await RunAsync(async () =>
+        {
+            if (string.IsNullOrWhiteSpace(_token))
+            {
+                throw new ApiException(System.Net.HttpStatusCode.NotFound, AuthErrors.ActivationInvalid);
+            }
+
+            _info = await Auth.GetActivationAsync(_token);
+        });
+        StateHasChanged();
+    }
+
+    private async Task StartAsync() => await RunAsync(async () =>
+    {
+        _totp = await Auth.StartActivationAsync(new(_token!, _password ?? string.Empty));
+        _password = null;
+        _step = 2;
+    });
+
+    private async Task FinishAsync(string code) => await RunAsync(async () =>
+    {
+        _recoveryCodes = (await Auth.FinishActivationAsync(new(_token!, code))).Codes;
+        _step = 3;
+    });
+
+    private async Task DoneAsync()
+    {
+        await Session.RefreshAsync();
+        Navigation.NavigateTo(string.Empty);
+    }
+
+    private async Task RunAsync(Func<Task> action)
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            await action();
+        }
+        catch (ApiException exception)
+        {
+            _error = exception.Code;
+            _enrollment?.Clear();
+        }
+        catch (HttpRequestException)
+        {
+            _error = "server-unreachable";
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

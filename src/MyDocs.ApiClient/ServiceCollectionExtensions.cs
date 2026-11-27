@@ -20,6 +20,8 @@ public static class ServiceCollectionExtensions
         });
         services.AddScoped<AppInfoClient>();
         services.AddScoped<AuthClient>();
+        services.AddScoped<AdminClient>();
+        services.AddScoped<PersonClient>();
         return services;
     }
 }

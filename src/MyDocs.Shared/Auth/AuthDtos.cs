@@ -11,12 +11,14 @@ public static class AuthErrors
 {
     public const string Invalid = "auth-invalid";
     public const string Locked = "auth-locked";
+    public const string Disabled = "auth-disabled";
     public const string CodeInvalid = "auth-code-invalid";
     public const string TwoFactorMissing = "auth-2fa-missing";
     public const string SetupDone = "setup-done";
     public const string SetupCodeInvalid = "setup-code-invalid";
     public const string PasswordWeak = "password-weak";
     public const string EmailInvalid = "email-invalid";
+    public const string ActivationInvalid = "activation-invalid";
 }
 
 public sealed record SetupStatusDto(bool Required);
@@ -40,4 +42,13 @@ public sealed record LoginResultDto(bool TwoFactorRequired);
 /// <summary>Zweiter Faktor: Code der Authenticator-App oder ein Wiederherstellungscode.</summary>
 public sealed record LoginTwoFactorRequest(string Code, bool IsRecoveryCode);
 
-public sealed record MeDto(Guid Id, string Email, string DisplayName, bool IsAdmin, int RecoveryCodesLeft);
+public sealed record MeDto(Guid Id, string Email, string DisplayName, bool IsAdmin, string Role, Guid? PersonId, int RecoveryCodesLeft);
+
+/// <summary>Aktivierung eines neuen oder zurückgesetzten Kontos über den Link des Administrators.</summary>
+public sealed record ActivationTokenRequest(string Token);
+
+public sealed record ActivationInfoDto(string Email, string DisplayName);
+
+public sealed record ActivationStartRequest(string Token, string Password);
+
+public sealed record ActivationFinishRequest(string Token, string Code);

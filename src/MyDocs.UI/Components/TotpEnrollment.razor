@@ -1,0 +1,33 @@
+@* Authenticator-App einrichten: QR-Code, Schlüssel zum Abtippen, erster Code. Für Einrichtung und Aktivierung. *@
+@inject IStringLocalizer<SharedResource> L
+
+<EditForm Model="this" OnSubmit="SubmitAsync">
+    <MudStack Spacing="3">
+        <MudText>@L["SetupTotpText"]</MudText>
+        <div class="d-flex justify-center"><img src="@_qr" alt="@L["SetupTotpQr"]" width="220" height="220" data-testid="setup-qr" /></div>
+        <MudText Typo="Typo.body2" Class="mydocs-muted">@L["SetupTotpManual"] <code data-testid="setup-secret">@Setup.Secret</code></MudText>
+        <MudTextField T="string" @bind-Value="_code" Label="@L["TotpCode"]" Variant="Variant.Outlined"
+                      UserAttributes="@(new() { ["autocomplete"] = "one-time-code", ["inputmode"] = "numeric", ["data-testid"] = "setup-totp" })" Required />
+        <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="Busy" data-testid="setup-finish">@SubmitText</MudButton>
+    </MudStack>
+</EditForm>
+
+@code {
+    private string? _code;
+    private string? _qr;
+
+    [Parameter, EditorRequired] public TotpSetupDto Setup { get; set; } = default!;
+
+    [Parameter, EditorRequired] public EventCallback<string> OnCode { get; set; }
+
+    [Parameter] public bool Busy { get; set; }
+
+    [Parameter] public string? SubmitText { get; set; }
+
+    protected override void OnParametersSet() => _qr = QrCodes.ToDataUri(Setup.OtpAuthUri);
+
+    /// <summary>Nach einem falschen Code leert die Seite das Feld über diese Methode.</summary>
+    public void Clear() => _code = null;
+
+    private Task SubmitAsync() => OnCode.InvokeAsync(_code ?? string.Empty);
+}

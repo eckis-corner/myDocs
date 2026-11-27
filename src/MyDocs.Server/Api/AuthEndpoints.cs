@@ -35,6 +35,13 @@ internal static class AuthEndpoints
             return ApiProblems.Of(AuthErrors.Invalid, StatusCodes.Status401Unauthorized);
         }
 
+        if (HouseholdAccounts.IsLocked(user))
+        {
+            // Vom Administrator gesperrt; gleiche Rechenzeit wie eine echte Prüfung.
+            users.PasswordHasher.VerifyHashedPassword(user, user.PasswordHash ?? string.Empty, request.Password ?? string.Empty);
+            return ApiProblems.Of(AuthErrors.Disabled, StatusCodes.Status403Forbidden);
+        }
+
         var result = await signIn.PasswordSignInAsync(user, request.Password ?? string.Empty, isPersistent: false, lockoutOnFailure: true);
         if (result.IsLockedOut)
         {
@@ -75,7 +82,7 @@ internal static class AuthEndpoints
         return TypedResults.NoContent();
     }
 
-    private static async Task<IResult> MeAsync(ClaimsPrincipal principal, UserManager<AppUser> users)
+    private static async Task<IResult> MeAsync(ClaimsPrincipal principal, UserManager<AppUser> users, MyDocsDbContext db, CancellationToken ct)
     {
         var user = await users.GetUserAsync(principal);
         if (user is null)
@@ -84,6 +91,7 @@ internal static class AuthEndpoints
         }
 
         return TypedResults.Ok(new MeDto(user.Id, user.Email ?? string.Empty, user.DisplayName, await users.IsInRoleAsync(user, Roles.Admin),
+            await HouseholdAccounts.HouseholdRoleAsync(users, user), await HouseholdAccounts.PersonIdAsync(db, user.Id, ct),
             await users.CountRecoveryCodesAsync(user)));
     }
 }

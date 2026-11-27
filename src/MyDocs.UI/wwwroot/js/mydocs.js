@@ -5,5 +5,15 @@ window.myDocs = {
     getBrowserLanguage: () => navigator.language || "de",
     setDocumentLanguage: (culture) => { document.documentElement.lang = culture; },
     // Heller Modus: Petrol als Schriftfarbe wird dunkler, damit der Kontrast reicht (app.css).
-    setLightMode: (light) => { document.documentElement.classList.toggle("mydocs-light", light); }
+    setLightMode: (light) => { document.documentElement.classList.toggle("mydocs-light", light); },
+    copyText: async (text) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            return true;
+        } catch {
+            return false;
+        }
+    },
+    // Aktivierungslink: Das Token steht hinter #, damit es in keinem Server-Protokoll landet.
+    getFragment: () => window.location.hash.length > 1 ? window.location.hash.substring(1) : null
 };

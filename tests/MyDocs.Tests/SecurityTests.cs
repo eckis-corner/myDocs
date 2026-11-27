@@ -16,6 +16,8 @@ public sealed class SecurityTests(ServerFixture server) : IClassFixture<ServerFi
         "GET /api/setup/status", "POST /api/setup/start", "POST /api/setup/finish",
         // Anmeldung, zweiter Faktor (mit dem Zwischen-Cookie von Identity), Abmelden
         "POST /api/auth/login", "POST /api/auth/login/2fa", "POST /api/auth/logout",
+        // Aktivierung über den Link des Administrators (Einmal-Token im #-Teil der Adresse)
+        "POST /api/activation/info", "POST /api/activation/start", "POST /api/activation/finish",
     };
 
     [Fact]
@@ -28,6 +30,14 @@ public sealed class SecurityTests(ServerFixture server) : IClassFixture<ServerFi
         var missing = PublicEndpoints.Except(anonymous).ToList();
         Assert.True(unexpected.Count == 0 && missing.Count == 0,
             $"Ohne Anmeldung erreichbar, aber nicht vorgesehen:\n{string.Join("\n", unexpected)}\nVorgesehen, aber nicht gefunden:\n{string.Join("\n", missing)}");
+    }
+
+    [Fact]
+    public void AdminEndpointsRequireTheAdminRole()
+    {
+        var admin = ApiEndpoints().Where(e => e.RoutePattern.RawText!.StartsWith("/api/admin", StringComparison.Ordinal)).ToList();
+        Assert.NotEmpty(admin);
+        Assert.All(admin, e => Assert.Contains(e.Metadata.GetOrderedMetadata<IAuthorizeData>(), a => a.Policy == MyDocs.Server.Data.Roles.Admin));
     }
 
     [Fact]

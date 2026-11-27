@@ -1,0 +1,38 @@
+@inject IStringLocalizer<SharedResource> L
+
+<MudDialog>
+    <DialogContent>
+        <MudStack Spacing="3">
+            <MudTextField T="string" @bind-Value="_name" Label="@L["DisplayName"]" Variant="Variant.Outlined" Required ReadOnly="Person?.UserId is not null"
+                          HelperText="@(Person?.UserId is not null ? L["PersonNameFromAccount"].Value : null)" UserAttributes="@(new() { ["data-testid"] = "person-name" })" />
+            <MudDatePicker Label="@L["BirthDate"]" @bind-Date="_birth" Variant="Variant.Outlined" Editable Clearable />
+            <MudTextField T="string" @bind-Value="_note" Label="@L["Note"]" Variant="Variant.Outlined" Lines="2" MaxLength="2000" />
+        </MudStack>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="() => Dialog.Cancel()">@L["Cancel"]</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save" data-testid="person-save">@L["Save"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    private string? _name;
+    private DateTime? _birth;
+    private string? _note;
+
+    [CascadingParameter] private IMudDialogInstance Dialog { get; set; } = default!;
+
+    [Parameter] public PersonDto? Person { get; set; }
+
+    protected override void OnInitialized()
+    {
+        if (Person is not null)
+        {
+            _name = Person.DisplayName;
+            _birth = Person.BirthDate?.ToDateTime(TimeOnly.MinValue);
+            _note = Person.Note;
+        }
+    }
+
+    private void Save() => Dialog.Close(DialogResult.Ok(new PersonRequest(_name ?? string.Empty, _birth is { } b ? DateOnly.FromDateTime(b) : null, _note)));
+}

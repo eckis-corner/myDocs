@@ -5,9 +5,17 @@
   <resheader name="version"><value>2.0</value></resheader>
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
+  <data name="Actions" xml:space="preserve"><value>Actions</value></data>
+  <data name="ActivateFinish" xml:space="preserve"><value>Activate account</value></data>
+  <data name="ActivateIntro" xml:space="preserve"><value>Hello {0}, the administrator has created an account for you. Choose your password now and set up the authenticator app afterwards.</value></data>
+  <data name="ActivateTitle" xml:space="preserve"><value>Activate account</value></data>
+  <data name="ActivationLinkText" xml:space="preserve"><value>Pass this link on to {0}. It works once and until {1}. Whoever has it can activate the account, so send it only through a safe channel.</value></data>
+  <data name="ActivationLinkTitle" xml:space="preserve"><value>Activation link</value></data>
   <data name="AppName" xml:space="preserve"><value>myDocs</value></data>
+  <data name="AuthError_activation-invalid" xml:space="preserve"><value>The link is invalid, has expired or has already been used. Please ask the administrator for a new one.</value></data>
   <data name="AuthError_auth-2fa-missing" xml:space="preserve"><value>No second factor is set up for this account. Please contact the administrator.</value></data>
   <data name="AuthError_auth-code-invalid" xml:space="preserve"><value>The code is incorrect or has already been used.</value></data>
+  <data name="AuthError_auth-disabled" xml:space="preserve"><value>This account is locked. Please contact the administrator.</value></data>
   <data name="AuthError_auth-invalid" xml:space="preserve"><value>Email address or password is incorrect.</value></data>
   <data name="AuthError_auth-locked" xml:space="preserve"><value>Too many failed attempts. The account is locked for 15 minutes.</value></data>
   <data name="AuthError_email-invalid" xml:space="preserve"><value>The email address is invalid.</value></data>
@@ -17,7 +25,15 @@
   <data name="AuthError_setup-code-invalid" xml:space="preserve"><value>The setup code is incorrect.</value></data>
   <data name="AuthError_setup-done" xml:space="preserve"><value>myDocs has already been set up.</value></data>
   <data name="BackToHome" xml:space="preserve"><value>Back to overview</value></data>
+  <data name="BirthDate" xml:space="preserve"><value>Date of birth</value></data>
+  <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
+  <data name="Close" xml:space="preserve"><value>Close</value></data>
+  <data name="Confirm" xml:space="preserve"><value>Confirm</value></data>
+  <data name="Copied" xml:space="preserve"><value>Copied to the clipboard.</value></data>
+  <data name="CopyLink" xml:space="preserve"><value>Copy link</value></data>
+  <data name="Delete" xml:space="preserve"><value>Delete</value></data>
   <data name="DisplayName" xml:space="preserve"><value>Name</value></data>
+  <data name="Edit" xml:space="preserve"><value>Edit</value></data>
   <data name="Email" xml:space="preserve"><value>Email address</value></data>
   <data name="ErrorUnhandled" xml:space="preserve"><value>An unexpected error has occurred.</value></data>
   <data name="HomeAreas" xml:space="preserve"><value>Areas</value></data>
@@ -25,6 +41,20 @@
   <data name="HomeStatusUnreachable" xml:space="preserve"><value>The server cannot be reached. Please try again later.</value></data>
   <data name="HomeStatusVersion" xml:space="preserve"><value>Version</value></data>
   <data name="HomeTitle" xml:space="preserve"><value>Welcome to myDocs</value></data>
+  <data name="HouseholdError_auth-forbidden" xml:space="preserve"><value>You do not have permission for this.</value></data>
+  <data name="HouseholdError_email-invalid" xml:space="preserve"><value>The email address is invalid.</value></data>
+  <data name="HouseholdError_email-taken" xml:space="preserve"><value>There is already an account for this email address.</value></data>
+  <data name="HouseholdError_last-admin" xml:space="preserve"><value>This is the last active administrator.</value></data>
+  <data name="HouseholdError_name-required" xml:space="preserve"><value>Please enter a name.</value></data>
+  <data name="HouseholdError_not-found" xml:space="preserve"><value>Not found.</value></data>
+  <data name="HouseholdError_not-self" xml:space="preserve"><value>This is not possible for your own account.</value></data>
+  <data name="HouseholdError_person-has-user" xml:space="preserve"><value>People with an account cannot be removed.</value></data>
+  <data name="HouseholdError_role-invalid" xml:space="preserve"><value>This role does not exist. Administrators are always members.</value></data>
+  <data name="HouseholdIntro" xml:space="preserve"><value>Everyone in the household: who can log in and who appears without an account of their own, for example the children as insured persons.</value></data>
+  <data name="HouseholdRole" xml:space="preserve"><value>Role in the household</value></data>
+  <data name="HouseholdRoleHelp" xml:space="preserve"><value>Members read and change the shared records, guests only read.</value></data>
+  <data name="HouseholdTitle" xml:space="preserve"><value>Household</value></data>
+  <data name="IsAdmin" xml:space="preserve"><value>Administrator</value></data>
   <data name="Language" xml:space="preserve"><value>Language</value></data>
   <data name="LanguageName_de" xml:space="preserve"><value>Deutsch</value></data>
   <data name="LanguageName_en" xml:space="preserve"><value>English</value></data>
@@ -37,14 +67,24 @@
   <data name="LoginUseRecovery" xml:space="preserve"><value>No access to the app? Use a recovery code</value></data>
   <data name="LoginUseTotp" xml:space="preserve"><value>Use a code from the authenticator app</value></data>
   <data name="Logout" xml:space="preserve"><value>Log out</value></data>
+  <data name="NavAdmin" xml:space="preserve"><value>Administration</value></data>
   <data name="NavHome" xml:space="preserve"><value>Overview</value></data>
+  <data name="No" xml:space="preserve"><value>No</value></data>
   <data name="NotFoundText" xml:space="preserve"><value>The page you requested does not exist.</value></data>
   <data name="NotFoundTitle" xml:space="preserve"><value>Page not found</value></data>
+  <data name="Note" xml:space="preserve"><value>Note</value></data>
   <data name="OpenMenu" xml:space="preserve"><value>Open menu</value></data>
   <data name="Password" xml:space="preserve"><value>Password</value></data>
   <data name="PasswordHelp" xml:space="preserve"><value>At least {0} characters. A sentence of several words is easy to remember and secure.</value></data>
+  <data name="PersonCreate" xml:space="preserve"><value>Add person</value></data>
+  <data name="PersonDeleteConfirm" xml:space="preserve"><value>Remove {0}?</value></data>
+  <data name="PersonLogin" xml:space="preserve"><value>Account</value></data>
+  <data name="PersonNameFromAccount" xml:space="preserve"><value>The name comes from the account; the administrator can change it.</value></data>
   <data name="RecoveryCode" xml:space="preserve"><value>Recovery code</value></data>
   <data name="Reload" xml:space="preserve"><value>Reload</value></data>
+  <data name="Role_guest" xml:space="preserve"><value>Guest</value></data>
+  <data name="Role_member" xml:space="preserve"><value>Member</value></data>
+  <data name="Save" xml:space="preserve"><value>Save</value></data>
   <data name="SetupCode" xml:space="preserve"><value>Setup code</value></data>
   <data name="SetupCodeHelp" xml:space="preserve"><value>Shown in the container log, for example in Container Manager under mydocs-app → Log. After every restart a new code applies.</value></data>
   <data name="SetupDone" xml:space="preserve"><value>Go to myDocs</value></data>
@@ -61,5 +101,18 @@
   <data name="SkipToContent" xml:space="preserve"><value>Skip to content</value></data>
   <data name="ToggleDarkMode" xml:space="preserve"><value>Toggle light/dark mode</value></data>
   <data name="TotpCode" xml:space="preserve"><value>Code from the authenticator app</value></data>
+  <data name="UserCreate" xml:space="preserve"><value>Create account</value></data>
+  <data name="UserLock" xml:space="preserve"><value>Lock</value></data>
+  <data name="UserLockConfirm" xml:space="preserve"><value>Lock {0}? Running sessions end within a minute.</value></data>
   <data name="UserMenu" xml:space="preserve"><value>Account</value></data>
+  <data name="UserReset" xml:space="preserve"><value>Reset access</value></data>
+  <data name="UserResetConfirm" xml:space="preserve"><value>The password and second factor of {0} are deleted and all sessions end. Afterwards there is a new activation link.</value></data>
+  <data name="UserState" xml:space="preserve"><value>State</value></data>
+  <data name="UserState_active" xml:space="preserve"><value>active</value></data>
+  <data name="UserState_locked" xml:space="preserve"><value>locked</value></data>
+  <data name="UserState_pending" xml:space="preserve"><value>awaiting activation</value></data>
+  <data name="UserUnlock" xml:space="preserve"><value>Unlock</value></data>
+  <data name="UsersIntro" xml:space="preserve"><value>Only you as administrator create accounts. Every new account gets an activation link that you pass on yourself, for example by messenger. It works once and for seven days.</value></data>
+  <data name="UsersTitle" xml:space="preserve"><value>Users</value></data>
+  <data name="Yes" xml:space="preserve"><value>Yes</value></data>
 </root>

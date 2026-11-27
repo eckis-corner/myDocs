@@ -36,31 +36,10 @@
             </EditForm>
             break;
         case 2:
-            <EditForm Model="this" OnSubmit="FinishAsync">
-                <MudStack Spacing="3">
-                    <MudText>@L["SetupTotpText"]</MudText>
-                    <div class="d-flex justify-center"><img src="@_qr" alt="@L["SetupTotpQr"]" width="220" height="220" data-testid="setup-qr" /></div>
-                    <MudText Typo="Typo.body2" Class="mydocs-muted">@L["SetupTotpManual"] <code data-testid="setup-secret">@_totp?.Secret</code></MudText>
-                    <MudTextField T="string" @bind-Value="_code" Label="@L["TotpCode"]" Variant="Variant.Outlined"
-                                  UserAttributes="@(new() { ["autocomplete"] = "one-time-code", ["inputmode"] = "numeric", ["data-testid"] = "setup-totp" })" Required />
-                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy" data-testid="setup-finish">@L["SetupFinish"]</MudButton>
-                </MudStack>
-            </EditForm>
+            <TotpEnrollment @ref="_enrollment" Setup="_totp!" OnCode="FinishAsync" Busy="_busy" SubmitText="@L["SetupFinish"]" />
             break;
         default:
-            <MudStack Spacing="3">
-                <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">@L["SetupRecoveryText"]</MudAlert>
-                <MudSimpleTable Dense Elevation="0" data-testid="setup-recovery">
-                    <tbody>
-                        @foreach (var pair in _recoveryCodes.Chunk(2))
-                        {
-                            <tr>@foreach (var recovery in pair) { <td><code>@recovery</code></td> }</tr>
-                        }
-                    </tbody>
-                </MudSimpleTable>
-                <MudCheckBox T="bool" @bind-Value="_saved" Label="@L["SetupRecoverySaved"]" Color="Color.Primary" data-testid="setup-saved" />
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="!_saved" OnClick="DoneAsync" data-testid="setup-done">@L["SetupDone"]</MudButton>
-            </MudStack>
+            <RecoveryCodesView Codes="_recoveryCodes" OnDone="DoneAsync" />
             break;
     }
 </MudPaper>
@@ -71,11 +50,9 @@
     private string? _displayName;
     private string? _email;
     private string? _password;
-    private string? _code;
     private TotpSetupDto? _totp;
-    private string? _qr;
+    private TotpEnrollment? _enrollment;
     private IReadOnlyList<string> _recoveryCodes = [];
-    private bool _saved;
     private bool _busy;
     private string? _error;
 
@@ -98,13 +75,12 @@
     {
         _totp = await Auth.StartSetupAsync(new(_setupCode ?? string.Empty, _email ?? string.Empty, _displayName ?? string.Empty, _password ?? string.Empty));
         _password = null;
-        _qr = QrCodes.ToDataUri(_totp.OtpAuthUri);
         _step = 2;
     });
 
-    private async Task FinishAsync() => await RunAsync(async () =>
+    private async Task FinishAsync(string code) => await RunAsync(async () =>
     {
-        _recoveryCodes = (await Auth.FinishSetupAsync(new(_setupCode ?? string.Empty, _email ?? string.Empty, _code ?? string.Empty))).Codes;
+        _recoveryCodes = (await Auth.FinishSetupAsync(new(_setupCode ?? string.Empty, _email ?? string.Empty, code))).Codes;
         _step = 3;
     });
 
@@ -125,7 +101,7 @@
         catch (ApiException exception)
         {
             _error = exception.Code;
-            _code = null;
+            _enrollment?.Clear();
         }
         catch (HttpRequestException)
         {

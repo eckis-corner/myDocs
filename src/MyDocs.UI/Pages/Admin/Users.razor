@@ -1,0 +1,160 @@
+@page "/admin/users"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = HouseholdRoles.Admin)]
+@using MyDocs.Shared.Admin
+@inject IStringLocalizer<SharedResource> L
+@inject AdminClient Admin
+@inject IDialogService Dialogs
+@inject ISnackbar Snackbar
+@inject NavigationManager Navigation
+
+<PageTitle>@L["AppName"] – @L["UsersTitle"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudStack Row AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h4" HtmlTag="h1">@L["UsersTitle"]</MudText>
+        <MudSpacer />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.PersonAdd" OnClick="CreateAsync" data-testid="user-create">@L["UserCreate"]</MudButton>
+    </MudStack>
+    <MudText>@L["UsersIntro"]</MudText>
+
+    <MudTable T="AdminUserDto" Items="_users" Loading="_users is null" Hover Dense data-testid="users">
+        <HeaderContent>
+            <MudTh>@L["DisplayName"]</MudTh>
+            <MudTh>@L["Email"]</MudTh>
+            <MudTh>@L["HouseholdRole"]</MudTh>
+            <MudTh>@L["UserState"]</MudTh>
+            <MudTh />
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="@L["DisplayName"]">@context.DisplayName</MudTd>
+            <MudTd DataLabel="@L["Email"]">@context.Email</MudTd>
+            <MudTd DataLabel="@L["HouseholdRole"]">@L[$"Role_{context.Role}"]@(context.IsAdmin ? $" · {L["IsAdmin"]}" : string.Empty)</MudTd>
+            <MudTd DataLabel="@L["UserState"]">
+                <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="@StateColor(context.State)">@L[$"UserState_{context.State}"]</MudChip>
+            </MudTd>
+            <MudTd Style="text-align: right">
+                <MudMenu Icon="@Icons.Material.Filled.MoreVert" AriaLabel="@L["Actions"]" Dense AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
+                    <MudMenuItem Icon="@Icons.Material.Outlined.Edit" OnClick="() => EditAsync(context)">@L["Edit"]</MudMenuItem>
+                    @if (context.State == UserStates.Locked)
+                    {
+                        <MudMenuItem Icon="@Icons.Material.Outlined.LockOpen" OnClick="() => RunAsync(() => Admin.UnlockAsync(context.Id))">@L["UserUnlock"]</MudMenuItem>
+                    }
+                    else
+                    {
+                        <MudMenuItem Icon="@Icons.Material.Outlined.Lock" OnClick="() => LockAsync(context)">@L["UserLock"]</MudMenuItem>
+                    }
+                    <MudMenuItem Icon="@Icons.Material.Outlined.LockReset" OnClick="() => ResetAsync(context)">@L["UserReset"]</MudMenuItem>
+                </MudMenu>
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudStack>
+
+@code {
+    private List<AdminUserDto>? _users;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            _users = await Admin.GetUsersAsync();
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"HouseholdError_{exception.Code}"], Severity.Error);
+            _users = [];
+        }
+    }
+
+    private static Color StateColor(string state) => state switch
+    {
+        UserStates.Active => Color.Success,
+        UserStates.Locked => Color.Error,
+        _ => Color.Warning,
+    };
+
+    private async Task CreateAsync()
+    {
+        var dialog = await Dialogs.ShowAsync<UserDialog>(L["UserCreate"], new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        if (await dialog.Result is not { Canceled: false, Data: CreateUserRequest request })
+        {
+            return;
+        }
+
+        try
+        {
+            var link = await Admin.CreateUserAsync(request);
+            await LoadAsync();
+            await ShowLinkAsync(request.DisplayName, link);
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"HouseholdError_{exception.Code}"], Severity.Error);
+        }
+    }
+
+    private async Task EditAsync(AdminUserDto user)
+    {
+        var parameters = new DialogParameters<UserDialog> { { d => d.User, user } };
+        var dialog = await Dialogs.ShowAsync<UserDialog>(L["Edit"], parameters, new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        if (await dialog.Result is { Canceled: false, Data: CreateUserRequest request })
+        {
+            await RunAsync(() => Admin.UpdateUserAsync(user.Id, new UpdateUserRequest(request.DisplayName, request.Role, request.IsAdmin)));
+        }
+    }
+
+    private async Task ResetAsync(AdminUserDto user)
+    {
+        if (await Dialogs.ShowMessageBoxAsync(L["UserReset"], L["UserResetConfirm", user.DisplayName].Value, L["UserReset"], L["Cancel"]) != true)
+        {
+            return;
+        }
+
+        try
+        {
+            var link = await Admin.ResetAsync(user.Id);
+            await LoadAsync();
+            await ShowLinkAsync(user.DisplayName, link);
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"HouseholdError_{exception.Code}"], Severity.Error);
+        }
+    }
+
+    private Task LockAsync(AdminUserDto user) => ConfirmAsync(L["UserLockConfirm", user.DisplayName], () => Admin.LockAsync(user.Id));
+
+    private async Task ConfirmAsync(string question, Func<Task> action)
+    {
+        if (await Dialogs.ShowMessageBoxAsync(L["Confirm"], question, L["Yes"], L["Cancel"]) == true)
+        {
+            await RunAsync(action);
+        }
+    }
+
+    private async Task RunAsync(Func<Task> action)
+    {
+        try
+        {
+            await action();
+            await LoadAsync();
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"HouseholdError_{exception.Code}"], Severity.Error);
+        }
+    }
+
+    private async Task ShowLinkAsync(string name, ActivationLinkDto link)
+    {
+        var parameters = new DialogParameters<ActivationLinkDialog>
+        {
+            { d => d.Link, $"{Navigation.BaseUri}activate#{link.Token}" },
+            { d => d.Name, name },
+            { d => d.Expires, link.ExpiresAt },
+        };
+        await Dialogs.ShowAsync<ActivationLinkDialog>(L["ActivationLinkTitle"], parameters, new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+    }
+}

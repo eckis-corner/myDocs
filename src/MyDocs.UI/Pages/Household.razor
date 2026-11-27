@@ -1,0 +1,96 @@
+@page "/household"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@inject IStringLocalizer<SharedResource> L
+@inject PersonClient Persons
+@inject IDialogService Dialogs
+@inject ISnackbar Snackbar
+
+<PageTitle>@L["AppName"] – @L["HouseholdTitle"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudStack Row AlignItems="AlignItems.Center">
+        <MudText Typo="Typo.h4" HtmlTag="h1">@L["HouseholdTitle"]</MudText>
+        <MudSpacer />
+        @if (_canEdit)
+        {
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="() => EditAsync(null)" data-testid="person-create">@L["PersonCreate"]</MudButton>
+        }
+    </MudStack>
+    <MudText>@L["HouseholdIntro"]</MudText>
+
+    <MudTable T="PersonDto" Items="_persons" Loading="_persons is null" Hover Dense data-testid="persons">
+        <HeaderContent>
+            <MudTh>@L["DisplayName"]</MudTh>
+            <MudTh>@L["BirthDate"]</MudTh>
+            <MudTh>@L["PersonLogin"]</MudTh>
+            <MudTh />
+        </HeaderContent>
+        <RowTemplate>
+            <MudTd DataLabel="@L["DisplayName"]">@context.DisplayName</MudTd>
+            <MudTd DataLabel="@L["BirthDate"]">@(context.BirthDate?.ToString("d", CultureInfo.CurrentCulture) ?? "–")</MudTd>
+            <MudTd DataLabel="@L["PersonLogin"]">@(context.UserId is null ? L["No"] : L["Yes"])</MudTd>
+            <MudTd Style="text-align: right">
+                @if (_canEdit)
+                {
+                    <MudIconButton Icon="@Icons.Material.Outlined.Edit" aria-label="@L["Edit"]" OnClick="() => EditAsync(context)" />
+                    @if (context.UserId is null)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Outlined.Delete" Color="Color.Error" aria-label="@L["Delete"]" OnClick="() => DeleteAsync(context)" />
+                    }
+                }
+            </MudTd>
+        </RowTemplate>
+    </MudTable>
+</MudStack>
+
+@code {
+    private List<PersonDto>? _persons;
+    private bool _canEdit;
+
+    [CascadingParameter] private Task<Microsoft.AspNetCore.Components.Authorization.AuthenticationState>? AuthState { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Nur zur Anzeige; ob ein Gast ändern darf, entscheidet der Server.
+        _canEdit = AuthState is not null && (await AuthState).User.IsInRole(HouseholdRoles.Member);
+        _persons = await Persons.GetAllAsync();
+    }
+
+    private async Task EditAsync(PersonDto? person)
+    {
+        var parameters = new DialogParameters<PersonDialog> { { d => d.Person, person } };
+        var dialog = await Dialogs.ShowAsync<PersonDialog>(person is null ? L["PersonCreate"] : L["Edit"], parameters, new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        if (await dialog.Result is not { Canceled: false, Data: PersonRequest request })
+        {
+            return;
+        }
+
+        try
+        {
+            _ = person is null ? await Persons.CreateAsync(request) : await Persons.UpdateAsync(person.Id, request);
+            _persons = await Persons.GetAllAsync();
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"HouseholdError_{exception.Code}"], Severity.Error);
+        }
+    }
+
+    private async Task DeleteAsync(PersonDto person)
+    {
+        if (await Dialogs.ShowMessageBoxAsync(L["Delete"], L["PersonDeleteConfirm", person.DisplayName].Value, L["Delete"], L["Cancel"]) != true)
+        {
+            return;
+        }
+
+        try
+        {
+            await Persons.DeleteAsync(person.Id);
+            _persons = await Persons.GetAllAsync();
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"HouseholdError_{exception.Code}"], Severity.Error);
+        }
+    }
+}

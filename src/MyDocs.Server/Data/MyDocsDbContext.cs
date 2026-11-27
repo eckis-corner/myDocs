@@ -13,6 +13,10 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
 {
     public DbSet<SystemSetting> SystemSettings => Set<SystemSetting>();
 
+    public DbSet<Person> Persons => Set<Person>();
+
+    public DbSet<OneTimeToken> OneTimeTokens => Set<OneTimeToken>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -29,6 +33,24 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
         builder.Entity<IdentityRoleClaim<Guid>>().ToTable("role_claims");
         // Passkeys (Schema-Version 3 von Identity, M1.2b)
         builder.Entity<IdentityUserPasskey<Guid>>().ToTable("user_passkeys");
+
+        builder.Entity<Person>(entity =>
+        {
+            entity.ToTable("persons");
+            entity.Property(x => x.DisplayName).HasMaxLength(200);
+            entity.Property(x => x.Note).HasMaxLength(2000);
+            entity.HasIndex(x => x.UserId).IsUnique().HasFilter("user_id IS NOT NULL");
+            entity.HasOne<AppUser>().WithOne().HasForeignKey<Person>(x => x.UserId).OnDelete(DeleteBehavior.SetNull);
+            entity.HasQueryFilter(x => !x.IsDeleted);
+        });
+
+        builder.Entity<OneTimeToken>(entity =>
+        {
+            entity.ToTable("one_time_tokens");
+            entity.Property(x => x.Purpose).HasMaxLength(50);
+            entity.HasIndex(x => x.TokenHash).IsUnique();
+            entity.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
 
         builder.Entity<SystemSetting>(entity =>
         {

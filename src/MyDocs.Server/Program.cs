@@ -90,8 +90,12 @@ builder.Services.Configure<CookieAuthenticationOptions>(IdentityConstants.TwoFac
     cookie.Cookie.SecurePolicy = builder.Environment.IsDevelopment() ? CookieSecurePolicy.SameAsRequest : CookieSecurePolicy.Always;
     cookie.ExpireTimeSpan = TimeSpan.FromMinutes(5);
 });
+// Neue Rechte, Sperre und Zurücksetzen wirken spätestens nach einer Minute auf laufende Sitzungen.
+builder.Services.Configure<SecurityStampValidatorOptions>(stamp => stamp.ValidationInterval = TimeSpan.FromMinutes(1));
+builder.Services.AddScoped<OneTimeTokens>();
 builder.Services.AddAuthorizationBuilder()
-    .AddPolicy(Roles.Admin, policy => policy.RequireRole(Roles.Admin));
+    .AddPolicy(Roles.Admin, policy => policy.RequireRole(Roles.Admin))
+    .AddPolicy(PersonEndpoints.MemberPolicy, policy => policy.RequireRole(MyDocs.Shared.Household.HouseholdRoles.Member));
 
 builder.Services.AddRateLimiter(limiter =>
 {
@@ -135,6 +139,9 @@ app.MapHealthChecks("/health/ready", new HealthCheckOptions { Predicate = check 
 app.MapInfoEndpoints();
 app.MapSetupEndpoints();
 app.MapAuthEndpoints();
+app.MapActivationEndpoints();
+app.MapAdminUserEndpoints();
+app.MapPersonEndpoints();
 
 app.MapStaticAssets();
 // Die Seiten sind nur die leere Hülle (kein Prerendering); [Authorize] prüft der Client. Geschützt sind die Daten:

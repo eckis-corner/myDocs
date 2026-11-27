@@ -1,6 +1,9 @@
 using System.Globalization;
+using System.Net;
 using Bunit;
 using Microsoft.Extensions.DependencyInjection;
+using MyDocs.ApiClient;
+using MyDocs.Shared.Auth;
 using MyDocs.UI;
 using MyDocs.UI.Layout;
 using MyDocs.UI.Pages;
@@ -9,11 +12,17 @@ namespace MyDocs.Tests;
 
 public sealed class UiTests : BunitContext
 {
+    private readonly FakeApi _api = new();
+
     public UiTests()
     {
         CultureInfo.CurrentCulture = CultureInfo.CurrentUICulture = CultureInfo.GetCultureInfo("de-DE");
         JSInterop.Mode = JSRuntimeMode.Loose;
         Services.AddMyDocsUi();
+        Services.AddMyDocsApi(new Uri("http://localhost/"));
+        Services.AddScoped(_ => new HttpClient(_api) { BaseAddress = new Uri("http://localhost/") });
+        _api.OnJson("GET /api/setup/status", new SetupStatusDto(false))
+            .OnProblem("GET /api/auth/me", "auth-required", HttpStatusCode.Unauthorized);
     }
 
     [Fact]
@@ -29,13 +38,15 @@ public sealed class UiTests : BunitContext
     }
 
     [Fact]
-    public void LayoutShowsTheLogoInTheAppBar()
+    public void LayoutShowsTheLogoAndTheUserMenu()
     {
+        AddAuthorization().SetAuthorized("Anna");
         var layout = Render<MainLayout>(p => p.Add(l => l.Body, "<p>Inhalt</p>"));
 
         var logo = layout.Find("[data-testid=app-logo]");
         Assert.Equal("myDocs", logo.GetAttribute("aria-label"));
         Assert.Contains("Inhalt", layout.Markup, StringComparison.Ordinal);
+        Assert.NotEmpty(layout.FindAll("[data-testid=user-menu]"));
     }
 
     [Fact]
@@ -47,5 +58,59 @@ public sealed class UiTests : BunitContext
 
         Assert.Contains("Welcome to myDocs", home.Markup, StringComparison.Ordinal);
         Assert.Contains("Insurance", home.Markup, StringComparison.Ordinal);
+    }
+
+    [Fact]
+    public void LoginAsksForTheCodeAfterThePassword()
+    {
+        _api.OnJson("POST /api/auth/login", new LoginResultDto(TwoFactorRequired: true));
+        var login = Render<Login>();
+
+        login.Find("input[data-testid=login-email]").Change("admin@example.test");
+        login.Find("input[data-testid=login-password]").Change("ein langes Passwort");
+        login.Find("form").Submit();
+
+        login.WaitForElement("input[data-testid=login-code]");
+        Assert.Contains("POST /api/auth/login", _api.Calls);
+    }
+
+    [Fact]
+    public void LoginShowsWhyItFailed()
+    {
+        _api.OnProblem("POST /api/auth/login", AuthErrors.Invalid, HttpStatusCode.Unauthorized);
+        var login = Render<Login>();
+
+        login.Find("input[data-testid=login-email]").Change("admin@example.test");
+        login.Find("input[data-testid=login-password]").Change("falsch");
+        login.Find("form").Submit();
+
+        login.WaitForAssertion(() => Assert.Contains("E-Mail-Adresse oder Passwort stimmen nicht", login.Find("[data-testid=login-error]").TextContent, StringComparison.Ordinal));
+    }
+
+    [Fact]
+    public void SetupShowsTheQrCodeAfterTheFirstStep()
+    {
+        _api.OnJson("GET /api/setup/status", new SetupStatusDto(true))
+            .OnJson("POST /api/setup/start", new TotpSetupDto("JBSWY3DPEHPK3PXP", "otpauth://totp/myDocs:a@example.test?secret=JBSWY3DPEHPK3PXP&issuer=myDocs"));
+        var setup = Render<Setup>();
+
+        setup.Find("input[data-testid=setup-code]").Change("ABCD-EFGH");
+        setup.Find("input[data-testid=setup-name]").Change("Anna");
+        setup.Find("input[data-testid=setup-email]").Change("a@example.test");
+        setup.Find("input[data-testid=setup-password]").Change("ein langes Passwort");
+        setup.Find("form").Submit();
+
+        setup.WaitForAssertion(() => Assert.StartsWith("data:image/svg+xml;base64,", setup.Find("[data-testid=setup-qr]").GetAttribute("src"), StringComparison.Ordinal));
+        Assert.Equal("JBSWY3DPEHPK3PXP", setup.Find("[data-testid=setup-secret]").TextContent);
+    }
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _api.Dispose();
+        }
+
+        base.Dispose(disposing);
     }
 }

@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
             return http;
         });
         services.AddScoped<AppInfoClient>();
+        services.AddScoped<AuthClient>();
         return services;
     }
 }

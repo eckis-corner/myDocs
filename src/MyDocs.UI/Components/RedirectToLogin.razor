@@ -1,0 +1,21 @@
+@* Ohne Anmeldung zur Anmeldeseite; ist myDocs noch nicht eingerichtet, zum Einrichtungsassistenten. *@
+@inject NavigationManager Navigation
+@inject AuthClient Auth
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var setupRequired = false;
+        try
+        {
+            setupRequired = (await Auth.GetSetupStatusAsync()).Required;
+        }
+        catch (HttpRequestException)
+        {
+            // Ohne Server zeigt die Anmeldeseite den Fehler.
+        }
+
+        var returnUrl = Uri.EscapeDataString(Navigation.ToBaseRelativePath(Navigation.Uri));
+        Navigation.NavigateTo(setupRequired ? "setup" : string.IsNullOrEmpty(returnUrl) ? "login" : $"login?returnUrl={returnUrl}");
+    }
+}

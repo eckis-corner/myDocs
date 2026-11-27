@@ -6,7 +6,19 @@
   <resheader name="reader"><value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <resheader name="writer"><value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value></resheader>
   <data name="AppName" xml:space="preserve"><value>myDocs</value></data>
+  <data name="AuthError_auth-2fa-missing" xml:space="preserve"><value>Für dieses Konto ist kein zweiter Faktor eingerichtet. Bitte wende dich an den Administrator.</value></data>
+  <data name="AuthError_auth-code-invalid" xml:space="preserve"><value>Der Code stimmt nicht oder wurde schon verwendet.</value></data>
+  <data name="AuthError_auth-invalid" xml:space="preserve"><value>E-Mail-Adresse oder Passwort stimmen nicht.</value></data>
+  <data name="AuthError_auth-locked" xml:space="preserve"><value>Zu viele Fehlversuche. Das Konto ist für 15 Minuten gesperrt.</value></data>
+  <data name="AuthError_email-invalid" xml:space="preserve"><value>Die E-Mail-Adresse ist ungültig.</value></data>
+  <data name="AuthError_http-429" xml:space="preserve"><value>Zu viele Anfragen. Bitte warte eine Minute.</value></data>
+  <data name="AuthError_password-weak" xml:space="preserve"><value>Das Passwort ist zu kurz.</value></data>
+  <data name="AuthError_server-unreachable" xml:space="preserve"><value>Der Server ist nicht erreichbar. Bitte versuche es später erneut.</value></data>
+  <data name="AuthError_setup-code-invalid" xml:space="preserve"><value>Der Einrichtungscode stimmt nicht.</value></data>
+  <data name="AuthError_setup-done" xml:space="preserve"><value>myDocs ist bereits eingerichtet.</value></data>
   <data name="BackToHome" xml:space="preserve"><value>Zur Übersicht</value></data>
+  <data name="DisplayName" xml:space="preserve"><value>Name</value></data>
+  <data name="Email" xml:space="preserve"><value>E-Mail-Adresse</value></data>
   <data name="ErrorUnhandled" xml:space="preserve"><value>Ein unerwarteter Fehler ist aufgetreten.</value></data>
   <data name="HomeAreas" xml:space="preserve"><value>Bereiche</value></data>
   <data name="HomeIntro" xml:space="preserve"><value>myDocs verwaltet die Unterlagen eures Haushalts: Versicherungen, Konten, Verträge und Abos als eigene Einträge mit ihren Dokumenten, mit Wiedervorlage und Zuständigkeit. Was im Ernstfall gebraucht wird, übernimmt myLife.</value></data>
@@ -17,11 +29,37 @@
   <data name="LanguageName_de" xml:space="preserve"><value>Deutsch</value></data>
   <data name="LanguageName_en" xml:space="preserve"><value>English</value></data>
   <data name="Loading" xml:space="preserve"><value>Wird geladen …</value></data>
+  <data name="LoginNext" xml:space="preserve"><value>Weiter</value></data>
+  <data name="LoginRecoveryText" xml:space="preserve"><value>Gib einen deiner Wiederherstellungscodes ein. Jeder Code gilt nur einmal.</value></data>
+  <data name="LoginSubmit" xml:space="preserve"><value>Anmelden</value></data>
+  <data name="LoginTitle" xml:space="preserve"><value>Anmelden</value></data>
+  <data name="LoginTotpText" xml:space="preserve"><value>Gib den sechsstelligen Code aus deiner Authenticator-App ein.</value></data>
+  <data name="LoginUseRecovery" xml:space="preserve"><value>Kein Zugriff auf die App? Wiederherstellungscode verwenden</value></data>
+  <data name="LoginUseTotp" xml:space="preserve"><value>Code aus der Authenticator-App verwenden</value></data>
+  <data name="Logout" xml:space="preserve"><value>Abmelden</value></data>
   <data name="NavHome" xml:space="preserve"><value>Übersicht</value></data>
   <data name="NotFoundText" xml:space="preserve"><value>Die aufgerufene Seite gibt es nicht.</value></data>
   <data name="NotFoundTitle" xml:space="preserve"><value>Seite nicht gefunden</value></data>
   <data name="OpenMenu" xml:space="preserve"><value>Menü öffnen</value></data>
+  <data name="Password" xml:space="preserve"><value>Passwort</value></data>
+  <data name="PasswordHelp" xml:space="preserve"><value>Mindestens {0} Zeichen. Ein Satz aus mehreren Wörtern ist leicht zu merken und sicher.</value></data>
+  <data name="RecoveryCode" xml:space="preserve"><value>Wiederherstellungscode</value></data>
   <data name="Reload" xml:space="preserve"><value>Neu laden</value></data>
+  <data name="SetupCode" xml:space="preserve"><value>Einrichtungscode</value></data>
+  <data name="SetupCodeHelp" xml:space="preserve"><value>Steht im Protokoll des Containers, etwa im Container Manager unter mydocs-app → Protokoll. Nach jedem Neustart gilt ein neuer Code.</value></data>
+  <data name="SetupDone" xml:space="preserve"><value>Zu myDocs</value></data>
+  <data name="SetupFinish" xml:space="preserve"><value>Konto anlegen</value></data>
+  <data name="SetupIntro" xml:space="preserve"><value>myDocs ist noch nicht eingerichtet. Du legst jetzt das erste Konto an, es wird Administrator. Weitere Konten legst du danach in der Verwaltung an.</value></data>
+  <data name="SetupNext" xml:space="preserve"><value>Weiter</value></data>
+  <data name="SetupRecoverySaved" xml:space="preserve"><value>Ich habe die Codes sicher aufbewahrt.</value></data>
+  <data name="SetupRecoveryText" xml:space="preserve"><value>Das sind deine Wiederherstellungscodes. Mit ihnen kommst du in dein Konto, wenn das Gerät mit der Authenticator-App verloren geht. Drucke sie aus oder speichere sie im Passwortmanager. Sie werden nicht noch einmal angezeigt.</value></data>
+  <data name="SetupStepOf" xml:space="preserve"><value>Schritt {0} von {1}</value></data>
+  <data name="SetupTitle" xml:space="preserve"><value>Einrichtung</value></data>
+  <data name="SetupTotpManual" xml:space="preserve"><value>Ohne Kamera diesen Schlüssel eintragen:</value></data>
+  <data name="SetupTotpQr" xml:space="preserve"><value>QR-Code für die Authenticator-App</value></data>
+  <data name="SetupTotpText" xml:space="preserve"><value>Scanne den QR-Code mit einer Authenticator-App (etwa Microsoft Authenticator, Aegis oder 1Password) und gib den angezeigten Code ein.</value></data>
   <data name="SkipToContent" xml:space="preserve"><value>Zum Inhalt springen</value></data>
   <data name="ToggleDarkMode" xml:space="preserve"><value>Hell/Dunkel umschalten</value></data>
+  <data name="TotpCode" xml:space="preserve"><value>Code aus der Authenticator-App</value></data>
+  <data name="UserMenu" xml:space="preserve"><value>Konto</value></data>
 </root>

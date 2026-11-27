@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Components.Authorization;
 using Microsoft.Extensions.DependencyInjection;
 using MudBlazor.Services;
 using MyCommon.Ui;
@@ -14,6 +15,10 @@ public static class ServiceCollectionExtensions
         services.AddLocalization();
         services.AddMyCommonUi();
         services.AddScoped<CultureService>();
+        services.AddScoped<SessionService>();
+        services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<SessionService>());
+        services.AddAuthorizationCore();
+        services.AddCascadingAuthenticationState();
         return services;
     }
 }

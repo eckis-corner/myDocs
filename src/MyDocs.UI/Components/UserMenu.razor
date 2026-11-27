@@ -1,0 +1,22 @@
+@inject IStringLocalizer<SharedResource> L
+@inject SessionService Session
+@inject NavigationManager Navigation
+
+<AuthorizeView>
+    <Authorized>
+        <MudMenu Icon="@Icons.Material.Filled.AccountCircle" Color="Color.Inherit" AriaLabel="@L["UserMenu"]"
+                 AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight" data-testid="user-menu">
+            <MudMenuItem Disabled>@context.User.Identity?.Name</MudMenuItem>
+            <MudDivider />
+            <MudMenuItem Icon="@Icons.Material.Filled.Logout" OnClick="LogoutAsync" data-testid="logout">@L["Logout"]</MudMenuItem>
+        </MudMenu>
+    </Authorized>
+</AuthorizeView>
+
+@code {
+    private async Task LogoutAsync()
+    {
+        await Session.LogoutAsync();
+        Navigation.NavigateTo("login");
+    }
+}

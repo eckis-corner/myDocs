@@ -1,0 +1,31 @@
+@inherits LayoutComponentBase
+@* Für Anmeldung und Einrichtung: ohne Seitenleiste, Inhalt in der Mitte. *@
+
+<MudThemeProvider @ref="_themeProvider" Theme="_theme" @bind-IsDarkMode="_isDarkMode" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudLayout Class="@(_isDarkMode ? "mydocs-rixio mydocs-rixio-dark" : "mydocs-rixio mydocs-rixio-light")">
+    <MudMainContent Class="mydocs-main" role="main">
+        <MudContainer MaxWidth="MaxWidth.Small" Class="py-10" id="main-content" tabindex="-1">
+            <div class="mb-6"><AppLogo /></div>
+            @Body
+        </MudContainer>
+    </MudMainContent>
+</MudLayout>
+
+@code {
+    private readonly MudTheme _theme = Theme.MyDocsTheme.Create();
+    private MudThemeProvider? _themeProvider;
+    private bool _isDarkMode;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && _themeProvider is not null)
+        {
+            _isDarkMode = await _themeProvider.GetSystemDarkModeAsync();
+            StateHasChanged();
+        }
+    }
+}

@@ -37,6 +37,66 @@ TEXTS: dict[str, tuple[str, str]] = {
     "BackToHome": ("Zur Übersicht", "Back to overview"),
     "ErrorUnhandled": ("Ein unerwarteter Fehler ist aufgetreten.", "An unexpected error has occurred."),
     "Reload": ("Neu laden", "Reload"),
+    # Konto, Anmeldung (M1.2)
+    "UserMenu": ("Konto", "Account"),
+    "Logout": ("Abmelden", "Log out"),
+    "Email": ("E-Mail-Adresse", "Email address"),
+    "Password": ("Passwort", "Password"),
+    "PasswordHelp": ("Mindestens {0} Zeichen. Ein Satz aus mehreren Wörtern ist leicht zu merken und sicher.",
+                     "At least {0} characters. A sentence of several words is easy to remember and secure."),
+    "DisplayName": ("Name", "Name"),
+    "TotpCode": ("Code aus der Authenticator-App", "Code from the authenticator app"),
+    "RecoveryCode": ("Wiederherstellungscode", "Recovery code"),
+    "LoginTitle": ("Anmelden", "Log in"),
+    "LoginNext": ("Weiter", "Next"),
+    "LoginSubmit": ("Anmelden", "Log in"),
+    "LoginTotpText": ("Gib den sechsstelligen Code aus deiner Authenticator-App ein.", "Enter the six-digit code from your authenticator app."),
+    "LoginRecoveryText": ("Gib einen deiner Wiederherstellungscodes ein. Jeder Code gilt nur einmal.",
+                          "Enter one of your recovery codes. Each code works only once."),
+    "LoginUseRecovery": ("Kein Zugriff auf die App? Wiederherstellungscode verwenden", "No access to the app? Use a recovery code"),
+    "LoginUseTotp": ("Code aus der Authenticator-App verwenden", "Use a code from the authenticator app"),
+    # Einrichtung (M1.2)
+    "SetupTitle": ("Einrichtung", "Setup"),
+    "SetupStepOf": ("Schritt {0} von {1}", "Step {0} of {1}"),
+    "SetupIntro": (
+        "myDocs ist noch nicht eingerichtet. Du legst jetzt das erste Konto an, es wird Administrator. Weitere Konten "
+        "legst du danach in der Verwaltung an.",
+        "myDocs has not been set up yet. You are about to create the first account; it becomes the administrator. You "
+        "create further accounts afterwards in the administration.",
+    ),
+    "SetupCode": ("Einrichtungscode", "Setup code"),
+    "SetupCodeHelp": (
+        "Steht im Protokoll des Containers, etwa im Container Manager unter mydocs-app → Protokoll. Nach jedem Neustart gilt ein neuer Code.",
+        "Shown in the container log, for example in Container Manager under mydocs-app → Log. After every restart a new code applies.",
+    ),
+    "SetupNext": ("Weiter", "Next"),
+    "SetupTotpText": (
+        "Scanne den QR-Code mit einer Authenticator-App (etwa Microsoft Authenticator, Aegis oder 1Password) und gib den angezeigten Code ein.",
+        "Scan the QR code with an authenticator app (for example Microsoft Authenticator, Aegis or 1Password) and enter the code it shows.",
+    ),
+    "SetupTotpQr": ("QR-Code für die Authenticator-App", "QR code for the authenticator app"),
+    "SetupTotpManual": ("Ohne Kamera diesen Schlüssel eintragen:", "Without a camera, enter this key:"),
+    "SetupFinish": ("Konto anlegen", "Create account"),
+    "SetupRecoveryText": (
+        "Das sind deine Wiederherstellungscodes. Mit ihnen kommst du in dein Konto, wenn das Gerät mit der Authenticator-App "
+        "verloren geht. Drucke sie aus oder speichere sie im Passwortmanager. Sie werden nicht noch einmal angezeigt.",
+        "These are your recovery codes. They get you into your account if you lose the device with the authenticator app. "
+        "Print them or store them in your password manager. They will not be shown again.",
+    ),
+    "SetupRecoverySaved": ("Ich habe die Codes sicher aufbewahrt.", "I have stored the codes safely."),
+    "SetupDone": ("Zu myDocs", "Go to myDocs"),
+    # Fehler der Anmeldung und Einrichtung
+    "AuthError_auth-invalid": ("E-Mail-Adresse oder Passwort stimmen nicht.", "Email address or password is incorrect."),
+    "AuthError_auth-locked": ("Zu viele Fehlversuche. Das Konto ist für 15 Minuten gesperrt.", "Too many failed attempts. The account is locked for 15 minutes."),
+    "AuthError_auth-code-invalid": ("Der Code stimmt nicht oder wurde schon verwendet.", "The code is incorrect or has already been used."),
+    "AuthError_auth-2fa-missing": ("Für dieses Konto ist kein zweiter Faktor eingerichtet. Bitte wende dich an den Administrator.",
+                                   "No second factor is set up for this account. Please contact the administrator."),
+    "AuthError_setup-done": ("myDocs ist bereits eingerichtet.", "myDocs has already been set up."),
+    "AuthError_setup-code-invalid": ("Der Einrichtungscode stimmt nicht.", "The setup code is incorrect."),
+    "AuthError_password-weak": ("Das Passwort ist zu kurz.", "The password is too short."),
+    "AuthError_email-invalid": ("Die E-Mail-Adresse ist ungültig.", "The email address is invalid."),
+    "AuthError_server-unreachable": ("Der Server ist nicht erreichbar. Bitte versuche es später erneut.", "The server cannot be reached. Please try again later."),
+    "AuthError_http-429": ("Zu viele Anfragen. Bitte warte eine Minute.", "Too many requests. Please wait a minute."),
 }
 
 HEADER = """<?xml version="1.0" encoding="utf-8"?>

@@ -1,0 +1,139 @@
+@page "/setup"
+@layout CenteredLayout
+@inject IStringLocalizer<SharedResource> L
+@inject AuthClient Auth
+@inject SessionService Session
+@inject NavigationManager Navigation
+
+<PageTitle>@L["AppName"] – @L["SetupTitle"]</PageTitle>
+
+<MudPaper Class="pa-6" Elevation="1">
+    <MudText Typo="Typo.h5" HtmlTag="h1" Class="mb-2">@L["SetupTitle"]</MudText>
+    <MudText Typo="Typo.caption" Class="mydocs-muted mb-4 d-block">@L["SetupStepOf", _step, 3]</MudText>
+
+    @if (_error is not null)
+    {
+        <MudAlert Severity="Severity.Error" Variant="Variant.Outlined" Class="mb-4" data-testid="setup-error">@L[$"AuthError_{_error}"]</MudAlert>
+    }
+
+    @switch (_step)
+    {
+        case 1:
+            <EditForm Model="this" OnSubmit="StartAsync">
+                <MudStack Spacing="3">
+                    <MudText>@L["SetupIntro"]</MudText>
+                    <MudTextField T="string" @bind-Value="_setupCode" Label="@L["SetupCode"]" HelperText="@L["SetupCodeHelp"]" Variant="Variant.Outlined"
+                                  UserAttributes="@(new() { ["autocomplete"] = "off", ["data-testid"] = "setup-code" })" Required />
+                    <MudTextField T="string" @bind-Value="_displayName" Label="@L["DisplayName"]" Variant="Variant.Outlined"
+                                  UserAttributes="@(new() { ["autocomplete"] = "name", ["data-testid"] = "setup-name" })" Required />
+                    <MudTextField T="string" @bind-Value="_email" Label="@L["Email"]" Variant="Variant.Outlined" InputType="InputType.Email"
+                                  UserAttributes="@(new() { ["autocomplete"] = "username", ["data-testid"] = "setup-email" })" Required />
+                    <MudTextField T="string" @bind-Value="_password" Label="@L["Password"]" HelperText="@L["PasswordHelp", PasswordRules.MinLength]"
+                                  Variant="Variant.Outlined" InputType="InputType.Password"
+                                  UserAttributes="@(new() { ["autocomplete"] = "new-password", ["data-testid"] = "setup-password" })" Required />
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy" data-testid="setup-start">@L["SetupNext"]</MudButton>
+                </MudStack>
+            </EditForm>
+            break;
+        case 2:
+            <EditForm Model="this" OnSubmit="FinishAsync">
+                <MudStack Spacing="3">
+                    <MudText>@L["SetupTotpText"]</MudText>
+                    <div class="d-flex justify-center"><img src="@_qr" alt="@L["SetupTotpQr"]" width="220" height="220" data-testid="setup-qr" /></div>
+                    <MudText Typo="Typo.body2" Class="mydocs-muted">@L["SetupTotpManual"] <code data-testid="setup-secret">@_totp?.Secret</code></MudText>
+                    <MudTextField T="string" @bind-Value="_code" Label="@L["TotpCode"]" Variant="Variant.Outlined"
+                                  UserAttributes="@(new() { ["autocomplete"] = "one-time-code", ["inputmode"] = "numeric", ["data-testid"] = "setup-totp" })" Required />
+                    <MudButton ButtonType="ButtonType.Submit" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy" data-testid="setup-finish">@L["SetupFinish"]</MudButton>
+                </MudStack>
+            </EditForm>
+            break;
+        default:
+            <MudStack Spacing="3">
+                <MudAlert Severity="Severity.Warning" Variant="Variant.Outlined">@L["SetupRecoveryText"]</MudAlert>
+                <MudSimpleTable Dense Elevation="0" data-testid="setup-recovery">
+                    <tbody>
+                        @foreach (var pair in _recoveryCodes.Chunk(2))
+                        {
+                            <tr>@foreach (var recovery in pair) { <td><code>@recovery</code></td> }</tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+                <MudCheckBox T="bool" @bind-Value="_saved" Label="@L["SetupRecoverySaved"]" Color="Color.Primary" data-testid="setup-saved" />
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="!_saved" OnClick="DoneAsync" data-testid="setup-done">@L["SetupDone"]</MudButton>
+            </MudStack>
+            break;
+    }
+</MudPaper>
+
+@code {
+    private int _step = 1;
+    private string? _setupCode;
+    private string? _displayName;
+    private string? _email;
+    private string? _password;
+    private string? _code;
+    private TotpSetupDto? _totp;
+    private string? _qr;
+    private IReadOnlyList<string> _recoveryCodes = [];
+    private bool _saved;
+    private bool _busy;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (!(await Auth.GetSetupStatusAsync()).Required)
+            {
+                Navigation.NavigateTo("login");
+            }
+        }
+        catch (HttpRequestException)
+        {
+            _error = "server-unreachable";
+        }
+    }
+
+    private async Task StartAsync() => await RunAsync(async () =>
+    {
+        _totp = await Auth.StartSetupAsync(new(_setupCode ?? string.Empty, _email ?? string.Empty, _displayName ?? string.Empty, _password ?? string.Empty));
+        _password = null;
+        _qr = QrCodes.ToDataUri(_totp.OtpAuthUri);
+        _step = 2;
+    });
+
+    private async Task FinishAsync() => await RunAsync(async () =>
+    {
+        _recoveryCodes = (await Auth.FinishSetupAsync(new(_setupCode ?? string.Empty, _email ?? string.Empty, _code ?? string.Empty))).Codes;
+        _step = 3;
+    });
+
+    private async Task DoneAsync()
+    {
+        await Session.RefreshAsync();
+        Navigation.NavigateTo(string.Empty);
+    }
+
+    private async Task RunAsync(Func<Task> action)
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            await action();
+        }
+        catch (ApiException exception)
+        {
+            _error = exception.Code;
+            _code = null;
+        }
+        catch (HttpRequestException)
+        {
+            _error = "server-unreachable";
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

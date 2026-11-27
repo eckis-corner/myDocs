@@ -21,6 +21,11 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 **M1.1 Leeres Grundgerüst ✅ (27.11.2026, lokal):** Solution mit Shared, ApiClient, UI, Web, Server und Tests; Layout wie myLife in Petrol, Logo, Sprachen de/en, PostgreSQL mit erster Migration, `/health`, `/api/info`, Sicherheits-Header, Docker, CI, VS Code. 13 Tests grün.
 
+**M1.2 Einrichtung und Anmeldung ✅ (27.11.2026, lokal):** Einrichtungsassistent mit Code, Administrator, TOTP und Wiederherstellungscodes; Anmeldung mit Passwort und Einmal-Code, Abmelden, Benutzermenü; CSRF-Header, Sperre, Rate-Limit; Test, dass jeder API-Endpunkt eine Anmeldung verlangt (80–84). 26 Tests grün, Ablauf lokal gegen PostgreSQL durchgespielt.
+
+**M1.2b Passkeys:** als zweiter Faktor statt TOTP, mit den Passkeys von ASP.NET Core Identity 10.
+
+
 
 1. Solution `MyDocs.slnx` mit den Projekten aus [architektur.md](architektur.md), Abschnitt 3; Docker Compose mit `app` und `db`; CI mit Image nach `ghcr.io/eckis-corner/mydocs`
 2. Einrichtungsassistent mit Einrichtungscode, erster Admin, 2FA (TOTP und Passkey)

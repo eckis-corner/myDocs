@@ -138,6 +138,16 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 78 | Dateigröße | **100 MB** je Datei, vom Administrator änderbar. |
 | 79 | Akzentfarbe und Logo | **Petrol #1F9E8F** (dunkle Schrift darauf); als Schriftfarbe im hellen Modus #0F6B60. Logo im Stil von myLife: Quadrat mit zwei Blättern, Zeilen in Petrol, Schriftzug „my“ im Akzent und „Docs“ in der Textfarbe. |
 
+## Runde 4 (27.11.2026, M1.2 Einrichtung und Anmeldung)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 80 | Einrichtung | Wie myLife mit **Einrichtungscode** aus dem Container-Protokoll, neu bei jedem Start, bis ein Administrator mit bestätigtem zweitem Faktor existiert. Drei Schritte: Code und Konto, Authenticator-App (QR-Code im Browser), **10 Wiederherstellungscodes**. Ein abgebrochener Versuch ohne zweiten Faktor wird beim nächsten ersetzt. |
+| 81 | Zweiter Faktor | **Pflicht für jedes Konto.** Ein Konto ohne zweiten Faktor kann sich nicht anmelden. TOTP nach RFC 6238 (±30 Sekunden), **jeder Code gilt nur einmal** (eigener Token-Provider statt des Standards von Identity). Statt Code geht ein Wiederherstellungscode, jeder einmal. Passkeys folgen mit M1.2b. |
+| 82 | Geheimnisse | TOTP-Schlüssel und Wiederherstellungscodes liegen **mit ASP.NET Data Protection verschlüsselt** in der Datenbank (Schlüssel in `data/keys`). Passwörter hasht Identity (PBKDF2). |
+| 83 | Sitzung | Cookie `mydocs.session` (HttpOnly, SameSite=Strict, Secure), 30 Minuten gleitend. Zwischen Passwort und zweitem Faktor das Cookie `mydocs.2fa`, 5 Minuten. Sperre nach 5 Fehlversuchen für 15 Minuten, Rate-Limit 30 Anfragen je Minute und IP an Einrichtung und Anmeldung. Unbekannte Adressen antworten gleich und gleich langsam wie falsche Passwörter. |
+| 84 | Datenbank-Namen | snake_case über EFCore.NamingConventions; die Tabellen von Identity heißen `users`, `roles`, `user_tokens` usw. Identity-Schema Version 3 (mit `user_passkeys`). |
+
 ## Offen
 
 | Thema | Was fehlt |

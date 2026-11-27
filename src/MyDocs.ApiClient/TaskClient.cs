@@ -34,6 +34,17 @@ public sealed class TaskClient(HttpClient http)
 
     public Task DeleteCommentAsync(Guid id, CancellationToken ct = default) => http.SendAsync(HttpMethod.Delete, $"api/comments/{id}", ct);
 
+    public Task<TaskDto> PostponeAsync(Guid id, TaskPostponeRequest request, CancellationToken ct = default) =>
+        http.SendAsync<TaskPostponeRequest, TaskDto>(HttpMethod.Post, $"api/tasks/{id}/postpone", request, ct);
+
+    public Task<ObjectDto> SetReviewAsync(Guid objectId, ReviewSettingsRequest request, CancellationToken ct = default) =>
+        http.SendAsync<ReviewSettingsRequest, ObjectDto>(HttpMethod.Put, $"api/objects/{objectId}/review", request, ct);
+
+    public Task<ReviewNowResult> ReviewNowAsync(Guid objectId, CancellationToken ct = default) => http.PostForAsync<ReviewNowResult>($"api/objects/{objectId}/review/now", ct);
+
     public Task<ObjectDto> ChangeLifecycleAsync(Guid objectId, LifecycleChangeRequest request, CancellationToken ct = default) =>
         http.SendAsync<LifecycleChangeRequest, ObjectDto>(HttpMethod.Post, $"api/objects/{objectId}/lifecycle", request, ct);
 }
+
+/// <summary>Antwort von „Jetzt prüfen“: der offene Vorgang „Prüfung“.</summary>
+public sealed record ReviewNowResult(Guid TaskId);

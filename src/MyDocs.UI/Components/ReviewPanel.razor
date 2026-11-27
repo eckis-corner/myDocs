@@ -1,0 +1,82 @@
+@* Prüfung eines Eintrags (13–16): zuletzt geprüft, nächste Prüfung, Frist, überfällig; „Jetzt prüfen“ und eigene Regel. *@
+@inject IStringLocalizer<SharedResource> L
+@inject TaskClient Tasks
+@inject IDialogService Dialogs
+@inject ISnackbar Snackbar
+
+<MudPaper Class="pa-4" Elevation="1" data-testid="review-panel">
+    <MudStack Row AlignItems="AlignItems.Center" Wrap="Wrap.Wrap" Class="mb-2" Spacing="2">
+        <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["ReviewTitle"]</b></MudText>
+        @if (Item.Review?.OverdueSince is { } since)
+        {
+            <MudChip T="string" Size="Size.Small" Color="Color.Error" data-testid="review-overdue">@L["ReviewOverdueSince", since.ToString("d", CultureInfo.CurrentCulture)]</MudChip>
+        }
+        <MudSpacer />
+        @if (Item.CanEdit)
+        {
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.FactCheck" OnClick="ReviewNowAsync" data-testid="review-now">@L["ReviewNow"]</MudButton>
+            <MudButton Variant="Variant.Text" StartIcon="@Icons.Material.Outlined.Tune" OnClick="() => _editing = !_editing" data-testid="review-rule">@L["ReviewRule"]</MudButton>
+        }
+    </MudStack>
+    <MudSimpleTable Dense Elevation="0" Class="mydocs-datasheet-table">
+        <tbody>
+            <tr><th scope="row">@L["ReviewLast"]</th><td>@(Item.Review?.LastReviewedOn?.ToString("d", CultureInfo.CurrentCulture) ?? L["ReviewNever"])</td></tr>
+            <tr>
+                <th scope="row">@L["ReviewNext"]</th>
+                <td data-testid="review-next">
+                    @(Item.Review?.NextReviewOn?.ToString("d", CultureInfo.CurrentCulture) ?? L["ReviewNone"])
+                    @if (Item.Review?.IntervalMonths is { } months and > 0)
+                    {
+                        <span class="mydocs-muted"> · @L["ReviewEvery", months]@(Item.Review.IntervalOverridden ? $" ({L["ReviewOwnRule"]})" : string.Empty)</span>
+                    }
+                </td>
+            </tr>
+            @if (Item.Review?.DeadlineOn is { } deadline)
+            {
+                <tr><th scope="row">@L[$"ReviewDeadline_{Item.Review.DeadlineKey}"]</th><td data-testid="review-deadline">@deadline.ToString("d", CultureInfo.CurrentCulture)</td></tr>
+            }
+        </tbody>
+    </MudSimpleTable>
+    @if (_editing)
+    {
+        <MudStack Row AlignItems="AlignItems.Center" Wrap="Wrap.Wrap" Spacing="2" Class="mt-2">
+            <MudNumericField T="int?" @bind-Value="_interval" Label="@L["ReviewIntervalMonths"]" HelperText="@L["ReviewIntervalHelp"]" Variant="Variant.Outlined" Min="0" Max="120"
+                             Margin="Margin.Dense" Style="max-width: 16rem" Clearable />
+            <MudDatePicker Label="@L["ReviewFixedDate"]" @bind-Date="_fixedDate" Variant="Variant.Outlined" Editable Clearable Margin="Margin.Dense" Style="max-width: 14rem" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveRuleAsync">@L["Save"]</MudButton>
+        </MudStack>
+    }
+</MudPaper>
+
+@code {
+    private bool _editing;
+    private int? _interval;
+    private DateTime? _fixedDate;
+
+    [Parameter, EditorRequired] public ObjectDto Item { get; set; } = default!;
+
+    [Parameter] public EventCallback<ObjectDto> ItemChanged { get; set; }
+
+    /// <summary>Nach „Jetzt prüfen“: die Liste der Vorgänge neu laden.</summary>
+    [Parameter] public EventCallback OnTaskCreated { get; set; }
+
+    protected override void OnParametersSet()
+    {
+        _interval = Item.Review is { IntervalOverridden: true } review ? review.IntervalMonths : null;
+        _fixedDate = Item.Review is { NextReviewOverridden: true, NextReviewOn: { } next } ? next.ToDateTime(TimeOnly.MinValue) : null;
+    }
+
+    private async Task ReviewNowAsync()
+    {
+        await Tasks.ReviewNowAsync(Item.Id);
+        await OnTaskCreated.InvokeAsync();
+        Snackbar.Add(L["ReviewCreated"], Severity.Success);
+    }
+
+    private async Task SaveRuleAsync()
+    {
+        var updated = await Tasks.SetReviewAsync(Item.Id, new ReviewSettingsRequest(_interval, _fixedDate is { } d ? DateOnly.FromDateTime(d) : null));
+        _editing = false;
+        await ItemChanged.InvokeAsync(updated);
+    }
+}

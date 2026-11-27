@@ -51,6 +51,11 @@ public sealed record TaskDto(Guid Id, string Kind, string Title, string? Note, G
 {
     /// <summary>Textschlüssel automatischer Vorgänge (<c>TaskTitle_{Schlüssel}</c>); der Leser sieht sie in seiner Sprache.</summary>
     public string? TitleKey { get; init; }
+
+    /// <summary>Stufe der Eskalation (14): 0 noch nicht fällig, 1 fällig, 2 nach 7 Tagen, 3 nach 14 Tagen an den Haushalt.</summary>
+    public int EscalationLevel { get; init; }
+
+    public int PostponedCount { get; init; }
 }
 
 /// <summary>Neuer Vorgang von Hand oder Änderung der Angaben.</summary>
@@ -70,7 +75,12 @@ public static class TaskErrors
     public const string StateInvalid = "state-invalid";
     public const string Conflict = "conflict";
     public const string ResponsibleInvalid = "responsible-invalid";
+    public const string PostponeInvalid = "postpone-invalid";
+    public const string ReasonRequired = "reason-required";
 }
+
+/// <summary>Zurückstellen (16): neues Datum höchstens 30 Tage voraus und eine Begründung.</summary>
+public sealed record TaskPostponeRequest(DateOnly Until, string Reason, uint Version);
 
 /// <summary>Kommentar an einem Vorgang oder Objekt (50).</summary>
 public sealed record CommentDto(Guid Id, string AuthorName, Guid AuthorId, DateTimeOffset At, string Text);

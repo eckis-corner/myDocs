@@ -60,12 +60,17 @@ public sealed class ObjectData : IEditableFieldValues
 
 /// <summary>Eintrag in Listen: genug für Tabelle, Suche und Verweise.</summary>
 public sealed record ObjectSummaryDto(Guid Id, string TypeKey, string Title, Guid? OwnerPersonId, Guid? ResponsiblePersonId,
-    DateOnly? ExpiresOn, DateTimeOffset UpdatedAt, Dictionary<string, string> Fields, string? LifecycleState = null, DateOnly? LifecycleDate = null);
+    DateOnly? ExpiresOn, DateTimeOffset UpdatedAt, Dictionary<string, string> Fields, string? LifecycleState = null, DateOnly? LifecycleDate = null,
+    DateOnly? LastReviewedOn = null, DateOnly? OverdueSince = null);
 
 /// <summary>Ein Objekt mit allem, was die Objektseite braucht, und den Rechten des Aufrufers.</summary>
 public sealed record ObjectDto(Guid Id, string TypeKey, ObjectData Data, Guid? OwnerPersonId, Guid? ResponsiblePersonId,
     IReadOnlyList<ObjectShareDto> Shares, bool CanEdit, bool CanManage, uint Version, DateTimeOffset CreatedAt, DateTimeOffset UpdatedAt,
-    DateTimeOffset? DeletedAt, string? LifecycleState = null, DateOnly? LifecycleDate = null, Guid? ReplacedById = null);
+    DateTimeOffset? DeletedAt, string? LifecycleState = null, DateOnly? LifecycleDate = null, Guid? ReplacedById = null)
+{
+    /// <summary>Stand der Prüfung (13–16); null bei Einträgen ohne Prüfung.</summary>
+    public ReviewInfoDto? Review { get; init; }
+}
 
 /// <summary>Neu anlegen oder speichern. <paramref name="OwnerPersonId"/> null heißt Haushalt.</summary>
 public sealed record ObjectSaveRequest(string TypeKey, ObjectData Data, Guid? OwnerPersonId, Guid? ResponsiblePersonId, uint Version = 0);

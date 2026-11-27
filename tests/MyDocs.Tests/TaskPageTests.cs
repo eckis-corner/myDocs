@@ -67,6 +67,23 @@ public sealed class TaskPageTests : BunitContext
         Assert.True(provider.Find("[data-testid=task-done]").HasAttribute("disabled"));
     }
 
+    [Fact]
+    public void TheReviewPanelShowsOverdueAndTheDeadline()
+    {
+        var item = new ObjectDto(Guid.NewGuid(), "insurance", new ObjectData { Title = "Hausrat" }, null, Anna, [], CanEdit: true, CanManage: true, Version: 1,
+            DateTimeOffset.UtcNow, DateTimeOffset.UtcNow, null, LifecycleStates.Active)
+        {
+            Review = new ReviewInfoDto(12, false, new DateOnly(2026, 11, 1), false, new DateOnly(2025, 11, 1), new DateOnly(2026, 11, 15), new DateOnly(2026, 12, 1), "cancellation-deadline"),
+        };
+
+        var panel = Render<MyDocs.UI.Components.ReviewPanel>(p => p.Add(r => r.Item, item));
+
+        Assert.Contains("überfällig seit 15.11.2026", panel.Find("[data-testid=review-overdue]").TextContent, StringComparison.Ordinal);
+        Assert.Contains("01.12.2026", panel.Find("[data-testid=review-deadline]").TextContent, StringComparison.Ordinal);
+        Assert.Contains("alle 12 Monate", panel.Find("[data-testid=review-next]").TextContent, StringComparison.Ordinal);
+        Assert.Contains("Letzter Kündigungstermin", panel.Markup, StringComparison.Ordinal);
+    }
+
     protected override void Dispose(bool disposing)
     {
         if (disposing)

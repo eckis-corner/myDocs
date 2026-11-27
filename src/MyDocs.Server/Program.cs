@@ -100,6 +100,8 @@ builder.Services.Configure<SecurityStampValidatorOptions>(stamp => stamp.Validat
 builder.Services.AddScoped<OneTimeTokens>();
 builder.Services.AddScoped<MyDocs.Server.Infrastructure.Objects.ObjectAccess>();
 builder.Services.AddScoped<MyDocs.Server.Infrastructure.Tasks.TaskAccess>();
+builder.Services.AddScoped<MyDocs.Server.Infrastructure.Tasks.ReviewEngine>();
+builder.Services.AddHostedService<MyDocs.Server.Infrastructure.Tasks.ReviewService>();
 builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Files.MasterKey>();
 builder.Services.AddScoped<MyDocs.Server.Infrastructure.Files.BlobStore>();
 builder.Services.AddHttpContextAccessor();

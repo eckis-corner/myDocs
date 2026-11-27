@@ -27,6 +27,8 @@ internal static class ObjectEndpoints
         group.MapPut("/{id:guid}/shares", SharesAsync);
         group.MapGet("/{id:guid}/history", HistoryAsync);
         group.MapPost("/{id:guid}/lifecycle", LifecycleAsync);
+        group.MapPut("/{id:guid}/review", ReviewSettingsAsync);
+        group.MapPost("/{id:guid}/review/now", ReviewNowAsync);
         return app;
     }
 
@@ -332,6 +334,73 @@ internal static class ObjectEndpoints
         return TypedResults.Ok(await ToDtoAsync(item, caller, access, db, ct));
     }
 
+    /// <summary>Eigene Prüfregel (13): Intervall in Monaten (0 = keine, null = Regel des Typs) und fester nächster Termin.</summary>
+    private static async Task<IResult> ReviewSettingsAsync(Guid id, ReviewSettingsRequest request, ClaimsPrincipal principal, ObjectAccess access,
+        MyDocsDbContext db, TimeProvider time, CancellationToken ct)
+    {
+        var caller = await access.CallerAsync(principal, ct);
+        if (await access.Visible(caller).FirstOrDefaultAsync(o => o.Id == id, ct) is not { } item)
+        {
+            return NotFound();
+        }
+
+        if (!await access.CanEditAsync(caller, item, ct))
+        {
+            return Forbidden();
+        }
+
+        if (request.IntervalMonths is < 0 or > 120)
+        {
+            return ApiProblems.Of(ObjectErrors.Invalid);
+        }
+
+        var before = new Dictionary<string, string?> { ["reviewInterval"] = item.ReviewIntervalMonths?.ToString(CultureInfo.InvariantCulture), ["nextReview"] = item.NextReviewOn?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) };
+        item.ReviewIntervalMonths = request.IntervalMonths;
+        item.NextReviewOn = request.NextReviewOn;
+        AddHistory(db, item, before, new() { ["reviewInterval"] = item.ReviewIntervalMonths?.ToString(CultureInfo.InvariantCulture), ["nextReview"] = item.NextReviewOn?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) }, caller.UserId, time.GetUtcNow());
+        await db.SaveChangesAsync(ct);
+        return TypedResults.Ok(await ToDtoAsync(item, caller, access, db, ct));
+    }
+
+    /// <summary>„Jetzt prüfen“: legt die Prüfung sofort an, fällig heute; ein offener Vorgang „Prüfung“ wird nicht verdoppelt.</summary>
+    private static async Task<IResult> ReviewNowAsync(Guid id, ClaimsPrincipal principal, ObjectAccess access, MyDocsDbContext db, TimeProvider time, CancellationToken ct)
+    {
+        var caller = await access.CallerAsync(principal, ct);
+        if (await access.Visible(caller).FirstOrDefaultAsync(o => o.Id == id, ct) is not { } item)
+        {
+            return NotFound();
+        }
+
+        if (!await access.CanEditAsync(caller, item, ct))
+        {
+            return Forbidden();
+        }
+
+        var rule = $"review:{item.Id}";
+        var open = await db.Tasks.FirstOrDefaultAsync(t => t.RuleKey == rule && t.State != MyDocs.Shared.Tasks.TaskStates.Done && t.State != MyDocs.Shared.Tasks.TaskStates.Discarded, ct);
+        if (open is null)
+        {
+            var now = time.GetUtcNow();
+            open = new WorkTask
+            {
+                Id = Guid.CreateVersion7(),
+                Kind = MyDocs.Shared.Tasks.TaskKinds.Review,
+                Title = "Prüfen, ob alles noch stimmt",
+                TitleKey = "review",
+                RuleKey = rule,
+                ResponsiblePersonId = item.ResponsiblePersonId ?? item.OwnerPersonId ?? caller.PersonId,
+                DueOn = DateOnly.FromDateTime(now.UtcDateTime),
+                CreatedAt = now,
+                CreatedBy = caller.UserId,
+            };
+            db.Tasks.Add(open);
+            db.TaskObjects.Add(new TaskObject { TaskId = open.Id, ObjectId = item.Id });
+            await db.SaveChangesAsync(ct);
+        }
+
+        return TypedResults.Ok(new { taskId = open.Id });
+    }
+
     private static async Task<IResult?> ValidateAsync(ObjectTypeDefinition type, ObjectSaveRequest request, MyDocsDbContext db, CancellationToken ct)
     {
         var errors = MyDocsCatalog.Validate(type, request.Data ?? new ObjectData());
@@ -397,7 +466,8 @@ internal static class ObjectEndpoints
     }
 
     private static ObjectSummaryDto Summary(DocObject o) =>
-        new(o.Id, o.TypeKey, o.Title, o.OwnerPersonId, o.ResponsiblePersonId, o.ExpiresOn, o.UpdatedAt, o.Fields, o.LifecycleState, o.LifecycleDate);
+        new(o.Id, o.TypeKey, o.Title, o.OwnerPersonId, o.ResponsiblePersonId, o.ExpiresOn, o.UpdatedAt, o.Fields, o.LifecycleState, o.LifecycleDate,
+            o.LastReviewedOn, o.OverdueSince);
 
     private static async Task<ObjectDto> ToDtoAsync(DocObject item, Caller caller, ObjectAccess access, MyDocsDbContext db, CancellationToken ct)
     {
@@ -408,7 +478,10 @@ internal static class ObjectEndpoints
             : [];
         return new ObjectDto(item.Id, item.TypeKey, data, item.OwnerPersonId, item.ResponsiblePersonId, shares,
             !item.IsDeleted && await access.CanEditAsync(caller, item, ct), canManage, item.Version, item.CreatedAt, item.UpdatedAt, item.DeletedAt,
-            item.LifecycleState, item.LifecycleDate, item.ReplacedById);
+            item.LifecycleState, item.LifecycleDate, item.ReplacedById)
+        {
+            Review = ReviewPlan.Info(item, access.Today),
+        };
     }
 
     private static IResult NotFound() => ApiProblems.Of(ObjectErrors.NotFound, StatusCodes.Status404NotFound);

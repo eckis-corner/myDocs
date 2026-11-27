@@ -90,6 +90,11 @@ else
                 <ObjectDatasheet Type="_type" Item="_item" />
             </MudPaper>
 
+            @if (_item.DeletedAt is null && (_item.Review is not null || MyDocs.Shared.Objects.ReviewRules.DefaultIntervalMonths(_item.TypeKey) is not null || Lifecycle.PatternOf(_item.TypeKey) != LifecyclePattern.None))
+            {
+                <ReviewPanel Item="_item" ItemChanged="item => _item = item" OnTaskCreated="LoadTasksAsync" />
+            }
+
             <DocumentList ObjectId="_item.Id" CanEdit="_item.CanEdit" />
 
             <MudPaper Class="pa-4" Elevation="1" data-testid="object-tasks">
@@ -379,6 +384,9 @@ else
         "responsible" => L["ObjectResponsible"],
         "deleted" => L["InTrash"],
         "lifecycle" => L["LifecycleLabel"],
+        "reviewed" => L["ReviewLast"],
+        "reviewInterval" => L["ReviewIntervalMonths"],
+        "nextReview" => L["ReviewFixedDate"],
         "lifecycleDate" => L["LifecycleDateLabel"],
         _ when field.StartsWith("field:", StringComparison.Ordinal) && _type!.Field(field[6..]) is { } definition => Catalog.Field(_type, definition),
         _ => field,
@@ -396,6 +404,7 @@ else
             "owner" or "responsible" => Directory.PersonName(Guid.TryParse(value, out var person) ? person : null) ?? value,
             "deleted" => L["Yes"],
             "lifecycle" => L[$"Lifecycle_{value}"],
+            "reviewed" => L[$"TaskOutcome_{value}"],
             _ when field.StartsWith("field:", StringComparison.Ordinal) && _type!.Field(field[6..]) is { } definition => Catalog.Display(definition, value, Directory.TitleOf),
             _ => value,
         };

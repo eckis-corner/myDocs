@@ -16,8 +16,11 @@ public sealed record Caller(Guid UserId, Guid? PersonId, bool IsMember, bool Adm
 /// als Anzahl, außer in der Admin-Einsicht (31): Dann sieht der Administrator alles, ändert aber nichts, und jeder
 /// Zugriff erscheint im Protokoll des Eigentümers.
 /// </summary>
-public sealed class ObjectAccess(MyDocsDbContext db, IHttpContextAccessor http, AuditLog audit)
+public sealed class ObjectAccess(MyDocsDbContext db, IHttpContextAccessor http, AuditLog audit, TimeProvider time)
 {
+    /// <summary>Heute nach der Uhr des Servers (in Tests einstellbar).</summary>
+    public DateOnly Today => DateOnly.FromDateTime(time.GetUtcNow().UtcDateTime);
+
     public async Task<Caller> CallerAsync(ClaimsPrincipal principal, CancellationToken ct)
     {
         var userId = Guid.Parse(principal.FindFirstValue(ClaimTypes.NameIdentifier)!);

@@ -242,6 +242,22 @@
   <data name="RecoveryCodesTitle" xml:space="preserve"><value>Wiederherstellungscodes</value></data>
   <data name="Reload" xml:space="preserve"><value>Neu laden</value></data>
   <data name="Restore" xml:space="preserve"><value>Wiederherstellen</value></data>
+  <data name="ReviewCreated" xml:space="preserve"><value>Der Vorgang „Prüfung“ steht unter Vorgänge.</value></data>
+  <data name="ReviewDeadline_cancellation-deadline" xml:space="preserve"><value>Letzter Kündigungstermin</value></data>
+  <data name="ReviewDeadline_loan-end" xml:space="preserve"><value>Kredit läuft aus</value></data>
+  <data name="ReviewEvery" xml:space="preserve"><value>alle {0} Monate</value></data>
+  <data name="ReviewFixedDate" xml:space="preserve"><value>Nächste Prüfung fest am</value></data>
+  <data name="ReviewIntervalHelp" xml:space="preserve"><value>Leer: Regel der Art. 0: keine regelmäßige Prüfung.</value></data>
+  <data name="ReviewIntervalMonths" xml:space="preserve"><value>Prüfen alle … Monate</value></data>
+  <data name="ReviewLast" xml:space="preserve"><value>Zuletzt geprüft</value></data>
+  <data name="ReviewNever" xml:space="preserve"><value>noch nie</value></data>
+  <data name="ReviewNext" xml:space="preserve"><value>Nächste Prüfung</value></data>
+  <data name="ReviewNone" xml:space="preserve"><value>keine regelmäßige Prüfung</value></data>
+  <data name="ReviewNow" xml:space="preserve"><value>Jetzt prüfen</value></data>
+  <data name="ReviewOverdueSince" xml:space="preserve"><value>überfällig seit {0}</value></data>
+  <data name="ReviewOwnRule" xml:space="preserve"><value>eigene Regel</value></data>
+  <data name="ReviewRule" xml:space="preserve"><value>Eigene Regel</value></data>
+  <data name="ReviewTitle" xml:space="preserve"><value>Prüfung</value></data>
   <data name="Role_guest" xml:space="preserve"><value>Gast</value></data>
   <data name="Role_member" xml:space="preserve"><value>Mitglied</value></data>
   <data name="RowsPerPage" xml:space="preserve"><value>Zeilen je Seite</value></data>
@@ -282,10 +298,14 @@
   <data name="TaskError_forbidden" xml:space="preserve"><value>Dafür fehlt die Berechtigung.</value></data>
   <data name="TaskError_not-found" xml:space="preserve"><value>Diesen Vorgang gibt es nicht oder du darfst ihn nicht sehen.</value></data>
   <data name="TaskError_outcome-required" xml:space="preserve"><value>Bitte ein Ergebnis wählen.</value></data>
+  <data name="TaskError_postpone-invalid" xml:space="preserve"><value>Bitte ein Datum in den nächsten 30 Tagen wählen.</value></data>
+  <data name="TaskError_reason-required" xml:space="preserve"><value>Bitte eine Begründung angeben.</value></data>
   <data name="TaskError_responsible-invalid" xml:space="preserve"><value>Zuständig kann nur eine Person mit Konto sein.</value></data>
   <data name="TaskError_state-invalid" xml:space="preserve"><value>Diesen Status gibt es nicht.</value></data>
   <data name="TaskError_title-required" xml:space="preserve"><value>Bitte beschreiben, was zu tun ist.</value></data>
   <data name="TaskError_wait-until-required" xml:space="preserve"><value>„Wartet auf Dritte“ braucht ein Datum in der Zukunft, sonst wird der Vorgang vergessen.</value></data>
+  <data name="TaskEscalation_2" xml:space="preserve"><value>seit 7 Tagen fällig</value></data>
+  <data name="TaskEscalation_3" xml:space="preserve"><value>seit 14 Tagen fällig, Haushalt informiert</value></data>
   <data name="TaskImportant" xml:space="preserve"><value>Wichtig</value></data>
   <data name="TaskKind" xml:space="preserve"><value>Art</value></data>
   <data name="TaskKind_cleanup" xml:space="preserve"><value>Aufräumen</value></data>
@@ -304,6 +324,11 @@
   <data name="TaskOutcome_replaced" xml:space="preserve"><value>ersetzt</value></data>
   <data name="TaskOutcome_unchanged" xml:space="preserve"><value>geprüft, unverändert</value></data>
   <data name="TaskOverdue" xml:space="preserve"><value>überfällig</value></data>
+  <data name="TaskPostpone" xml:space="preserve"><value>Zurückstellen</value></data>
+  <data name="TaskPostponeHelp" xml:space="preserve"><value>Höchstens {0} Tage, mit Begründung. Die Begründung steht in den Kommentaren.</value></data>
+  <data name="TaskPostponeReason" xml:space="preserve"><value>Warum?</value></data>
+  <data name="TaskPostponeUntil" xml:space="preserve"><value>Neu fällig am</value></data>
+  <data name="TaskPostponedCount" xml:space="preserve"><value>{0}× zurückgestellt</value></data>
   <data name="TaskReopen" xml:space="preserve"><value>Wieder öffnen</value></data>
   <data name="TaskStart" xml:space="preserve"><value>In Arbeit</value></data>
   <data name="TaskStateLabel" xml:space="preserve"><value>Status</value></data>
@@ -314,11 +339,14 @@
   <data name="TaskState_waiting" xml:space="preserve"><value>wartet auf Dritte</value></data>
   <data name="TaskTitle" xml:space="preserve"><value>Was ist zu tun?</value></data>
   <data name="TaskTitle_cancellation-confirmation" xml:space="preserve"><value>Kündigungsbestätigung ablegen</value></data>
+  <data name="TaskTitle_cancellation-deadline" xml:space="preserve"><value>Kündigen oder verlängern?</value></data>
   <data name="TaskTitle_check-related-contracts" xml:space="preserve"><value>Zugehörige Verträge prüfen</value></data>
   <data name="TaskTitle_create-replacement" xml:space="preserve"><value>Ersatz anlegen</value></data>
   <data name="TaskTitle_direct-debit" xml:space="preserve"><value>Lastschrift prüfen</value></data>
   <data name="TaskTitle_final-invoice" xml:space="preserve"><value>Letzte Abrechnung prüfen</value></data>
+  <data name="TaskTitle_loan-end" xml:space="preserve"><value>Kredit läuft aus: Anschluss klären</value></data>
   <data name="TaskTitle_renew-or-replace" xml:space="preserve"><value>Verlängern oder ersetzen?</value></data>
+  <data name="TaskTitle_review" xml:space="preserve"><value>Prüfen, ob alles noch stimmt</value></data>
   <data name="TaskWait" xml:space="preserve"><value>Wartet auf Dritte</value></data>
   <data name="TaskWaitUntil" xml:space="preserve"><value>Wieder vorlegen am</value></data>
   <data name="TaskWaitUntilShort" xml:space="preserve"><value>bis {0}</value></data>

@@ -42,6 +42,11 @@ public sealed class WorkTask
 
     public Guid? ClosedBy { get; set; }
 
+    /// <summary>Stufe der Eskalation (14): 1 fällig, 2 nach 7 Tagen, 3 nach 14 Tagen an den Haushalt.</summary>
+    public int EscalationLevel { get; set; }
+
+    public int PostponedCount { get; set; }
+
     public uint Version { get; set; }
 }
 

@@ -56,6 +56,8 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 **M2.1 Lebenszyklus, Vorgänge, Kommentare ✅ (27.11.2026, lokal):** drei Muster mit Folgevorgängen, Archiv, Vorgänge mit Status und Ergebnis, Seite „Vorgänge“, Kommentare (116–120). 107 Tests grün.
 
+**M2.2 Wiedervorlage ✅ (27.11.2026, lokal):** Prüfregeln je Typ und je Eintrag, Fristen aus Hauptfälligkeit und Kündigungsfrist, Ablauf von Ausweisen und Karten, Eskalation in drei Stufen mit „überfällig“, Ergebnis als Pflicht, Zurückstellen mit Obergrenze (121–125). 126 Tests grün.
+
 1. Lebenszyklus mit drei Mustern und Folgevorgängen
 2. Vorgänge (alle Arten, manuell und automatisch), Kommentare
 3. Prüfregeln aus dem Katalog und je Objekt, `ReviewService`, Eskalation, „überfällig“

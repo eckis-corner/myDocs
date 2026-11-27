@@ -37,6 +37,18 @@ public sealed class DocObject
     /// <summary>Nachfolger bei „ersetzt durch …“ (10).</summary>
     public Guid? ReplacedById { get; set; }
 
+    /// <summary>Eigenes Prüfintervall in Monaten (13); null heißt Regel des Typs, 0 keine regelmäßige Prüfung.</summary>
+    public int? ReviewIntervalMonths { get; set; }
+
+    /// <summary>Fester nächster Prüftermin; null heißt aus der letzten Prüfung und dem Intervall berechnet.</summary>
+    public DateOnly? NextReviewOn { get; set; }
+
+    /// <summary>Zuletzt geprüft: gesetzt beim Abschluss einer Prüfung mit Ergebnis (15).</summary>
+    public DateOnly? LastReviewedOn { get; set; }
+
+    /// <summary>Überfällig seit (14): eine Prüfung ist 14 Tage nach Fälligkeit noch offen. Geht mit nach myLife.</summary>
+    public DateOnly? OverdueSince { get; set; }
+
     public DateTimeOffset CreatedAt { get; set; }
 
     public Guid CreatedBy { get; set; }

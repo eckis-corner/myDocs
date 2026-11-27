@@ -20,6 +20,7 @@ internal static class TaskEndpoints
         group.MapPost("/", CreateAsync);
         group.MapPut("/{id:guid}", UpdateAsync);
         group.MapPost("/{id:guid}/state", StateAsync);
+        group.MapPost("/{id:guid}/postpone", PostponeAsync);
         group.MapGet("/{id:guid}/comments", (Guid id, ClaimsPrincipal principal, ObjectAccess access, TaskAccess tasks, MyDocsDbContext db, CancellationToken ct) =>
             TaskCommentsAsync(id, principal, access, tasks, db, ct));
         group.MapPost("/{id:guid}/comments", AddTaskCommentAsync);
@@ -202,6 +203,22 @@ internal static class TaskEndpoints
             task.ClosedAt = time.GetUtcNow();
             task.ClosedBy = caller.UserId;
             var linked = await db.TaskObjects.Where(l => l.TaskId == id).Select(l => l.ObjectId).ToListAsync(ct);
+            if (request.State == TaskStates.Done && TaskKinds.NeedOutcome.Contains(task.Kind))
+            {
+                // Abschluss mit Ergebnis (15): zuletzt geprüft heute, „überfällig“ entfällt, die nächste Prüfung ergibt sich aus dem Intervall.
+                foreach (var item in await db.Objects.Where(o => linked.Contains(o.Id)).ToListAsync(ct))
+                {
+                    item.LastReviewedOn = today;
+                    item.OverdueSince = null;
+                    if (task.Kind == TaskKinds.Review)
+                    {
+                        item.NextReviewOn = null;
+                    }
+
+                    db.ObjectHistory.Add(new ObjectHistoryEntry { ObjectId = item.Id, At = time.GetUtcNow(), ActorId = caller.UserId, Field = "reviewed", NewValue = request.Outcome });
+                }
+            }
+
             audit.Add(AuditActions.TaskClosed, caller.UserId, await OwnerAsync(db, linked, ct), linked.Count > 0 ? linked[0] : null, title: task.Title,
                 details: string.Join(", ", new[] { request.State, task.Outcome }.Where(v => v is not null)));
         }
@@ -213,6 +230,59 @@ internal static class TaskEndpoints
             task.ClosedBy = null;
         }
 
+        try
+        {
+            await db.SaveChangesAsync(ct);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            return ApiProblems.Of(TaskErrors.Conflict, StatusCodes.Status409Conflict);
+        }
+
+        return TypedResults.Ok((await ToDtosAsync([task], caller, tasks, db, ct))[0]);
+    }
+
+    /// <summary>
+    /// Zurückstellen (16): nur mit neuem Datum höchstens 30 Tage voraus und mit Begründung. Die Begründung steht als
+    /// Kommentar am Vorgang, die Zahl der Rückstellungen am Vorgang selbst; die Eskalation beginnt neu.
+    /// </summary>
+    private static async Task<IResult> PostponeAsync(Guid id, TaskPostponeRequest request, ClaimsPrincipal principal, ObjectAccess access, TaskAccess tasks,
+        MyDocsDbContext db, TimeProvider time, CancellationToken ct)
+    {
+        var caller = await access.CallerAsync(principal, ct);
+        if (await tasks.Visible(caller).FirstOrDefaultAsync(t => t.Id == id, ct) is not { } task || TaskStates.Closed.Contains(task.State))
+        {
+            return NotFound();
+        }
+
+        if (!await tasks.CanEditAsync(caller, task, ct))
+        {
+            return Forbidden();
+        }
+
+        var today = DateOnly.FromDateTime(time.GetUtcNow().UtcDateTime);
+        if (request.Until <= today || request.Until > today.AddDays(MyDocs.Shared.Objects.ReviewRules.MaxPostponeDays))
+        {
+            return ApiProblems.Of(TaskErrors.PostponeInvalid);
+        }
+
+        if (string.IsNullOrWhiteSpace(request.Reason))
+        {
+            return ApiProblems.Of(TaskErrors.ReasonRequired);
+        }
+
+        db.Entry(task).Property(t => t.Version).OriginalValue = request.Version;
+        task.DueOn = request.Until;
+        task.EscalationLevel = 0;
+        task.PostponedCount++;
+        db.Comments.Add(new Comment
+        {
+            Id = Guid.CreateVersion7(),
+            TaskId = id,
+            AuthorId = caller.UserId,
+            At = time.GetUtcNow(),
+            Text = $"Zurückgestellt bis {request.Until:dd.MM.yyyy}: {request.Reason.Trim()[..Math.Min(request.Reason.Trim().Length, 1000)]}",
+        });
         try
         {
             await db.SaveChangesAsync(ct);
@@ -387,6 +457,8 @@ internal static class TaskEndpoints
                 names.GetValueOrDefault(t.CreatedBy) ?? "myDocs", t.ClosedAt, t.ClosedBy is { } closer ? names.GetValueOrDefault(closer) : null, t.Version)
             {
                 TitleKey = t.TitleKey,
+                EscalationLevel = t.EscalationLevel,
+                PostponedCount = t.PostponedCount,
             });
         }
 

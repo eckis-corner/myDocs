@@ -20,6 +20,14 @@
                     {
                         <MudText Typo="Typo.caption">@L[$"TaskOutcome_{outcome}"]</MudText>
                     }
+                    @if (_task.EscalationLevel >= 2 && !TaskStates.Closed.Contains(_task.State))
+                    {
+                        <MudChip T="string" Size="Size.Small" Color="Color.Error" Variant="Variant.Outlined">@L[$"TaskEscalation_{_task.EscalationLevel}"]</MudChip>
+                    }
+                    @if (_task.PostponedCount > 0)
+                    {
+                        <MudText Typo="Typo.caption" Class="mydocs-muted">@L["TaskPostponedCount", _task.PostponedCount]</MudText>
+                    }
                 </MudStack>
             }
             <MudTextField T="string" @bind-Value="_title" Label="@L["TaskTitle"]" Variant="Variant.Outlined" Required MaxLength="200" ReadOnly="!CanEdit"
@@ -76,6 +84,22 @@
                         </MudStack>
                     </MudStack>
                 }
+                else if (_postponing)
+                {
+                    <MudStack Spacing="2" data-testid="task-postponing">
+                        <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
+                            <MudDatePicker Label="@L["TaskPostponeUntil"]" @bind-Date="_postponeUntil" Variant="Variant.Outlined" Editable
+                                           MinDate="DateTime.Today.AddDays(1)" MaxDate="DateTime.Today.AddDays(MyDocs.Shared.Objects.ReviewRules.MaxPostponeDays)" />
+                            <MudTextField T="string" @bind-Value="_postponeReason" Label="@L["TaskPostponeReason"]" Variant="Variant.Outlined" Class="flex-grow-1"
+                                          UserAttributes="@(new() { ["data-testid"] = "task-postpone-reason" })" />
+                        </MudStack>
+                        <MudText Typo="Typo.caption" Class="mydocs-muted">@L["TaskPostponeHelp", MyDocs.Shared.Objects.ReviewRules.MaxPostponeDays]</MudText>
+                        <MudStack Row Spacing="2">
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Disabled="@(_postponeUntil is null || string.IsNullOrWhiteSpace(_postponeReason))" OnClick="PostponeAsync">@L["Save"]</MudButton>
+                            <MudButton Variant="Variant.Text" OnClick="() => _postponing = false">@L["Cancel"]</MudButton>
+                        </MudStack>
+                    </MudStack>
+                }
                 else if (_waiting)
                 {
                     <MudStack Row AlignItems="AlignItems.Center" Spacing="2">
@@ -99,6 +123,10 @@
                                 <MudButton Variant="Variant.Outlined" OnClick="() => StateAsync(TaskStates.InProgress)">@L["TaskStart"]</MudButton>
                             }
                             <MudButton Variant="Variant.Outlined" OnClick="() => _waiting = true">@L["TaskWait"]</MudButton>
+                            @if (_task.DueOn is not null)
+                            {
+                                <MudButton Variant="Variant.Outlined" OnClick="() => _postponing = true" data-testid="task-postpone">@L["TaskPostpone"]</MudButton>
+                            }
                             <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="() => StateAsync(TaskStates.Discarded)">@L["TaskDiscard"]</MudButton>
                         }
                     </MudStack>
@@ -131,6 +159,9 @@
     private bool _high;
     private bool _closing;
     private bool _waiting;
+    private bool _postponing;
+    private DateTime? _postponeUntil;
+    private string? _postponeReason;
     private DateTime? _waitUntil;
     private string? _outcome;
     private string? _outcomeNote;
@@ -177,7 +208,8 @@
         _responsible = task.ResponsiblePersonId;
         _due = task.DueOn?.ToDateTime(TimeOnly.MinValue);
         _high = task.Priority == TaskPriorities.High;
-        _closing = _waiting = false;
+        _closing = _waiting = _postponing = false;
+        _postponeReason = null;
         _outcome = null;
         _outcomeNote = null;
     }
@@ -206,6 +238,21 @@
             var updated = await Tasks.SetStateAsync(_task!.Id, new TaskStateRequest(state, _waitUntil is { } w ? DateOnly.FromDateTime(w) : null, _outcome, _outcomeNote, _task.Version));
             _changed = true;
             Show(updated);
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"TaskError_{exception.Code}"], Severity.Error);
+        }
+    }
+
+    private async Task PostponeAsync()
+    {
+        try
+        {
+            var updated = await Tasks.PostponeAsync(_task!.Id, new TaskPostponeRequest(DateOnly.FromDateTime(_postponeUntil!.Value), _postponeReason!, _task.Version));
+            _changed = true;
+            Show(updated);
+            _comments = await Tasks.TaskCommentsAsync(updated.Id);
         }
         catch (ApiException exception)
         {

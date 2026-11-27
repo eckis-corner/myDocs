@@ -51,7 +51,17 @@ else
                 <MudTh><MudTableSortLabel T="ObjectSummaryDto" SortBy="o => o.ExpiresOn ?? DateOnly.MaxValue">@L["Expiry_default"]</MudTableSortLabel></MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd DataLabel="@L["ObjectTitle"]"><MudLink Href="@($"object/{context.Id}")">@context.Title</MudLink></MudTd>
+                <MudTd DataLabel="@L["ObjectTitle"]">
+                    <MudLink Href="@($"object/{context.Id}")">@context.Title</MudLink>
+                    @if (context.OverdueSince is not null)
+                    {
+                        <MudChip T="string" Size="Size.Small" Color="Color.Error" Variant="Variant.Outlined" Class="ml-1">@L["TaskOverdue"]</MudChip>
+                    }
+                    @if (context.LifecycleState is { } state && state != LifecycleStates.Active && state != LifecycleStates.Valid && state != LifecycleStates.Present)
+                    {
+                        <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Class="ml-1">@L[$"Lifecycle_{state}"]</MudChip>
+                    }
+                </MudTd>
                 <MudTd DataLabel="@L["ObjectType"]">@Catalog.Type(context.TypeKey)</MudTd>
                 <MudTd DataLabel="@L["ObjectSummary"]" Class="mydocs-muted">@Summary(context)</MudTd>
                 <MudTd DataLabel="@L["ObjectOwner"]">@(context.OwnerPersonId is null ? L["OwnerHousehold"] : Directory.PersonName(context.OwnerPersonId))</MudTd>

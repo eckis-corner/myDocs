@@ -242,6 +242,22 @@
   <data name="RecoveryCodesTitle" xml:space="preserve"><value>Recovery codes</value></data>
   <data name="Reload" xml:space="preserve"><value>Reload</value></data>
   <data name="Restore" xml:space="preserve"><value>Restore</value></data>
+  <data name="ReviewCreated" xml:space="preserve"><value>The review task is listed under tasks.</value></data>
+  <data name="ReviewDeadline_cancellation-deadline" xml:space="preserve"><value>Last cancellation date</value></data>
+  <data name="ReviewDeadline_loan-end" xml:space="preserve"><value>Loan ends</value></data>
+  <data name="ReviewEvery" xml:space="preserve"><value>every {0} months</value></data>
+  <data name="ReviewFixedDate" xml:space="preserve"><value>Next review fixed on</value></data>
+  <data name="ReviewIntervalHelp" xml:space="preserve"><value>Empty: rule of the type. 0: no regular review.</value></data>
+  <data name="ReviewIntervalMonths" xml:space="preserve"><value>Review every … months</value></data>
+  <data name="ReviewLast" xml:space="preserve"><value>Last reviewed</value></data>
+  <data name="ReviewNever" xml:space="preserve"><value>never</value></data>
+  <data name="ReviewNext" xml:space="preserve"><value>Next review</value></data>
+  <data name="ReviewNone" xml:space="preserve"><value>no regular review</value></data>
+  <data name="ReviewNow" xml:space="preserve"><value>Review now</value></data>
+  <data name="ReviewOverdueSince" xml:space="preserve"><value>overdue since {0}</value></data>
+  <data name="ReviewOwnRule" xml:space="preserve"><value>own rule</value></data>
+  <data name="ReviewRule" xml:space="preserve"><value>Own rule</value></data>
+  <data name="ReviewTitle" xml:space="preserve"><value>Review</value></data>
   <data name="Role_guest" xml:space="preserve"><value>Guest</value></data>
   <data name="Role_member" xml:space="preserve"><value>Member</value></data>
   <data name="RowsPerPage" xml:space="preserve"><value>Rows per page</value></data>
@@ -282,10 +298,14 @@
   <data name="TaskError_forbidden" xml:space="preserve"><value>You do not have permission for this.</value></data>
   <data name="TaskError_not-found" xml:space="preserve"><value>This task does not exist or you may not see it.</value></data>
   <data name="TaskError_outcome-required" xml:space="preserve"><value>Please choose an outcome.</value></data>
+  <data name="TaskError_postpone-invalid" xml:space="preserve"><value>Please choose a date within the next 30 days.</value></data>
+  <data name="TaskError_reason-required" xml:space="preserve"><value>Please give a reason.</value></data>
   <data name="TaskError_responsible-invalid" xml:space="preserve"><value>Only a person with an account can be responsible.</value></data>
   <data name="TaskError_state-invalid" xml:space="preserve"><value>This status does not exist.</value></data>
   <data name="TaskError_title-required" xml:space="preserve"><value>Please describe what needs doing.</value></data>
   <data name="TaskError_wait-until-required" xml:space="preserve"><value>“Waiting for others” needs a future date, otherwise the task is forgotten.</value></data>
+  <data name="TaskEscalation_2" xml:space="preserve"><value>due for 7 days</value></data>
+  <data name="TaskEscalation_3" xml:space="preserve"><value>due for 14 days, household informed</value></data>
   <data name="TaskImportant" xml:space="preserve"><value>Important</value></data>
   <data name="TaskKind" xml:space="preserve"><value>Kind</value></data>
   <data name="TaskKind_cleanup" xml:space="preserve"><value>Clean-up</value></data>
@@ -304,6 +324,11 @@
   <data name="TaskOutcome_replaced" xml:space="preserve"><value>replaced</value></data>
   <data name="TaskOutcome_unchanged" xml:space="preserve"><value>checked, unchanged</value></data>
   <data name="TaskOverdue" xml:space="preserve"><value>overdue</value></data>
+  <data name="TaskPostpone" xml:space="preserve"><value>Postpone</value></data>
+  <data name="TaskPostponeHelp" xml:space="preserve"><value>At most {0} days, with a reason. The reason is kept in the comments.</value></data>
+  <data name="TaskPostponeReason" xml:space="preserve"><value>Why?</value></data>
+  <data name="TaskPostponeUntil" xml:space="preserve"><value>Due again on</value></data>
+  <data name="TaskPostponedCount" xml:space="preserve"><value>postponed {0}×</value></data>
   <data name="TaskReopen" xml:space="preserve"><value>Reopen</value></data>
   <data name="TaskStart" xml:space="preserve"><value>Start</value></data>
   <data name="TaskStateLabel" xml:space="preserve"><value>Status</value></data>
@@ -314,11 +339,14 @@
   <data name="TaskState_waiting" xml:space="preserve"><value>waiting for others</value></data>
   <data name="TaskTitle" xml:space="preserve"><value>What needs doing?</value></data>
   <data name="TaskTitle_cancellation-confirmation" xml:space="preserve"><value>File the cancellation confirmation</value></data>
+  <data name="TaskTitle_cancellation-deadline" xml:space="preserve"><value>Cancel or renew?</value></data>
   <data name="TaskTitle_check-related-contracts" xml:space="preserve"><value>Check related contracts</value></data>
   <data name="TaskTitle_create-replacement" xml:space="preserve"><value>Create a replacement</value></data>
   <data name="TaskTitle_direct-debit" xml:space="preserve"><value>Check the direct debit</value></data>
   <data name="TaskTitle_final-invoice" xml:space="preserve"><value>Check the final invoice</value></data>
+  <data name="TaskTitle_loan-end" xml:space="preserve"><value>Loan ends: arrange what comes next</value></data>
   <data name="TaskTitle_renew-or-replace" xml:space="preserve"><value>Renew or replace?</value></data>
+  <data name="TaskTitle_review" xml:space="preserve"><value>Check whether everything is still correct</value></data>
   <data name="TaskWait" xml:space="preserve"><value>Waiting for others</value></data>
   <data name="TaskWaitUntil" xml:space="preserve"><value>Follow up on</value></data>
   <data name="TaskWaitUntilShort" xml:space="preserve"><value>until {0}</value></data>

@@ -224,11 +224,20 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 119 | Folgevorgänge | gekündigt → „Kündigungsbestätigung ablegen“ (14 Tage); beendet → „Letzte Abrechnung prüfen“ und „Lastschrift prüfen“ (30 Tage); läuft ab → Frist „Verlängern oder ersetzen?“; abgelaufen → „Ersatz anlegen“ (7 Tage); abgegeben → „Zugehörige Verträge prüfen“ mit allen Einträgen, die per Verweisfeld hierher zeigen. Zuständig ist die zuständige Person des Eintrags. Ein noch offener Vorgang derselben Regel am selben Eintrag wird nicht verdoppelt. Titel automatischer Vorgänge erscheinen in der Sprache des Lesers. |
 | 120 | Vorgänge und Kommentare | Vorgang mit Art, Titel, Notiz, Zuständigkeit (Person mit Konto), Fälligkeit, Priorität, Status und Einträgen (0..n). Sichtbar ist ein Vorgang nur, wenn **alle** seine Einträge sichtbar sind; ohne Eintrag gehört er dem Haushalt. Ändern darf, wer einen seiner Einträge bearbeiten darf, bzw. Mitglieder. „Wartet auf Dritte“ nur mit Datum in der Zukunft; Prüfung und Frist nur mit Ergebnis erledigt; Erledigtes lässt sich wieder öffnen. Seite „Vorgänge“ mit „Meine“/„Haushalt“, Abschnitt „Vorgänge“ und „Kommentare“ auf der Objektseite. Eigene Kommentare lassen sich löschen. |
 
+## Runde 13 (27.11.2026, M2.2 Wiedervorlage)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 121 | Prüfintervalle | Vorschlag aus objekttypen.md übernommen: Versicherung 12 Monate, Vertrag/Abo 6, Kredit 12, Bankkonto und Depot 12, Urkunde 24; alle anderen Typen ohne regelmäßige Prüfung. Gerechnet ab der letzten Prüfung, sonst ab dem Anlegen. Je Eintrag eigenes Intervall (0 = keine Prüfung) und fester nächster Termin. Knopf „Jetzt prüfen“. |
+| 122 | Fristen aus Feldern | Versicherung: Hauptfälligkeit minus Kündigungsfrist, Vorgang 6 Wochen vorher. Vertrag: Ablaufdatum minus Kündigungsfrist, 4 Wochen vorher. Kredit: Ablaufdatum, 6 Monate vorher. Hauptfälligkeit und Kündigungsfrist sind im Katalog Freitext; gelesen werden „01.01.“, „1.1.2027“, „1. Januar“, ISO-Datum und „3 Monate“, „6 Wochen“, „30 Tage“ (auch Englisch). Was sich nicht lesen lässt, ergibt keine Frist. Eine Frist erzeugt je Termin genau einen Vorgang. |
+| 123 | Ablauf | Einträge mit dem Muster „Gültigkeit“ wechseln 3 Monate vor dem Ablaufdatum auf *läuft ab*, am Ablaufdatum auf *abgelaufen*, jeweils mit Folgevorgang und Eintrag in der Historie. |
+| 124 | Eskalation | Der Dienst läuft alle 15 Minuten und ist idempotent. Stufe 1 am Fälligkeitstag, 2 nach 7 Tagen, 3 nach 14 Tagen; eine Prüfung in Stufe 3 setzt „überfällig seit“ am Eintrag. Die Benachrichtigung zu den Stufen kommt mit M2.4. „Wartet auf Dritte“ kommt am Datum wieder, mit Kommentar. |
+| 125 | Abschluss und Zurückstellen | Prüfung und Frist schließen nur mit Ergebnis; das setzt „zuletzt geprüft“, löscht „überfällig“ und (bei Prüfungen) einen festen Termin. Zurückstellen bis höchstens 30 Tage voraus und nur mit Begründung, die als Kommentar am Vorgang steht; die Eskalation beginnt neu, die Zahl der Rückstellungen bleibt sichtbar. |
+
 ## Offen
 
 | Thema | Was fehlt |
 | --- | --- |
 | Zusatztypen (7) | Felder, Bereich und Lebenszyklus-Muster je Typ |
-| Prüfregeln (13) | Standard-Prüfintervall je Typ, Vorlauf bei Fristen |
 | Aufbewahrung (28) | Dauer und Bezugspunkt je Dokumentart |
 | Posteingang (20) | Wert für „X Tage“, bis ein Eintrag fällig wird |

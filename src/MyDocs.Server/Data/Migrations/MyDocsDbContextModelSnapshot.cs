@@ -474,6 +474,10 @@ namespace MyDocs.Server.Data.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
 
+                    b.Property<DateOnly?>("LastReviewedOn")
+                        .HasColumnType("date")
+                        .HasColumnName("last_reviewed_on");
+
                     b.Property<DateOnly?>("LifecycleDate")
                         .HasColumnType("date")
                         .HasColumnName("lifecycle_date");
@@ -488,9 +492,17 @@ namespace MyDocs.Server.Data.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("locations");
 
+                    b.Property<DateOnly?>("NextReviewOn")
+                        .HasColumnType("date")
+                        .HasColumnName("next_review_on");
+
                     b.Property<string>("Notes")
                         .HasColumnType("text")
                         .HasColumnName("notes");
+
+                    b.Property<DateOnly?>("OverdueSince")
+                        .HasColumnType("date")
+                        .HasColumnName("overdue_since");
 
                     b.Property<Guid?>("OwnerPersonId")
                         .HasColumnType("uuid")
@@ -503,6 +515,10 @@ namespace MyDocs.Server.Data.Migrations
                     b.Property<Guid?>("ResponsiblePersonId")
                         .HasColumnType("uuid")
                         .HasColumnName("responsible_person_id");
+
+                    b.Property<int?>("ReviewIntervalMonths")
+                        .HasColumnType("integer")
+                        .HasColumnName("review_interval_months");
 
                     b.Property<int>("SchemaVersion")
                         .HasColumnType("integer")
@@ -941,6 +957,10 @@ namespace MyDocs.Server.Data.Migrations
                         .HasColumnType("date")
                         .HasColumnName("due_on");
 
+                    b.Property<int>("EscalationLevel")
+                        .HasColumnType("integer")
+                        .HasColumnName("escalation_level");
+
                     b.Property<string>("Kind")
                         .IsRequired()
                         .HasMaxLength(30)
@@ -961,6 +981,10 @@ namespace MyDocs.Server.Data.Migrations
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)")
                         .HasColumnName("outcome_note");
+
+                    b.Property<int>("PostponedCount")
+                        .HasColumnType("integer")
+                        .HasColumnName("postponed_count");
 
                     b.Property<string>("Priority")
                         .IsRequired()

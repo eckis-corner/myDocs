@@ -22,6 +22,11 @@
         <MudProgressLinear Indeterminate Color="Color.Primary" Class="mb-2" />
     }
 
+    @if (CanEdit)
+    {
+        <FileDropZone OnChange="UploadAsync" Disabled="_busy" TestId="document-drop" />
+    }
+
     @if (_documents is null)
     {
         <MudProgressLinear Indeterminate Color="Color.Primary" />

@@ -148,6 +148,7 @@
   <data name="DesktopConnect" xml:space="preserve"><value>Connect to myDocs</value></data>
   <data name="DesktopConnectText" xml:space="preserve"><value>Enter the address of your myDocs instance. You sign in in the browser with password and second factor and then allow this device.</value></data>
   <data name="DesktopNoticeConflict" xml:space="preserve"><value>Someone changed the document in the meantime. Your version is kept next to it as a conflict document.</value></data>
+  <data name="DesktopNoticeInbox" xml:space="preserve"><value>In the inbox</value></data>
   <data name="DesktopNoticeOffline" xml:space="preserve"><value>No connection: the change will be uploaded once myDocs is reachable again.</value></data>
   <data name="DesktopNoticeUploaded" xml:space="preserve"><value>Saved: new version uploaded.</value></data>
   <data name="DesktopOffline" xml:space="preserve"><value>No connection</value></data>
@@ -221,6 +222,7 @@
   <data name="DocumentProcessingFailed" xml:space="preserve"><value>Text recognition and preview failed</value></data>
   <data name="DocumentReleaseLock" xml:space="preserve"><value>Release lock</value></data>
   <data name="DocumentSource_camera" xml:space="preserve"><value>Camera</value></data>
+  <data name="DocumentSource_desktop" xml:space="preserve"><value>Desktop</value></data>
   <data name="DocumentSource_mail" xml:space="preserve"><value>Email</value></data>
   <data name="DocumentSource_scan" xml:space="preserve"><value>Scanner</value></data>
   <data name="DocumentSource_upload" xml:space="preserve"><value>Uploaded</value></data>
@@ -232,6 +234,7 @@
   <data name="DocumentsEmpty" xml:space="preserve"><value>No documents yet. Upload policies, contracts, letters or photos, up to {0} MB each.</value></data>
   <data name="DocumentsTitle" xml:space="preserve"><value>Documents</value></data>
   <data name="Download" xml:space="preserve"><value>Download</value></data>
+  <data name="DropZone" xml:space="preserve"><value>Drag files here or click</value></data>
   <data name="Edit" xml:space="preserve"><value>Edit</value></data>
   <data name="Email" xml:space="preserve"><value>Email address</value></data>
   <data name="ErrorUnhandled" xml:space="preserve"><value>An unexpected error has occurred.</value></data>
@@ -267,6 +270,10 @@
   <data name="InboxEmpty" xml:space="preserve"><value>The inbox is empty.</value></data>
   <data name="InboxEntries" xml:space="preserve"><value>Entries</value></data>
   <data name="InboxEntriesHelp" xml:space="preserve"><value>At least one entry the document belongs to.</value></data>
+  <data name="InboxFolderActive" xml:space="preserve"><value>Inbox folder: {0}. Uploaded files move to the subfolder “hochgeladen”.</value></data>
+  <data name="InboxFolderChoose" xml:space="preserve"><value>Choose folder</value></data>
+  <data name="InboxFolderNone" xml:space="preserve"><value>No inbox folder on this computer. Files in a chosen folder go to your inbox by themselves.</value></data>
+  <data name="InboxFolderOff" xml:space="preserve"><value>Turn off</value></data>
   <data name="InboxForHousehold" xml:space="preserve"><value>Into the household inbox</value></data>
   <data name="InboxHousehold" xml:space="preserve"><value>Household</value></data>
   <data name="InboxIntro" xml:space="preserve"><value>Whatever arrives by camera, scanner or email waits here until it is assigned to an entry. After {0} days the inbox becomes due.</value></data>

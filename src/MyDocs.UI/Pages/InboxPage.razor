@@ -27,6 +27,26 @@
         }
     </MudStack>
     <MudText Typo="Typo.body2" Class="mydocs-muted">@L["InboxIntro", ReviewRules.InboxDueDays]</MudText>
+    @if (!_discarded)
+    {
+        <FileDropZone OnChange="UploadAsync" Disabled="_busy" TestId="inbox-drop" />
+    }
+    @if (Desktop is { } desktop && !_discarded)
+    {
+        <MudPaper Class="pa-3" Outlined data-testid="inbox-folder">
+            <MudStack Row AlignItems="AlignItems.Center" Wrap="Wrap.Wrap" Spacing="2">
+                <MudIcon Icon="@Icons.Material.Outlined.FolderOpen" />
+                <MudText Typo="Typo.body2" Class="flex-grow-1">
+                    @(desktop.InboxFolder is { } folder ? L["InboxFolderActive", folder] : L["InboxFolderNone"])
+                </MudText>
+                <MudButton Size="Size.Small" Variant="Variant.Outlined" OnClick="ChooseFolderAsync">@L["InboxFolderChoose"]</MudButton>
+                @if (desktop.InboxFolder is not null)
+                {
+                    <MudButton Size="Size.Small" OnClick="() => desktop.ClearInboxFolder()">@L["InboxFolderOff"]</MudButton>
+                }
+            </MudStack>
+        </MudPaper>
+    }
     @if (_busy)
     {
         <MudProgressLinear Indeterminate Color="Color.Primary" />
@@ -198,6 +218,18 @@
 
     [SupplyParameterFromQuery(Name = "document")] public Guid? DocumentId { get; set; }
 
+    [Inject] private IServiceProvider Services { get; set; } = default!;
+
+    private IDesktopPlatform? Desktop => Services.GetService<IDesktopPlatform>();
+
+    private async Task ChooseFolderAsync()
+    {
+        if (Desktop is { } desktop)
+        {
+            await desktop.ChooseInboxFolderAsync();
+        }
+    }
+
     protected override async Task OnInitializedAsync()
     {
         await LoadAsync();
@@ -368,6 +400,7 @@
         DocumentSources.Camera => Icons.Material.Outlined.PhotoCamera,
         DocumentSources.Scan => Icons.Material.Outlined.Scanner,
         DocumentSources.Mail => Icons.Material.Outlined.Email,
+        DocumentSources.Desktop => Icons.Material.Outlined.Computer,
         _ => Icons.Material.Outlined.Description,
     };
 }

@@ -100,6 +100,8 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 **M4.2 Check-out und Check-in ✅ (28.11.2026):** Sperre mit 24 Stunden, Upload bei jedem Speichern, offline vormerken, Konfliktdokument statt Überschreiben, Seite „In Bearbeitung“ (156–158). 217 Tests grün, die Logik mit echten Dateien und File-Watcher gegen den Server.
 
+**M4.3 Eingangsordner, Ablage, Benachrichtigungen ✅ (28.11.2026):** Eingangsordner je Rechner, Ablagefläche für Drag & Drop in Browser und Client, Benachrichtigungen des Systems, Rückfrage beim Schließen statt Tray (159, 160). 224 Tests grün.
+
 1. `MyDocs.Desktop` mit Photino.Blazor und `MyDocs.UI`
 2. Anmeldung mit PKCE und Loopback, Gerätetoken im Schlüsselspeicher, Geräteverwaltung in der Web-App
 3. Check-out/Check-in mit File-Watcher, Sperren, Konfliktversion, offline weiterarbeiten

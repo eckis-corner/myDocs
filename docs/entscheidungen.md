@@ -312,6 +312,13 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 157 | Im Client | Die Datei liegt in einem eigenen Arbeitsordner des Clients (nur für die Person lesbar) und öffnet sich mit der Standard-App. Ein File-Watcher erkennt jede Speicherung (2 Sekunden entprellt, Vergleich per SHA-256, auch beim Speichern über Hilfsdatei und Umbenennen) und lädt sie als neue Version hoch. Ohne Netz bleibt die Änderung vorgemerkt, übersteht einen Neustart und geht alle 30 Sekunden erneut los (38). **Fertig** lädt die letzte Fassung hoch, hebt die Sperre auf und entfernt die lokale Kopie; geht das nicht, weil noch etwas fehlt, bleibt alles, wie es ist. „Änderungen verwerfen“ hebt nur die Sperre auf. Seite **In Bearbeitung** im Client zeigt den Stand je Datei. |
 | 158 | Konflikt | Passt die hochgeladene Fassung nicht zur aktuellen Version (Sperre abgelaufen oder aufgehoben, jemand hat inzwischen hochgeladen), entsteht **keine Überschreibung**: Die Fassung wird ein eigenes Dokument „Titel (Konflikt Name, Datum)“ an denselben Einträgen, mit Hinweis in der Notiz und Sperre für die Person; weitere Speicherungen gehen dorthin. Eine Benachrichtigung des Systems sagt es. Zusammenführen bleibt Handarbeit. |
 
+## Runde 23 (28.11.2026, M4.3 Eingangsordner, Ablage, Benachrichtigungen)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 159 | Eingangsordner | Im Client unter **Posteingang** einen Ordner wählen (Dialog des Systems); er wird alle 10 Sekunden durchgesehen. Fertig geschriebene Dateien (zwei Durchläufe gleich) gehen in den **eigenen** Posteingang (Herkunft „Desktop“) und wandern dann in den Unterordner **„hochgeladen“**, damit nichts verloren geht und nichts doppelt kommt. Ohne Netz bleiben sie liegen; was der Server ablehnt, kommt nach „nicht hochgeladen“. Versteckte Dateien, Office-Sperrdateien (`~$…`) und unfertige Downloads bleiben unberührt. Der Ordner gilt je Rechner. |
+| 160 | Ablage und Tray | Statt eines eigenen Fensters für Drag & Drop eine **Ablagefläche** im Posteingang und an jedem Eintrag, die im Browser und im Client gleich funktioniert. **Kein Tray-Symbol** (abweichend von 36): Photino bietet keins, und eine eigene Lösung je System wäre viel Code für wenig Nutzen. Stattdessen: **Benachrichtigungen des Systems** (neue Version hochgeladen, Konflikt, keine Verbindung, Datei im Posteingang) und beim Schließen mit ausgecheckten Dateien eine **Rückfrage**; Änderungen gehen beim nächsten Start hoch. Läuft der Client nicht, beobachtet auch niemand den Eingangsordner. |
+
 ## Offen
 
 | Thema | Was fehlt |

@@ -87,6 +87,7 @@ public static class DocumentSources
     public const string Camera = "camera";
     public const string Scan = "scan";
     public const string Mail = "mail";
+    public const string Desktop = "desktop";
 }
 
 /// <summary>Ein Dokument im Posteingang (20).</summary>

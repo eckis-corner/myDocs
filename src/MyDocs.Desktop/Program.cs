@@ -52,6 +52,7 @@ internal static class Program
 
         app.MainWindow.SetNotificationsEnabled(true);
         platform.Notify = (title, message) => app.MainWindow.SendNotification(title, message);
+        platform.PickFolder = async () => (await app.MainWindow.ShowOpenFolderAsync("myDocs", null, false)).FirstOrDefault();
         using var background = new CancellationTokenSource();
         _ = Task.Run(() => platform.RunBackgroundAsync(background.Token));
 

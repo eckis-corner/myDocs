@@ -19,13 +19,18 @@ public sealed partial class DesktopPlatform : IDesktopPlatform
     private readonly DesktopPaths paths;
     private readonly CheckoutEngine checkouts;
     private readonly IStringLocalizer<SharedResource> texts;
+    private readonly DesktopSettingsStore settings;
+    private readonly Core.Inbox.InboxFolderWatcher inbox;
 
-    public DesktopPlatform(DeviceSession session, DesktopPaths paths, CheckoutEngine checkouts, IStringLocalizer<SharedResource> texts)
+    public DesktopPlatform(DeviceSession session, DesktopPaths paths, CheckoutEngine checkouts, IStringLocalizer<SharedResource> texts, DesktopSettingsStore settings)
     {
         this.session = session;
         this.paths = paths;
         this.checkouts = checkouts;
         this.texts = texts;
+        this.settings = settings;
+        inbox = new Core.Inbox.InboxFolderWatcher(session.CreateApiClient);
+        inbox.Uploaded += name => Notify?.Invoke(name, texts["DesktopNoticeInbox"]);
         checkouts.Changed += () => CheckoutsChanged?.Invoke();
         checkouts.Notice += notice => Notify?.Invoke(notice.Title, notice.Kind switch
         {
@@ -37,6 +42,24 @@ public sealed partial class DesktopPlatform : IDesktopPlatform
 
     /// <summary>Benachrichtigung des Systems (vom Fenster gesetzt).</summary>
     public Action<string, string>? Notify { get; set; }
+
+    /// <summary>Ordnerauswahl des Systems (vom Fenster gesetzt).</summary>
+    public Func<Task<string?>>? PickFolder { get; set; }
+
+    public string? InboxFolder => settings.Load().InboxFolder;
+
+    public async Task<bool> ChooseInboxFolderAsync()
+    {
+        if (PickFolder is null || await PickFolder() is not { Length: > 0 } folder)
+        {
+            return false;
+        }
+
+        settings.Update(s => s with { InboxFolder = folder });
+        return true;
+    }
+
+    public void ClearInboxFolder() => settings.Update(s => s with { InboxFolder = null });
 
     public IReadOnlyList<CheckoutInfo> Checkouts =>
         [.. checkouts.Entries.OrderBy(e => e.CheckedOutAt).Select(e => new CheckoutInfo(e.DocumentId, e.Title, e.FileName, e.CheckedOutAt, e.Pending, e.Conflict, e.LastError))];
@@ -64,12 +87,15 @@ public sealed partial class DesktopPlatform : IDesktopPlatform
 
     public Task DiscardAsync(Guid documentId) => checkouts.DiscardAsync(documentId, CancellationToken.None);
 
-    /// <summary>Im Hintergrund: Vorgemerktes alle 30 Sekunden nachladen, Sperren alle 10 Minuten verlängern.</summary>
+    /// <summary>
+    /// Im Hintergrund: Eingangsordner alle 10 Sekunden durchsehen, Vorgemerktes alle 30 Sekunden nachladen, Sperren
+    /// alle 10 Minuten verlängern.
+    /// </summary>
     public async Task RunBackgroundAsync(CancellationToken ct)
     {
         await checkouts.ResumeAsync(ct);
         var rounds = 0;
-        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(10));
         while (await timer.WaitForNextTickAsync(ct))
         {
             if (session.State != ConnectionState.Connected)
@@ -77,10 +103,23 @@ public sealed partial class DesktopPlatform : IDesktopPlatform
                 continue;
             }
 
-            await checkouts.SyncAllAsync(ct);
-            if (++rounds % 20 == 0)
+            try
             {
-                await checkouts.RenewAllAsync(ct);
+                await inbox.ScanOnceAsync(InboxFolder, ct);
+                rounds++;
+                if (rounds % 3 == 0)
+                {
+                    await checkouts.SyncAllAsync(ct);
+                }
+
+                if (rounds % 60 == 0)
+                {
+                    await checkouts.RenewAllAsync(ct);
+                }
+            }
+            catch (Exception exception) when (exception is IOException or UnauthorizedAccessException)
+            {
+                // Ordner nicht lesbar (etwa ausgehängtes Laufwerk): beim nächsten Mal.
             }
         }
     }

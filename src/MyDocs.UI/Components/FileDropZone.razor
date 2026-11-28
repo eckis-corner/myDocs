@@ -1,0 +1,28 @@
+@* Ablagefläche (M4.3): Dateien hierher ziehen oder klicken. Gleich im Browser und im Desktop-Client, weil das
+   Dateifeld selbst die Fläche bedeckt. *@
+@inject IStringLocalizer<SharedResource> L
+
+<div class="@($"mydocs-dropzone{(_over ? " mydocs-dropzone-over" : string.Empty)}{(Disabled ? " mydocs-dropzone-disabled" : string.Empty)}")" data-testid="@TestId">
+    <InputFile OnChange="OnChangeAsync" multiple class="mydocs-dropzone-input" disabled="@Disabled" aria-label="@(Text ?? L["DropZone"])"
+               @ondragenter="() => _over = true" @ondragleave="() => _over = false" @ondrop="() => _over = false" />
+    <MudIcon Icon="@Icons.Material.Outlined.FileUpload" Class="mydocs-muted" />
+    <MudText Typo="Typo.body2" Class="mydocs-muted">@(Text ?? L["DropZone"])</MudText>
+</div>
+
+@code {
+    private bool _over;
+
+    [Parameter] public EventCallback<InputFileChangeEventArgs> OnChange { get; set; }
+
+    [Parameter] public string? Text { get; set; }
+
+    [Parameter] public bool Disabled { get; set; }
+
+    [Parameter] public string TestId { get; set; } = "drop-zone";
+
+    private async Task OnChangeAsync(InputFileChangeEventArgs args)
+    {
+        _over = false;
+        await OnChange.InvokeAsync(args);
+    }
+}

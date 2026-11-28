@@ -9,13 +9,24 @@ public sealed class InboxClient(HttpClient http)
     public Task<List<InboxItemDto>> ListAsync(bool discarded = false, CancellationToken ct = default) =>
         http.GetAsync<List<InboxItemDto>>($"api/inbox{(discarded ? "?discarded=true" : string.Empty)}", ct);
 
-    public async Task<InboxItemDto> UploadAsync(Stream content, string fileName, string contentType, bool household, CancellationToken ct = default)
+    public async Task<InboxItemDto> UploadAsync(Stream content, string fileName, string contentType, bool household, string? source = null, CancellationToken ct = default)
     {
         using var form = new MultipartFormDataContent();
         var file = new StreamContent(content);
         file.Headers.ContentType = MediaTypeHeaderValue.TryParse(contentType, out var type) ? type : new MediaTypeHeaderValue("application/octet-stream");
         form.Add(file, "file", fileName);
-        using var message = new HttpRequestMessage(HttpMethod.Post, new Uri($"api/inbox{(household ? "?household=true" : string.Empty)}", UriKind.Relative)) { Content = form };
+        var query = new List<string>();
+        if (household)
+        {
+            query.Add("household=true");
+        }
+
+        if (source is not null)
+        {
+            query.Add($"source={Uri.EscapeDataString(source)}");
+        }
+
+        using var message = new HttpRequestMessage(HttpMethod.Post, new Uri($"api/inbox{(query.Count > 0 ? "?" + string.Join('&', query) : string.Empty)}", UriKind.Relative)) { Content = form };
         using var response = await http.SendAsync(message, ct);
         await ApiException.EnsureSuccessAsync(response, ct);
         return (await System.Net.Http.Json.HttpContentJsonExtensions.ReadFromJsonAsync<InboxItemDto>(response.Content, ct))!;

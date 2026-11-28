@@ -438,6 +438,15 @@ TEXTS: dict[str, tuple[str, str]] = {
     "CheckoutConflict": ("Konfliktdokument", "Conflict document"),
     "CheckoutOpen": ("Öffnen", "Open"),
     "CheckInBlocked": ("Noch nicht alles hochgeladen. Bitte warten, bis myDocs erreichbar ist.", "Not everything is uploaded yet. Please wait until myDocs is reachable."),
+    # Eingangsordner und Ablagefläche (M4.3)
+    "DropZone": ("Dateien hierher ziehen oder klicken", "Drag files here or click"),
+    "InboxFolderNone": ("Kein Eingangsordner auf diesem Rechner. Dateien in einem gewählten Ordner kommen von selbst in deinen Posteingang.",
+                        "No inbox folder on this computer. Files in a chosen folder go to your inbox by themselves."),
+    "InboxFolderActive": ("Eingangsordner: {0}. Hochgeladene Dateien wandern in den Unterordner „hochgeladen“.", "Inbox folder: {0}. Uploaded files move to the subfolder “hochgeladen”."),
+    "InboxFolderChoose": ("Ordner wählen", "Choose folder"),
+    "InboxFolderOff": ("Ausschalten", "Turn off"),
+    "DesktopNoticeInbox": ("Im Posteingang", "In the inbox"),
+    "DocumentSource_desktop": ("Desktop", "Desktop"),
     "Audit_mail-rejected": ("Mail abgelehnt", "Mail rejected"),
     # Suche (M1.6)
     "SearchTitle": ("Suche", "Search"),

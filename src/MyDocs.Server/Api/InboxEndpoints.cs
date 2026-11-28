@@ -51,7 +51,7 @@ internal static class InboxEndpoints
     }
 
     /// <summary>Hochladen ohne Eintrag: in den eigenen Posteingang oder in den des Haushalts.</summary>
-    private static async Task<IResult> UploadAsync(bool? household, HttpRequest request, ClaimsPrincipal principal, ObjectAccess access,
+    private static async Task<IResult> UploadAsync(bool? household, string? source, HttpRequest request, ClaimsPrincipal principal, ObjectAccess access,
         MyDocsDbContext db, BlobStore blobs, ProcessingScheduler processing, AuditLog audit, IOptions<MyDocsOptions> options, TimeProvider time, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
@@ -66,8 +66,10 @@ internal static class InboxEndpoints
             return problem;
         }
 
+        // Der Eingangsordner des Desktop-Clients meldet sich als eigener Kanal (19).
+        var channel = source == DocumentSources.Desktop ? DocumentSources.Desktop : DocumentSources.Upload;
         var document = await InboxIntake.AddAsync(db, processing, audit, upload.Hash, upload.Size, upload.FileName, upload.ContentType,
-            household == true ? null : caller.PersonId, DocumentSources.Upload, null, caller.UserId, time.GetUtcNow(), ct);
+            household == true ? null : caller.PersonId, channel, null, caller.UserId, time.GetUtcNow(), ct);
         await db.SaveChangesAsync(ct);
         return TypedResults.Ok(await ToItemAsync(document, caller, access, db, ct));
     }

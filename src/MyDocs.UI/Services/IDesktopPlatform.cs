@@ -31,6 +31,14 @@ public interface IDesktopPlatform
 
     /// <summary>Lokale Änderungen verwerfen und die Sperre aufheben.</summary>
     Task DiscardAsync(Guid documentId);
+
+    /// <summary>Eingangsordner auf diesem Rechner (19); null, wenn keiner gewählt ist.</summary>
+    string? InboxFolder { get; }
+
+    /// <summary>Ordner wählen (Dialog des Systems); false, wenn abgebrochen.</summary>
+    Task<bool> ChooseInboxFolderAsync();
+
+    void ClearInboxFolder();
 }
 
 /// <summary>Eine ausgecheckte Datei für die Anzeige.</summary>

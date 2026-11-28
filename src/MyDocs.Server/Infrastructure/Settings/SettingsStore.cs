@@ -20,6 +20,7 @@ public sealed class SettingsStore : IDisposable
     internal const string SettingKey = "admin:settings";
     private const string SmtpPurpose = "MyDocs.Settings.SmtpPassword.v1";
     private const string NtfyPurpose = "MyDocs.Settings.NtfyToken.v1";
+    private const string ImapPurpose = "MyDocs.Settings.ImapPassword.v1";
     private static readonly JsonSerializerOptions Json = new(JsonSerializerDefaults.Web);
     private readonly IServiceScopeFactory _scopes;
     private readonly IDataProtectionProvider _protection;
@@ -91,6 +92,7 @@ public sealed class SettingsStore : IDisposable
         {
             Smtp = stored.Smtp with { Password = null, HasPassword = stored.Smtp.Password is not null },
             Ntfy = stored.Ntfy with { AccessToken = null, HasAccessToken = stored.Ntfy.AccessToken is not null },
+            Imap = stored.Imap with { Password = null, HasPassword = stored.Imap.Password is not null },
         };
     }
 
@@ -105,6 +107,7 @@ public sealed class SettingsStore : IDisposable
         {
             Smtp = normalized.Smtp with { Password = Secret(incoming.Smtp.Password, current.Smtp.Password, SmtpPurpose), HasPassword = false },
             Ntfy = normalized.Ntfy with { AccessToken = Secret(incoming.Ntfy.AccessToken, current.Ntfy.AccessToken, NtfyPurpose), HasAccessToken = false },
+            Imap = normalized.Imap with { Password = Secret(incoming.Imap?.Password, current.Imap.Password, ImapPurpose), HasPassword = false },
             FileSizeCeilingMegabytes = FileSizeCeiling,
         };
 
@@ -128,6 +131,11 @@ public sealed class SettingsStore : IDisposable
     public string? SmtpPassword(AdminSettingsDto stored) => Reveal(stored?.Smtp.Password, SmtpPurpose);
 
     public string? NtfyToken(AdminSettingsDto stored) => Reveal(stored?.Ntfy.AccessToken, NtfyPurpose);
+
+    public string? ImapPassword(AdminSettingsDto stored) => Reveal(stored?.Imap.Password, ImapPurpose);
+
+    public static bool IsImapConfigured(AdminSettingsDto settings) =>
+        !string.IsNullOrWhiteSpace(settings?.Imap.Host) && !string.IsNullOrWhiteSpace(settings.Imap.Username);
 
     public static bool IsMailConfigured(AdminSettingsDto settings) =>
         !string.IsNullOrWhiteSpace(settings?.Smtp.Host) && !string.IsNullOrWhiteSpace(settings.Smtp.FromAddress);
@@ -162,6 +170,13 @@ public sealed class SettingsStore : IDisposable
         Ntfy = (settings.Ntfy ?? new NtfySettingsDto()) with
         {
             ServerUrl = string.IsNullOrWhiteSpace(settings.Ntfy?.ServerUrl) ? null : settings.Ntfy.ServerUrl.Trim().TrimEnd('/'),
+        },
+        Imap = (settings.Imap ?? new ImapSettingsDto()) with
+        {
+            Host = settings.Imap?.Host?.Trim() ?? string.Empty,
+            Username = string.IsNullOrWhiteSpace(settings.Imap?.Username) ? null : settings.Imap.Username.Trim(),
+            Folder = string.IsNullOrWhiteSpace(settings.Imap?.Folder) ? "INBOX" : settings.Imap.Folder.Trim(),
+            TrustedAuthServId = string.IsNullOrWhiteSpace(settings.Imap?.TrustedAuthServId) ? null : settings.Imap.TrustedAuthServId.Trim(),
         },
         Backup = settings.Backup ?? new BackupSettingsDto(),
     };

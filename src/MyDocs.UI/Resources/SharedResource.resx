@@ -43,6 +43,7 @@
   <data name="Audit_login-failed" xml:space="preserve"><value>Anmeldung fehlgeschlagen</value></data>
   <data name="Audit_logout" xml:space="preserve"><value>Abgemeldet</value></data>
   <data name="Audit_mail-failed" xml:space="preserve"><value>Mail nicht zustellbar</value></data>
+  <data name="Audit_mail-rejected" xml:space="preserve"><value>Mail abgelehnt</value></data>
   <data name="Audit_master-key-shown" xml:space="preserve"><value>Hauptschlüssel angezeigt</value></data>
   <data name="Audit_object-changed" xml:space="preserve"><value>Eintrag geändert</value></data>
   <data name="Audit_object-created" xml:space="preserve"><value>Eintrag angelegt</value></data>
@@ -148,6 +149,7 @@
   <data name="DocumentError_title-required" xml:space="preserve"><value>Bitte eine Bezeichnung eingeben.</value></data>
   <data name="DocumentError_too-large" xml:space="preserve"><value>Die Datei ist zu groß (höchstens {1} MB).</value></data>
   <data name="DocumentError_too-many-pages" xml:space="preserve"><value>Zu viele Seiten für ein Dokument.</value></data>
+  <data name="DocumentHasMacros" xml:space="preserve"><value>Enthält Makros: nur öffnen, wenn du dem Absender vertraust.</value></data>
   <data name="DocumentKind" xml:space="preserve"><value>Dokumentart</value></data>
   <data name="DocumentKind_cancellation" xml:space="preserve"><value>Kündigung / Bestätigung</value></data>
   <data name="DocumentKind_certificate" xml:space="preserve"><value>Urkunde / Nachweis</value></data>
@@ -323,6 +325,13 @@ diese Vorgänge sind seit 14 Tagen überfällig und gehen jetzt an den ganzen Ha
   <data name="NotificationsDigestIntro" xml:space="preserve"><value>Einmal am Tag: deine überfälligen Vorgänge, was in den nächsten 7 Tagen fällig ist und was bei anderen seit über einer Woche liegt. Ist nichts fällig, kommt nichts. Sofort kommt nur, was seit 14 Tagen überfällig ist.</value></data>
   <data name="NotificationsDigestOn" xml:space="preserve"><value>Zusammenfassung schicken</value></data>
   <data name="NotificationsLanguage" xml:space="preserve"><value>Sprache der Mails</value></data>
+  <data name="NotificationsMailBodyAlways" xml:space="preserve"><value>Mailtext immer als Dokument, auch mit Anhängen</value></data>
+  <data name="NotificationsMailIn" xml:space="preserve"><value>Mail-Eingang</value></data>
+  <data name="NotificationsMailInAddress" xml:space="preserve"><value>Leite Rechnungen und Briefe an diese Adresse weiter:</value></data>
+  <data name="NotificationsMailInIntro" xml:space="preserve"><value>Angenommen werden nur Mails von deiner Anmeldeadresse und den Adressen unten, mit bestandener Absenderprüfung (SPF/DKIM). Anhänge (PDF, Bilder, Office) landen in deinem Posteingang; hat die Mail keine, wird der Mailtext zum Dokument.</value></data>
+  <data name="NotificationsMailInOff" xml:space="preserve"><value>Der Administrator hat den Mail-Eingang noch nicht eingerichtet.</value></data>
+  <data name="NotificationsMailSenders" xml:space="preserve"><value>Weitere Absenderadressen</value></data>
+  <data name="NotificationsMailSendersHelp" xml:space="preserve"><value>Eine je Zeile, höchstens {0}.</value></data>
   <data name="NotificationsNothingConfigured" xml:space="preserve"><value>Der Administrator hat noch weder Mailversand noch ntfy eingerichtet. Bis dahin bekommst du keine Benachrichtigungen.</value></data>
   <data name="NotificationsNtfyIntro" xml:space="preserve"><value>Dein Thema bei ntfy. Wer den Namen kennt, kann mitlesen; nimm deshalb einen langen, zufälligen Namen und abonniere ihn in der ntfy-App.</value></data>
   <data name="NotificationsTest" xml:space="preserve"><value>Speichern und testen</value></data>
@@ -425,8 +434,10 @@ diese Vorgänge sind seit 14 Tagen überfällig und gehen jetzt an den ganzen Ha
   <data name="SearchTitle" xml:space="preserve"><value>Suche</value></data>
   <data name="SecurityTitle" xml:space="preserve"><value>Sicherheit</value></data>
   <data name="SettingsBackupHour" xml:space="preserve"><value>Uhrzeit (Stunde)</value></data>
+  <data name="SettingsError_imap-not-configured" xml:space="preserve"><value>Der Mail-Eingang ist nicht eingerichtet.</value></data>
   <data name="SettingsError_mail-not-configured" xml:space="preserve"><value>Der Mailversand ist nicht eingerichtet.</value></data>
   <data name="SettingsError_notifications-invalid" xml:space="preserve"><value>Die Angaben sind ungültig.</value></data>
+  <data name="SettingsError_notifications-invalid-sender" xml:space="preserve"><value>Eine Absenderadresse ist ungültig oder gehört schon zu einem anderen Konto.</value></data>
   <data name="SettingsError_notifications-nothing-configured" xml:space="preserve"><value>Weder Mail noch ntfy sind eingerichtet.</value></data>
   <data name="SettingsError_ntfy-not-configured" xml:space="preserve"><value>ntfy ist nicht eingerichtet.</value></data>
   <data name="SettingsError_send-failed" xml:space="preserve"><value>Versand fehlgeschlagen:</value></data>
@@ -438,6 +449,13 @@ diese Vorgänge sind seit 14 Tagen überfällig und gehen jetzt an den ganzen Ha
   <data name="SettingsError_settings-url" xml:space="preserve"><value>Bitte eine vollständige Adresse eingeben.</value></data>
   <data name="SettingsFromAddress" xml:space="preserve"><value>Absenderadresse</value></data>
   <data name="SettingsFromName" xml:space="preserve"><value>Absendername</value></data>
+  <data name="SettingsImap" xml:space="preserve"><value>Mail-Eingang (IMAP)</value></data>
+  <data name="SettingsImapAuthServId" xml:space="preserve"><value>Prüfender Mailserver (authserv-id)</value></data>
+  <data name="SettingsImapAuthServIdHelp" xml:space="preserve"><value>Steht vorn in „Authentication-Results“ eurer Mails, z. B. mx.example.org. Leer: der oberste Eintrag.</value></data>
+  <data name="SettingsImapFolder" xml:space="preserve"><value>Ordner</value></data>
+  <data name="SettingsImapHost" xml:space="preserve"><value>IMAP-Server</value></data>
+  <data name="SettingsImapIntro" xml:space="preserve"><value>Ein eigenes Postfach, an das Mitglieder Rechnungen und Briefe weiterleiten. myDocs holt die Mails alle 2 Minuten ab und verschiebt sie danach in die Ordner „myDocs-verarbeitet“ und „myDocs-abgelehnt“.</value></data>
+  <data name="SettingsImapUser" xml:space="preserve"><value>Benutzername (meist die Adresse des Postfachs)</value></data>
   <data name="SettingsIncludeDocuments" xml:space="preserve"><value>Dokumente mitsichern</value></data>
   <data name="SettingsInstance" xml:space="preserve"><value>Instanz</value></data>
   <data name="SettingsKeepDaily" xml:space="preserve"><value>Tage aufbewahren</value></data>
@@ -462,6 +480,8 @@ diese Vorgänge sind seit 14 Tagen überfällig und gehen jetzt an den ganzen Ha
   <data name="SettingsSmtpPort" xml:space="preserve"><value>Port</value></data>
   <data name="SettingsSmtpSecurity" xml:space="preserve"><value>Verschlüsselung</value></data>
   <data name="SettingsSmtpUser" xml:space="preserve"><value>Benutzername</value></data>
+  <data name="SettingsTestImap" xml:space="preserve"><value>Speichern und Postfach testen</value></data>
+  <data name="SettingsTestImapOk" xml:space="preserve"><value>Postfach erreichbar, {0} Mails warten.</value></data>
   <data name="SettingsTestMail" xml:space="preserve"><value>Speichern und Testmail an mich</value></data>
   <data name="SettingsTestMailSent" xml:space="preserve"><value>Testmail verschickt.</value></data>
   <data name="SettingsTestNtfy" xml:space="preserve"><value>Speichern und testen</value></data>

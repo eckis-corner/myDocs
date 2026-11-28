@@ -86,6 +86,46 @@
             </MudStack>
         </MudPaper>
 
+        <MudPaper Class="pa-4" Elevation="1" data-testid="imap-card">
+            <MudStack Spacing="2">
+                <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["SettingsImap"]</b></MudText>
+                <MudText Typo="Typo.body2" Class="mydocs-muted">@L["SettingsImapIntro"]</MudText>
+                <MudGrid Spacing="2">
+                    <MudItem xs="12" sm="8">
+                        <MudTextField @bind-Value="_imapHost" Label="@L["SettingsImapHost"]" Variant="Variant.Outlined" Error="@Has("imap.host")" ErrorText="@ErrorOf("imap.host")"
+                                      UserAttributes="@(new() { ["data-testid"] = "imap-host" })" />
+                    </MudItem>
+                    <MudItem xs="6" sm="2">
+                        <MudNumericField @bind-Value="_imapPort" Label="@L["SettingsSmtpPort"]" Variant="Variant.Outlined" Min="1" Max="65535" Error="@Has("imap.port")" ErrorText="@ErrorOf("imap.port")" />
+                    </MudItem>
+                    <MudItem xs="6" sm="2">
+                        <MudSelect T="SmtpSecurity" @bind-Value="_imapSecurity" Label="@L["SettingsSmtpSecurity"]" Variant="Variant.Outlined">
+                            <MudSelectItem Value="SmtpSecurity.SslOnConnect">SSL/TLS</MudSelectItem>
+                            <MudSelectItem Value="SmtpSecurity.StartTls">STARTTLS</MudSelectItem>
+                            <MudSelectItem Value="SmtpSecurity.None">@L["SettingsSmtpNone"]</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_imapUser" Label="@L["SettingsImapUser"]" Variant="Variant.Outlined" Error="@Has("imap.username")" ErrorText="@ErrorOf("imap.username")" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_imapPassword" Label="@L["SettingsSmtpPassword"]" InputType="InputType.Password" Variant="Variant.Outlined"
+                                      HelperText="@(_loaded.Imap.HasPassword ? L["SettingsSecretStored"].Value : null)" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_imapFolder" Label="@L["SettingsImapFolder"]" Variant="Variant.Outlined" Error="@Has("imap.folder")" ErrorText="@ErrorOf("imap.folder")" />
+                    </MudItem>
+                    <MudItem xs="12" sm="6">
+                        <MudTextField @bind-Value="_imapAuthServId" Label="@L["SettingsImapAuthServId"]" HelperText="@L["SettingsImapAuthServIdHelp"]" Variant="Variant.Outlined" />
+                    </MudItem>
+                </MudGrid>
+                <div>
+                    <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Outlined.MarkEmailRead" OnClick="TestImapAsync" Disabled="@(_busy || string.IsNullOrWhiteSpace(_imapHost))"
+                               data-testid="test-imap">@L["SettingsTestImap"]</MudButton>
+                </div>
+            </MudStack>
+        </MudPaper>
+
         <MudPaper Class="pa-4" Elevation="1">
             <MudStack Spacing="2">
                 <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["SettingsLimits"]</b></MudText>
@@ -129,6 +169,9 @@
     private string? _publicUrl, _smtpHost, _smtpUser, _smtpPassword, _fromAddress, _fromName, _ntfyUrl, _ntfyToken, _testTopic;
     private int _smtpPort = 587, _maxFileSize = 100, _backupHour = 3, _keepDaily = 7, _keepWeekly = 4, _keepMonthly = 6;
     private SmtpSecurity _smtpSecurity;
+    private string? _imapHost, _imapUser, _imapPassword, _imapFolder, _imapAuthServId;
+    private int _imapPort = 993;
+    private SmtpSecurity _imapSecurity = SmtpSecurity.SslOnConnect;
     private bool _includeDocuments = true;
 
     protected override async Task OnInitializedAsync() => Show(await Admin.GetSettingsAsync());
@@ -146,6 +189,13 @@
         _fromName = settings.Smtp.FromName;
         _ntfyUrl = settings.Ntfy.ServerUrl;
         _ntfyToken = null;
+        _imapHost = settings.Imap.Host;
+        _imapPort = settings.Imap.Port;
+        _imapSecurity = settings.Imap.Security;
+        _imapUser = settings.Imap.Username;
+        _imapPassword = null;
+        _imapFolder = settings.Imap.Folder;
+        _imapAuthServId = settings.Imap.TrustedAuthServId;
         _maxFileSize = settings.MaxFileSizeMegabytes;
         _backupHour = settings.Backup.Hour;
         _keepDaily = settings.Backup.KeepDaily;
@@ -173,6 +223,16 @@
             FromName = _fromName ?? string.Empty,
         },
         Ntfy = new NtfySettingsDto { ServerUrl = _ntfyUrl, AccessToken = string.IsNullOrEmpty(_ntfyToken) ? null : _ntfyToken },
+        Imap = new ImapSettingsDto
+        {
+            Host = _imapHost ?? string.Empty,
+            Port = _imapPort,
+            Security = _imapSecurity,
+            Username = _imapUser,
+            Password = string.IsNullOrEmpty(_imapPassword) ? null : _imapPassword,
+            Folder = string.IsNullOrWhiteSpace(_imapFolder) ? "INBOX" : _imapFolder,
+            TrustedAuthServId = _imapAuthServId,
+        },
         MaxFileSizeMegabytes = _maxFileSize,
         Backup = new BackupSettingsDto { Hour = _backupHour, KeepDaily = _keepDaily, KeepWeekly = _keepWeekly, KeepMonthly = _keepMonthly, IncludeDocuments = _includeDocuments },
     };
@@ -215,6 +275,17 @@
         await RunTestAsync(() => Admin.TestMailAsync(), L["SettingsTestMailSent"]);
     }
 
+    private async Task TestImapAsync()
+    {
+        if (!await SaveAsync())
+        {
+            return;
+        }
+
+        var waiting = 0;
+        await RunTestAsync(async () => waiting = await Admin.TestImapAsync(), () => L["SettingsTestImapOk", waiting]);
+    }
+
     private async Task TestNtfyAsync()
     {
         if (!await SaveAsync())
@@ -225,13 +296,15 @@
         await RunTestAsync(() => Admin.TestNtfyAsync(_testTopic!.Trim()), L["SettingsTestNtfySent"]);
     }
 
-    private async Task RunTestAsync(Func<Task> test, string success)
+    private Task RunTestAsync(Func<Task> test, string success) => RunTestAsync(test, () => success);
+
+    private async Task RunTestAsync(Func<Task> test, Func<string> success)
     {
         _busy = true;
         try
         {
             await test();
-            Snackbar.Add(success, Severity.Success);
+            Snackbar.Add(success(), Severity.Success);
         }
         catch (ApiException exception)
         {

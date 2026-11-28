@@ -23,6 +23,12 @@ public sealed class AppUser : IdentityUser<Guid>
 
     /// <summary>Tag der letzten Zusammenfassung (Ortszeit), damit sie einmal am Tag kommt.</summary>
     public DateOnly? LastDigestOn { get; set; }
+
+    /// <summary>Weitere Absenderadressen für den Mail-Eingang (49), neben der Anmeldeadresse.</summary>
+    public List<string> MailSenders { get; set; } = [];
+
+    /// <summary>Mailtext immer als Dokument, auch wenn die Mail Anhänge hat.</summary>
+    public bool MailBodyAlways { get; set; }
 }
 
 public static class Roles

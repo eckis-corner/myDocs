@@ -60,6 +60,18 @@ public sealed class Document
 
     /// <summary>Herkunft in Worten, etwa Absender und Betreff einer Mail; ohne Inhalt.</summary>
     public string? SourceDetail { get; set; }
+
+    /// <summary>Office-Datei mit Makros (49): markiert, nicht entfernt.</summary>
+    public bool HasMacros { get; set; }
+}
+
+/// <summary>Übernommene Mail (148), damit sie nach einem Abbruch nicht zweimal in den Posteingang kommt.</summary>
+public sealed class ProcessedMail
+{
+    /// <summary>SHA-256 der Message-ID (hex), ohne die Kennung selbst.</summary>
+    public string Hash { get; set; } = string.Empty;
+
+    public DateTimeOffset At { get; set; }
 }
 
 /// <summary>Unveränderliche Fassung eines Dokuments.</summary>

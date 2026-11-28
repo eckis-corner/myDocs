@@ -43,6 +43,7 @@
   <data name="Audit_login-failed" xml:space="preserve"><value>Login failed</value></data>
   <data name="Audit_logout" xml:space="preserve"><value>Logged out</value></data>
   <data name="Audit_mail-failed" xml:space="preserve"><value>Email could not be delivered</value></data>
+  <data name="Audit_mail-rejected" xml:space="preserve"><value>Mail rejected</value></data>
   <data name="Audit_master-key-shown" xml:space="preserve"><value>Master key shown</value></data>
   <data name="Audit_object-changed" xml:space="preserve"><value>Entry changed</value></data>
   <data name="Audit_object-created" xml:space="preserve"><value>Entry created</value></data>
@@ -148,6 +149,7 @@
   <data name="DocumentError_title-required" xml:space="preserve"><value>Please enter a title.</value></data>
   <data name="DocumentError_too-large" xml:space="preserve"><value>The file is too large (at most {1} MB).</value></data>
   <data name="DocumentError_too-many-pages" xml:space="preserve"><value>Too many pages for one document.</value></data>
+  <data name="DocumentHasMacros" xml:space="preserve"><value>Contains macros: only open it if you trust the sender.</value></data>
   <data name="DocumentKind" xml:space="preserve"><value>Document type</value></data>
   <data name="DocumentKind_cancellation" xml:space="preserve"><value>Cancellation / confirmation</value></data>
   <data name="DocumentKind_certificate" xml:space="preserve"><value>Certificate</value></data>
@@ -323,6 +325,13 @@ these tasks have been overdue for 14 days and now go to the whole household:
   <data name="NotificationsDigestIntro" xml:space="preserve"><value>Once a day: your overdue tasks, what is due in the next 7 days and what has been lying with others for over a week. If nothing is due, nothing is sent. Only tasks overdue for 14 days are sent right away.</value></data>
   <data name="NotificationsDigestOn" xml:space="preserve"><value>Send summary</value></data>
   <data name="NotificationsLanguage" xml:space="preserve"><value>Language of emails</value></data>
+  <data name="NotificationsMailBodyAlways" xml:space="preserve"><value>Always keep the mail text as a document, also with attachments</value></data>
+  <data name="NotificationsMailIn" xml:space="preserve"><value>Incoming mail</value></data>
+  <data name="NotificationsMailInAddress" xml:space="preserve"><value>Forward invoices and letters to this address:</value></data>
+  <data name="NotificationsMailInIntro" xml:space="preserve"><value>Only mails from your login address and the addresses below are accepted, and only if the sender check (SPF/DKIM) passes. Attachments (PDF, images, Office) go to your inbox; without any, the mail text becomes the document.</value></data>
+  <data name="NotificationsMailInOff" xml:space="preserve"><value>The administrator has not set up incoming mail yet.</value></data>
+  <data name="NotificationsMailSenders" xml:space="preserve"><value>Further sender addresses</value></data>
+  <data name="NotificationsMailSendersHelp" xml:space="preserve"><value>One per line, at most {0}.</value></data>
   <data name="NotificationsNothingConfigured" xml:space="preserve"><value>The administrator has not set up email or ntfy yet. Until then you will not receive notifications.</value></data>
   <data name="NotificationsNtfyIntro" xml:space="preserve"><value>Your ntfy topic. Anyone who knows the name can read along, so use a long random name and subscribe to it in the ntfy app.</value></data>
   <data name="NotificationsTest" xml:space="preserve"><value>Save and test</value></data>
@@ -425,8 +434,10 @@ these tasks have been overdue for 14 days and now go to the whole household:
   <data name="SearchTitle" xml:space="preserve"><value>Search</value></data>
   <data name="SecurityTitle" xml:space="preserve"><value>Security</value></data>
   <data name="SettingsBackupHour" xml:space="preserve"><value>Time (hour)</value></data>
+  <data name="SettingsError_imap-not-configured" xml:space="preserve"><value>Incoming mail is not configured.</value></data>
   <data name="SettingsError_mail-not-configured" xml:space="preserve"><value>Sending email is not set up.</value></data>
   <data name="SettingsError_notifications-invalid" xml:space="preserve"><value>The details are invalid.</value></data>
+  <data name="SettingsError_notifications-invalid-sender" xml:space="preserve"><value>A sender address is invalid or already belongs to another account.</value></data>
   <data name="SettingsError_notifications-nothing-configured" xml:space="preserve"><value>Neither email nor ntfy is set up.</value></data>
   <data name="SettingsError_ntfy-not-configured" xml:space="preserve"><value>ntfy is not set up.</value></data>
   <data name="SettingsError_send-failed" xml:space="preserve"><value>Sending failed:</value></data>
@@ -438,6 +449,13 @@ these tasks have been overdue for 14 days and now go to the whole household:
   <data name="SettingsError_settings-url" xml:space="preserve"><value>Please enter a complete address.</value></data>
   <data name="SettingsFromAddress" xml:space="preserve"><value>Sender address</value></data>
   <data name="SettingsFromName" xml:space="preserve"><value>Sender name</value></data>
+  <data name="SettingsImap" xml:space="preserve"><value>Incoming mail (IMAP)</value></data>
+  <data name="SettingsImapAuthServId" xml:space="preserve"><value>Checking mail server (authserv-id)</value></data>
+  <data name="SettingsImapAuthServIdHelp" xml:space="preserve"><value>First word of “Authentication-Results” in your mails, e.g. mx.example.org. Empty: the topmost entry.</value></data>
+  <data name="SettingsImapFolder" xml:space="preserve"><value>Folder</value></data>
+  <data name="SettingsImapHost" xml:space="preserve"><value>IMAP server</value></data>
+  <data name="SettingsImapIntro" xml:space="preserve"><value>A mailbox of its own to which members forward invoices and letters. myDocs fetches the mails every 2 minutes and then moves them to the folders “myDocs-verarbeitet” and “myDocs-abgelehnt”.</value></data>
+  <data name="SettingsImapUser" xml:space="preserve"><value>User name (usually the mailbox address)</value></data>
   <data name="SettingsIncludeDocuments" xml:space="preserve"><value>Include documents</value></data>
   <data name="SettingsInstance" xml:space="preserve"><value>Instance</value></data>
   <data name="SettingsKeepDaily" xml:space="preserve"><value>Days to keep</value></data>
@@ -462,6 +480,8 @@ these tasks have been overdue for 14 days and now go to the whole household:
   <data name="SettingsSmtpPort" xml:space="preserve"><value>Port</value></data>
   <data name="SettingsSmtpSecurity" xml:space="preserve"><value>Encryption</value></data>
   <data name="SettingsSmtpUser" xml:space="preserve"><value>User name</value></data>
+  <data name="SettingsTestImap" xml:space="preserve"><value>Save and test the mailbox</value></data>
+  <data name="SettingsTestImapOk" xml:space="preserve"><value>Mailbox reachable, {0} mails waiting.</value></data>
   <data name="SettingsTestMail" xml:space="preserve"><value>Save and send me a test email</value></data>
   <data name="SettingsTestMailSent" xml:space="preserve"><value>Test email sent.</value></data>
   <data name="SettingsTestNtfy" xml:space="preserve"><value>Save and test</value></data>

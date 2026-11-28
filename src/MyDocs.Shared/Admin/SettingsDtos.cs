@@ -36,6 +36,30 @@ public sealed record SmtpSettingsDto
     public string FromName { get; init; } = "myDocs";
 }
 
+/// <summary>
+/// IMAP-Postfach für den Mail-Eingang (49, 148), getrennt vom SMTP-Konto. Passwort wie bei SMTP. Ist
+/// <see cref="TrustedAuthServId"/> gesetzt, zählen nur <c>Authentication-Results</c> dieses Mailservers.
+/// </summary>
+public sealed record ImapSettingsDto
+{
+    public string Host { get; init; } = string.Empty;
+
+    public int Port { get; init; } = 993;
+
+    public SmtpSecurity Security { get; init; } = SmtpSecurity.SslOnConnect;
+
+    public string? Username { get; init; }
+
+    public string? Password { get; init; }
+
+    public bool HasPassword { get; init; }
+
+    public string Folder { get; init; } = "INBOX";
+
+    /// <summary>Kennung des eigenen Mailservers in <c>Authentication-Results</c>, etwa <c>mx.example.org</c>.</summary>
+    public string? TrustedAuthServId { get; init; }
+}
+
 /// <summary>ntfy für Push-Nachrichten (47), optional. Token wie das SMTP-Passwort.</summary>
 public sealed record NtfySettingsDto
 {
@@ -70,6 +94,8 @@ public sealed record AdminSettingsDto
 
     public NtfySettingsDto Ntfy { get; init; } = new();
 
+    public ImapSettingsDto Imap { get; init; } = new();
+
     /// <summary>Größte Datei in MB (78), höchstens <see cref="FileSizeCeilingMegabytes"/>.</summary>
     public int MaxFileSizeMegabytes { get; init; } = 100;
 
@@ -91,6 +117,7 @@ public static class SettingsErrors
     public const string Topic = "settings-topic";
     public const string MailNotConfigured = "mail-not-configured";
     public const string NtfyNotConfigured = "ntfy-not-configured";
+    public const string ImapNotConfigured = "imap-not-configured";
     public const string SendFailed = "send-failed";
 }
 
@@ -131,6 +158,31 @@ public static partial class AdminSettingsValidation
             if (smtp.FromName is { Length: > 100 } || smtp.Username is { Length: > 254 } || smtp.Password is { Length: > 500 })
             {
                 errors["smtp.fromName"] = SettingsErrors.TooLong;
+            }
+        }
+
+        var imap = settings.Imap ?? new ImapSettingsDto();
+        if (!string.IsNullOrWhiteSpace(imap.Host))
+        {
+            if (imap.Host.Trim().Length > 253 || imap.Host.Trim().Contains(' ', StringComparison.Ordinal))
+            {
+                errors["imap.host"] = SettingsErrors.Url;
+            }
+
+            if (imap.Port is < 1 or > 65535)
+            {
+                errors["imap.port"] = SettingsErrors.Range;
+            }
+
+            if (string.IsNullOrWhiteSpace(imap.Username))
+            {
+                errors["imap.username"] = SettingsErrors.Required;
+            }
+
+            if (string.IsNullOrWhiteSpace(imap.Folder) || imap.Folder.Length > 200 || imap.Username is { Length: > 254 } || imap.Password is { Length: > 500 }
+                || imap.TrustedAuthServId is { Length: > 253 })
+            {
+                errors["imap.folder"] = SettingsErrors.TooLong;
             }
         }
 

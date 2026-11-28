@@ -470,6 +470,7 @@ internal static class DocumentEndpoints
             !document.IsDeleted && await CanEditAsync(document.Id, caller, access, db, ct), document.UpdatedAt, document.DeletedAt)
         {
             Kind = document.Kind,
+            HasMacros = document.HasMacros,
         };
     }
 

@@ -1,3 +1,4 @@
+using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Microsoft.AspNetCore.Identity;
 using MyDocs.Server.Data;
@@ -23,6 +24,7 @@ internal static partial class SettingsEndpoints
         admin.MapPut("/", SaveAsync);
         admin.MapPost("/test-mail", TestMailAsync);
         admin.MapPost("/test-ntfy", TestNtfyAsync);
+        admin.MapPost("/test-imap", TestImapAsync);
 
         var own = app.MapGroup("/api/account/notifications").RequireAuthorization();
         own.MapGet("/", GetOwnAsync);
@@ -88,11 +90,30 @@ internal static partial class SettingsEndpoints
         return await PushTestAsync(user, request.Topic, settings, push, loggers, ct);
     }
 
+    /// <summary>Öffnet das Postfach einmal und meldet, wie viele Mails warten, oder den Fehler.</summary>
+    private static async Task<IResult> TestImapAsync(SettingsStore settings, MyDocs.Server.Infrastructure.Inbox.MailIntakeService intake, ILoggerFactory loggers, CancellationToken ct)
+    {
+        if (!SettingsStore.IsImapConfigured(await settings.GetAsync(ct)))
+        {
+            return ApiProblems.Of(SettingsErrors.ImapNotConfigured);
+        }
+
+        try
+        {
+            return TypedResults.Ok(await intake.TestAsync(ct));
+        }
+        catch (Exception exception) when (exception is not OperationCanceledException)
+        {
+            LogTestFailed(loggers.CreateLogger(typeof(SettingsEndpoints)), "IMAP", exception.Message);
+            return TypedResults.Problem(title: SettingsErrors.SendFailed, detail: Short(exception.Message), statusCode: StatusCodes.Status400BadRequest);
+        }
+    }
+
     private static async Task<IResult> GetOwnAsync(ClaimsPrincipal principal, UserManager<AppUser> users, SettingsStore settings, CancellationToken ct) =>
         await users.GetUserAsync(principal) is { } user ? TypedResults.Ok(await OwnDtoAsync(user, settings, ct)) : TypedResults.Unauthorized();
 
     private static async Task<IResult> SaveOwnAsync(NotificationSettingsRequest request, ClaimsPrincipal principal, UserManager<AppUser> users,
-        SettingsStore settings, CancellationToken ct)
+        SettingsStore settings, MyDocsDbContext db, CancellationToken ct)
     {
         if (await users.GetUserAsync(principal) is not { } user)
         {
@@ -104,6 +125,26 @@ internal static partial class SettingsEndpoints
         {
             return ApiProblems.Of(NotificationErrors.Invalid);
         }
+
+        // Weitere Absenderadressen (49): gültig, höchstens fünf, keine Adresse eines anderen Kontos.
+        if (request.MailSenders is { } senders)
+        {
+            var cleaned = senders.Where(a => !string.IsNullOrWhiteSpace(a)).Select(a => a.Trim().ToLowerInvariant()).Distinct().ToList();
+            if (cleaned.Count > MailIntakeLimits.MaxSenders || cleaned.Any(a => !AdminSettingsValidation.IsEmail(a)))
+            {
+                return ApiProblems.Of(NotificationErrors.InvalidSender);
+            }
+
+            var upper = cleaned.Select(a => a.ToUpperInvariant()).ToList();
+            if (await db.Users.AnyAsync(u => u.Id != user.Id && (upper.Contains(u.NormalizedEmail!) || u.MailSenders.Any(m => cleaned.Contains(m))), ct))
+            {
+                return ApiProblems.Of(NotificationErrors.InvalidSender);
+            }
+
+            user.MailSenders = [.. cleaned.Where(a => !string.Equals(a, user.Email, StringComparison.OrdinalIgnoreCase))];
+        }
+
+        user.MailBodyAlways = request.MailBodyAlways;
 
         // Eine neue Uhrzeit gilt schon heute, wenn sie noch nicht vorbei ist.
         if (user.DigestHour != request.DigestHour)
@@ -166,7 +207,12 @@ internal static partial class SettingsEndpoints
     private static async Task<NotificationSettingsDto> OwnDtoAsync(AppUser user, SettingsStore settings, CancellationToken ct)
     {
         var stored = await settings.GetAsync(ct);
-        return new NotificationSettingsDto(user.Language, user.DigestHour, user.NtfyTopic, SettingsStore.IsMailConfigured(stored), SettingsStore.IsNtfyConfigured(stored));
+        return new NotificationSettingsDto(user.Language, user.DigestHour, user.NtfyTopic, SettingsStore.IsMailConfigured(stored), SettingsStore.IsNtfyConfigured(stored))
+        {
+            MailSenders = user.MailSenders,
+            MailBodyAlways = user.MailBodyAlways,
+            MailInAddress = SettingsStore.IsImapConfigured(stored) && AdminSettingsValidation.IsEmail(stored.Imap.Username) ? stored.Imap.Username : null,
+        };
     }
 
     private static string Short(string message) => message.Length > 300 ? message[..300] : message;

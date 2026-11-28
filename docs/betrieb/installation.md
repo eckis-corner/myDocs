@@ -2,7 +2,7 @@
 
 Für DSM 7.2 und neuer mit **Container Manager** (Synology DS1520+, x86-64), neben myLife. Für andere Docker-Hosts gelten dieselben Schritte sinngemäß.
 
-> **Stand M3.5:** Einrichtung, Anmeldung mit Authenticator-App oder Passkey, Benutzer und Haushalt, Einträge aus dem Katalog, Dokumente mit Versionen, Suche, Protokoll, Admin-Einsicht, Papierkorb, tägliche Sicherung; Lebenszyklus, Vorgänge, Wiedervorlage mit Eskalation, Startseite und Benachrichtigungen per Mail und ntfy; dazu der Worker für Texterkennung, Office-Vorschau und Vorschaubilder mit Volltextsuche im Dokumenttext und der Posteingang mit Kamera und Scan-Ordner. Noch nicht: Mail-Eingang (Rest von M3), Desktop-Client (M4), Abgleich mit myLife (M5). Vor echten Daten die Abnahme durchgehen: [abnahme.md](abnahme.md).
+> **Stand M3:** Einrichtung, Anmeldung mit Authenticator-App oder Passkey, Benutzer und Haushalt, Einträge aus dem Katalog, Dokumente mit Versionen, Suche, Protokoll, Admin-Einsicht, Papierkorb, tägliche Sicherung; Lebenszyklus, Vorgänge, Wiedervorlage mit Eskalation, Startseite und Benachrichtigungen per Mail und ntfy; dazu der Worker für Texterkennung, Office-Vorschau und Vorschaubilder mit Volltextsuche im Dokumenttext und der Posteingang mit Kamera, Scan-Ordner und Mail-Eingang. Noch nicht: Desktop-Client (M4), Abgleich mit myLife (M5). Vor echten Daten die Abnahme durchgehen: [abnahme.md](abnahme.md).
 
 ## 1. Ordner anlegen
 
@@ -120,6 +120,17 @@ Der Scanner (oder das Multifunktionsgerät) legt Scans per SMB oder FTP in einem
 5. Kontrolle: **Verwaltung → Einstellungen → Verarbeitung** zeigt „Der Scan-Ordner wird beobachtet.“
 
 Übernommen werden PDF und Bilder (JPEG, PNG, TIFF). Andere Dateien und zu große kommen in den Unterordner `_fehler`; dort löscht man sie von Hand.
+
+## 6c. Mail-Eingang
+
+Mitglieder leiten Rechnungen und Briefe an ein **eigenes Postfach** weiter; myDocs holt sie alle 2 Minuten ab.
+
+1. Beim Mail-Anbieter ein Postfach nur für myDocs anlegen, etwa `dokumente@eckis-corner.de` (nicht das Konto für den Versand und nicht das von myLife).
+2. **Verwaltung → Einstellungen → Mail-Eingang (IMAP):** Server (meist Port 993 mit SSL/TLS), Benutzername, Passwort, Ordner `INBOX`.
+3. **Prüfender Mailserver (authserv-id):** In einer an dieses Postfach geschickten Mail den Quelltext ansehen; die Zeile `Authentication-Results:` beginnt mit dem Namen des Mailservers, etwa `mx.example.org;`. Diesen Namen eintragen. Dann zählen nur Prüfergebnisse dieses Servers, nicht solche, die ein Absender in seine Mail geschrieben hat.
+4. **Speichern und Postfach testen** zeigt, wie viele Mails warten.
+
+Angenommen werden nur Mails von Mitgliedern: von ihrer Anmeldeadresse oder einer der weiteren Absenderadressen, die jede Person unter **Benutzermenü → Benachrichtigungen** einträgt, und nur mit bestandener Prüfung (SPF, DKIM oder DMARC). Anhänge (PDF, Bilder, Office) landen im privaten Posteingang des Absenders. Verarbeitete und abgelehnte Mails verschiebt myDocs in die Ordner `myDocs-verarbeitet` und `myDocs-abgelehnt`; dort kann man sie nach einiger Zeit löschen. Warum eine Mail abgelehnt wurde, steht im Protokoll der Person.
 
 ## 7. Hauptschlüssel und Sicherung
 

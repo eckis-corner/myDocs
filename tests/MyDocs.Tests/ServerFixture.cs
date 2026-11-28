@@ -38,6 +38,9 @@ public sealed class ServerFixture : WebApplicationFactory<Program>, IAsyncLifeti
     /// <summary>Verschickte Push-Nachrichten an ntfy.</summary>
     public RecordingPushSender Push { get; } = new();
 
+    /// <summary>IMAP-Postfach des Mail-Eingangs im Speicher.</summary>
+    public FakeMailbox Mailbox { get; } = new();
+
     /// <summary>Worker für OCR und Vorschau; den Container gibt es in den Tests nicht.</summary>
     public FakeWorker Worker { get; } = new();
 
@@ -112,6 +115,7 @@ public sealed class ServerFixture : WebApplicationFactory<Program>, IAsyncLifeti
             services.AddSingleton<IMailTransport>(Mail);
             services.AddSingleton<IPushSender>(Push);
             services.AddSingleton<MyDocs.Server.Infrastructure.Processing.IDocumentWorker>(Worker);
+            services.AddSingleton<IMailboxConnector>(Mailbox);
         });
     }
 

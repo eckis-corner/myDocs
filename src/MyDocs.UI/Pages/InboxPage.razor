@@ -86,6 +86,10 @@
                             {
                                 <MudText Typo="Typo.caption" Class="mydocs-muted">@detail</MudText>
                             }
+                            @if (selected.HasMacros)
+                            {
+                                <MudAlert Severity="Severity.Warning" Dense data-testid="inbox-macros">@L["DocumentHasMacros"]</MudAlert>
+                            }
                             @if (selected.Current.PreviewType is { } previewType)
                             {
                                 @if (Previews.IsImage(previewType))

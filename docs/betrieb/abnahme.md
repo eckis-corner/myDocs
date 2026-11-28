@@ -143,6 +143,20 @@ Gebraucht werden drei Konten mit eigenen Mail-Adressen: **A** (Administrator), *
 - [ ] Eine Textdatei in den Ordner legen: Sie landet in `_fehler`
 - [ ] Im Papierkorb der Freigabe `scan` liegt nichts (Papierkorb aus)
 
+## 17. Mail-Eingang (M3.6, als A und B)
+
+- [ ] A: Einstellungen → Mail-Eingang ausfüllen, authserv-id eintragen; **Speichern und Postfach testen** meldet das Postfach als erreichbar
+- [ ] B: Benutzermenü → Benachrichtigungen zeigt die Adresse des Mail-Eingangs; eine zweite eigene Adresse unter „Weitere Absenderadressen“ eintragen
+- [ ] B leitet eine Mail mit einer PDF-Rechnung und einem Bild weiter: Nach spätestens 2 Minuten liegen beide im privaten Posteingang von B, Herkunft „Mail“ mit Absender und Betreff; die Mail liegt im Ordner `myDocs-verarbeitet`
+- [ ] B schickt eine Mail ohne Anhang: Der Mailtext liegt als Dokument im Posteingang, die Vorschau ist ein PDF
+- [ ] B schickt von der zweiten Adresse: kommt ebenfalls an
+- [ ] Eine Mail von einer fremden Adresse: liegt in `myDocs-abgelehnt`, nichts im Posteingang
+- [ ] Eine Excel-Datei mit Makro (.xlsm): im Posteingang mit „Enthält Makros“
+- [ ] Eine Mail mit einer .zip- oder .html-Datei: der Anhang fehlt, der Rest kommt an
+- [ ] Im Protokoll von B steht bei einer abgelehnten Mail der Grund
+
+**Abnahme M3:** Ein Brief, der per Kamera, Scanner und Mail hereinkommt, ist jedes Mal durchsuchbar und zugeordnet.
+
 ## Ergebnis
 
 - [ ] Alle Punkte erledigt oder die Abweichungen notiert und an Claude weitergegeben

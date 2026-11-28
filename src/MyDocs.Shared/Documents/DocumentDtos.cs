@@ -30,6 +30,9 @@ public sealed record DocumentDto(Guid Id, string Title, DateOnly? DocumentDate, 
 
     /// <summary>Dokumentart (<see cref="DocumentKinds"/>).</summary>
     public string? Kind { get; init; }
+
+    /// <summary>Office-Datei mit Makros: Vorsicht beim Öffnen (49).</summary>
+    public bool HasMacros { get; init; }
 }
 
 public sealed record DocumentUpdateRequest(string Title, DateOnly? DocumentDate, string? Note)
@@ -66,7 +69,10 @@ public static class DocumentSources
 
 /// <summary>Ein Dokument im Posteingang (20).</summary>
 public sealed record InboxItemDto(Guid Id, string Title, string? Kind, DateOnly? DocumentDate, string Source, string? SourceDetail,
-    bool Household, DateTimeOffset CreatedAt, DocumentVersionDto Current, DateTimeOffset? DeletedAt);
+    bool Household, DateTimeOffset CreatedAt, DocumentVersionDto Current, DateTimeOffset? DeletedAt)
+{
+    public bool HasMacros { get; init; }
+}
 
 /// <summary>
 /// Zuordnen aus dem Posteingang: Angaben, mindestens ein Eintrag und auf Wunsch ein Vorgang dazu (zuständig ist,

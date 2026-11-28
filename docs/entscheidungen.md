@@ -286,10 +286,20 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | ---: | --- | --- |
 | 147 | Scan-Ordner | Ein Ordner der Synology wird als `/scan` eingebunden (`MYDOCS_SCAN_DIR`) und alle 30 Sekunden durchgesehen. Dateien **direkt darin** kommen in den Posteingang des **Haushalts**; ein **Unterordner, der wie die E-Mail-Adresse eines Kontos heißt**, geht in dessen privaten Posteingang (Groß- und Kleinschreibung egal). So bekommt jede Person am Scanner ein eigenes Ziel, ohne Einstellung in myDocs. Übernommen wird eine Datei, wenn Größe und Änderungszeit bei zwei Durchläufen gleich sind; danach **wird sie gelöscht**, damit kein Klartext liegen bleibt. Nur PDF und Bilder (JPEG, PNG, TIFF), erkannt am Inhalt, bis zur größten Datei (78); anderes kommt nach `_fehler`. Unbekannte Unterordner, versteckte Dateien und die Ordner der Synology (`@eaDir`, `#recycle`) bleiben unberührt. Lässt sich eine übernommene Datei nicht löschen, steht das im Protokoll des Containers und sie wird nicht ein zweites Mal übernommen. Der Papierkorb der Freigabe muss aus sein. |
 
+## Runde 20 (28.11.2026, M3.6 Mail-Eingang)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 148 | Postfach | Ein **eigenes IMAP-Postfach** für myDocs (Verwaltung → Einstellungen → Mail-Eingang), Passwort mit Data Protection verschlüsselt wie bei SMTP. Abruf alle 2 Minuten, höchstens 20 Mails je Durchlauf, Mails über 50 MB werden nicht geladen (Speicher der App). Jede Mail wandert danach in den Ordner **„myDocs-verarbeitet“** oder **„myDocs-abgelehnt“** neben dem Eingangsordner. Ein Hash der Message-ID verhindert, dass eine Mail nach einem Abbruch zweimal übernommen wird. Knopf „Speichern und Postfach testen“. Die Adresse steht unter Benachrichtigungen, damit jede Person weiß, wohin sie weiterleitet. |
+| 149 | Absender | Angenommen wird nur ein einziger Absender, der die **Anmeldeadresse** eines aktiven Mitglieds ist oder eine seiner bis zu **5 weiteren Absenderadressen** (Benutzermenü → Benachrichtigungen; jede gehört zu höchstens einem Konto). Gäste und gesperrte Konten nicht. Geprüft wird der **oberste `Authentication-Results`-Header** (ihn setzt der eigene Mailserver beim Empfang) bzw., wenn eine Kennung (authserv-id) eingestellt ist, der oberste mit dieser Kennung; ältere oder untergeschobene Header zählen nicht. Bestanden ist `dmarc=pass` oder `dkim=pass` bzw. `spf=pass` mit einer Domain, die zum Absender passt (gleich oder Subdomain). Eine abgelehnte Mail steht mit Grund als „Mail abgelehnt“ im Protokoll der Person, sonst nur im Protokoll des Administrators. |
+| 150 | Anhänge | Jeder Anhang aus der **Positivliste** wird ein eigenes Dokument im **privaten Posteingang** des Absenders: PDF; JPEG, PNG, TIFF, GIF, WebP, HEIC; doc/docx/docm, xls/xlsx/xlsm, ppt/pptx/pptm, odt/ods/odp, rtf, txt, csv. Der Inhalt muss zur Endung passen (ein „PDF“ mit HTML darin fällt heraus). Bilder der Signatur (eingebettet mit Content-ID) zählen nicht. Alles andere und zu Große werden übergangen, nie HTML, SVG oder Programme. Titel aus dem Dateinamen, Herkunft „Absender · Betreff“. |
+| 151 | Makros und Mailtext | Office-Dateien mit Makros (Endung auf m, `vbaProject.bin`, VBA-Projekt in alten Formaten, Basic-Bibliothek in ODF) werden **markiert, nicht verändert**: „Enthält Makros“ am Dokument und im Posteingang. Der Worker führt keine Makros aus und hat kein Internet. Ohne brauchbaren Anhang, oder immer, wenn die Person es einschaltet, wird der **Mailtext** ein Dokument: Textdatei mit Von, An, Datum und Betreff, HTML ohne Skripte, Stile und Bilder, damit nichts nachgeladen wird. Die Vorschau als PDF erzeugt der Worker (so ist „Mailtext als PDF“ aus 49 umgesetzt; das Original bleibt Text). |
+
 ## Offen
 
 | Thema | Was fehlt |
 | --- | --- |
 | Zusatztypen (7) | Felder, Bereich und Lebenszyklus-Muster je Typ |
 | Aufbewahrung (28) | Dauer und Bezugspunkt je Dokumentart |
-| Meldungen an Administratoren | Fehlgeschlagene Sicherung oder unzustellbare Mails per Mail melden (bisher: Seite „Sicherung“ und Protokoll) |
+| Meldungen an Administratoren | Fehlgeschlagene Sicherung, unzustellbare Mails, Fehler im Mail-Eingang oder fehlgeschlagene Verarbeitung per Mail melden (bisher: Seiten „Sicherung“ und „Einstellungen“, Protokoll) |
+| Korrespondenz (21) | Typ für Dokumente ohne passenden Eintrag; gehört zu den Zusatztypen (7) |

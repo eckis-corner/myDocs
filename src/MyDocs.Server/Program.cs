@@ -132,6 +132,10 @@ builder.Services.AddHostedService(services => services.GetRequiredService<MyDocs
 // Scan-Ordner (M3.5)
 builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Inbox.ScanFolderService>();
 builder.Services.AddHostedService(services => services.GetRequiredService<MyDocs.Server.Infrastructure.Inbox.ScanFolderService>());
+// Mail-Eingang (M3.6)
+builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Mail.IMailboxConnector, MyDocs.Server.Infrastructure.Mail.ImapMailboxConnector>();
+builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Inbox.MailIntakeService>();
+builder.Services.AddHostedService(services => services.GetRequiredService<MyDocs.Server.Infrastructure.Inbox.MailIntakeService>());
 // Uploads bis zur Grenze aus den Einstellungen (78) plus Platz für den Multipart-Rahmen.
 var maxRequestBytes = (options.MaxFileSizeMegabytes + 1) * 1024L * 1024L;
 builder.Services.AddAuthorizationBuilder()

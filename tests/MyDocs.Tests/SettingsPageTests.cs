@@ -66,6 +66,46 @@ public sealed class SettingsPageTests : BunitContext
     }
 
     [Fact]
+    public void SavingKeepsTheImapSettingsAndItsPassword()
+    {
+        var stored = new AdminSettingsDto
+        {
+            Imap = new ImapSettingsDto { Host = "imap.example.test", Username = "dokumente@example.test", HasPassword = true, TrustedAuthServId = "mx.example.test" },
+            FileSizeCeilingMegabytes = 100,
+        };
+        AdminSettingsDto? sent = null;
+        _api.OnJson("GET /api/admin/settings", stored)
+            .On("PUT /api/admin/settings", request =>
+            {
+                sent = request.Content!.ReadFromJsonAsync<AdminSettingsDto>().GetAwaiter().GetResult();
+                return new HttpResponseMessage(System.Net.HttpStatusCode.OK) { Content = JsonContent.Create(stored) };
+            });
+
+        var page = Render<SettingsPage>();
+        page.WaitForAssertion(() => Assert.NotEmpty(page.FindAll("[data-testid=imap-card]")));
+        page.Find("[data-testid=settings-save]").Click();
+
+        page.WaitForAssertion(() => Assert.NotNull(sent));
+        Assert.Equal(("imap.example.test", "dokumente@example.test", "mx.example.test", "INBOX"), (sent!.Imap.Host, sent.Imap.Username, sent.Imap.TrustedAuthServId, sent.Imap.Folder));
+        Assert.Null(sent.Imap.Password);
+    }
+
+    [Fact]
+    public void MembersSeeWhereToForwardTheirMail()
+    {
+        _api.OnJson("GET /api/account/notifications", new NotificationSettingsDto(MailLanguages.German, 7, null, true, false)
+        {
+            MailInAddress = "dokumente@example.test",
+            MailSenders = ["bea.privat@example.org"],
+        });
+
+        var page = Render<NotificationsPage>();
+
+        page.WaitForAssertion(() => Assert.Equal("dokumente@example.test", page.Find("[data-testid=mail-in-address]").TextContent));
+        Assert.Contains("bea.privat@example.org", page.Find("textarea[data-testid=mail-senders]").TextContent + page.Find("textarea[data-testid=mail-senders]").GetAttribute("value"), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public void WithoutMailAndNtfyTheNotificationPageSaysSo()
     {
         _api.OnJson("GET /api/account/notifications", new NotificationSettingsDto(MailLanguages.German, 7, null, false, false));

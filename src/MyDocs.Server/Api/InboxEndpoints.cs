@@ -252,6 +252,9 @@ internal static class InboxEndpoints
     {
         var dto = await DocumentEndpoints.ToDtoAsync(document, caller, access, db, ct);
         return new InboxItemDto(document.Id, document.Title, document.Kind, document.DocumentDate, document.Source, document.SourceDetail,
-            document.InboxPersonId is null, document.CreatedAt, dto.Current, document.DeletedAt);
+            document.InboxPersonId is null, document.CreatedAt, dto.Current, document.DeletedAt)
+        {
+            HasMacros = document.HasMacros,
+        };
     }
 }

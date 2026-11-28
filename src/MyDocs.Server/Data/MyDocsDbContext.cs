@@ -42,6 +42,8 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
 
     public DbSet<BlobText> BlobTexts => Set<BlobText>();
 
+    public DbSet<ProcessedMail> ProcessedMails => Set<ProcessedMail>();
+
     public DbSet<AuditEntry> AuditLog => Set<AuditEntry>();
 
     public DbSet<WorkTask> Tasks => Set<WorkTask>();
@@ -191,6 +193,13 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
             entity.HasIndex(x => x.BlobHash);
             entity.HasOne<Blob>().WithMany().HasForeignKey(x => x.SourceHash).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne<Blob>().WithMany().HasForeignKey(x => x.BlobHash).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<ProcessedMail>(entity =>
+        {
+            entity.ToTable("processed_mails");
+            entity.HasKey(x => x.Hash);
+            entity.Property(x => x.Hash).HasMaxLength(64);
         });
 
         builder.Entity<BlobText>(entity =>

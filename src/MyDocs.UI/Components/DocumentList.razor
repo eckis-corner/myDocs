@@ -63,6 +63,10 @@
                                         <text> · @L["DocumentVersions", document.Versions.Count]</text>
                                     }
                                 </MudText>
+                                @if (document.HasMacros)
+                                {
+                                    <MudText Typo="Typo.caption" Color="Color.Warning" data-testid="document-macros">@L["DocumentHasMacros"]</MudText>
+                                }
                                 @if (document.Current.Processing == ProcessingStates.Pending)
                                 {
                                     <MudText Typo="Typo.caption" Color="Color.Info" data-testid="document-processing">@L["DocumentProcessing"]</MudText>

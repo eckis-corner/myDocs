@@ -57,6 +57,26 @@
             </MudStack>
         </MudPaper>
 
+        <AuthorizeView Roles="@HouseholdRoles.Member">
+            <MudPaper Class="pa-4" Elevation="1" data-testid="mail-intake">
+                <MudStack Spacing="2">
+                    <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["NotificationsMailIn"]</b></MudText>
+                    @if (_settings.MailInAddress is { } address)
+                    {
+                        <MudText Typo="Typo.body2">@L["NotificationsMailInAddress"] <b data-testid="mail-in-address">@address</b></MudText>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Class="mydocs-muted">@L["NotificationsMailInOff"]</MudText>
+                    }
+                    <MudText Typo="Typo.body2" Class="mydocs-muted">@L["NotificationsMailInIntro"]</MudText>
+                    <MudTextField T="string" @bind-Value="_senders" Label="@L["NotificationsMailSenders"]" HelperText="@L["NotificationsMailSendersHelp", MailIntakeLimits.MaxSenders]"
+                                  Variant="Variant.Outlined" Lines="3" UserAttributes="@(new() { ["data-testid"] = "mail-senders" })" />
+                    <MudSwitch T="bool" @bind-Value="_bodyAlways" Color="Color.Primary" Label="@L["NotificationsMailBodyAlways"]" />
+                </MudStack>
+            </MudPaper>
+        </AuthorizeView>
+
         <MudStack Row Spacing="2">
             <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Save" OnClick="SaveAsync" Disabled="_busy" data-testid="notifications-save">@L["Save"]</MudButton>
             <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Outlined.Send" OnClick="TestAsync" Disabled="@(_busy || (!_settings.MailConfigured && !_settings.NtfyConfigured))">@L["NotificationsTest"]</MudButton>
@@ -71,6 +91,8 @@
     private string _language = MailLanguages.German;
     private string? _topic;
     private bool _topicInvalid;
+    private string? _senders;
+    private bool _bodyAlways;
     private bool _busy;
 
     protected override async Task OnInitializedAsync() => Show(await Notifications.GetAsync());
@@ -82,6 +104,8 @@
         _hour = settings.DigestHour ?? 7;
         _language = settings.Language;
         _topic = settings.NtfyTopic;
+        _senders = string.Join('\n', settings.MailSenders);
+        _bodyAlways = settings.MailBodyAlways;
     }
 
     /// <summary>Themen bei ntfy sind für jeden lesbar, der ihren Namen kennt: lieber lang und zufällig.</summary>
@@ -99,7 +123,8 @@
         _busy = true;
         try
         {
-            Show(await Notifications.SaveAsync(new NotificationSettingsRequest(_language, _digest ? _hour : null, topic)));
+            var senders = (_senders ?? string.Empty).Split(['\n', ',', ';', ' '], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
+            Show(await Notifications.SaveAsync(new NotificationSettingsRequest(_language, _digest ? _hour : null, topic) { MailSenders = senders, MailBodyAlways = _bodyAlways }));
             Snackbar.Add(L["Saved"], Severity.Success);
             return true;
         }

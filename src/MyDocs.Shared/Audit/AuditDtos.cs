@@ -41,6 +41,9 @@ public static class AuditActions
     public const string TaskClosed = "task-closed";
     public const string SettingsChanged = "settings-changed";
     public const string MailFailed = "mail-failed";
+    public const string MyLifeConnected = "mylife-connected";
+    public const string MyLifeRevoked = "mylife-revoked";
+    public const string MyLifeSynced = "mylife-synced";
 }
 
 /// <summary>Ein Eintrag im Audit-Log. Details ohne Inhalte, höchstens Titel.</summary>

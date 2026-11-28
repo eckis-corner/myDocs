@@ -685,6 +685,10 @@ namespace MyDocs.Server.Data.Migrations
                         .HasColumnType("jsonb")
                         .HasColumnName("locations");
 
+                    b.Property<bool>("MyLifeSync")
+                        .HasColumnType("boolean")
+                        .HasColumnName("mylife_sync");
+
                     b.Property<DateOnly?>("NextReviewOn")
                         .HasColumnType("date")
                         .HasColumnName("next_review_on");
@@ -876,6 +880,10 @@ namespace MyDocs.Server.Data.Migrations
                         .HasColumnType("character varying(200)")
                         .HasColumnName("title");
 
+                    b.Property<bool>("ToMyLife")
+                        .HasColumnType("boolean")
+                        .HasColumnName("to_mylife");
+
                     b.Property<DateTimeOffset>("UpdatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("updated_at");
@@ -1053,6 +1061,48 @@ namespace MyDocs.Server.Data.Migrations
                         .HasFilter("sent_at IS NULL AND failed_at IS NULL");
 
                     b.ToTable("mail_outbox", (string)null);
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.MyLifeLink", b =>
+                {
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<DateTimeOffset?>("LastSyncedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_synced_at");
+
+                    b.Property<DateTimeOffset?>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_used_at");
+
+                    b.Property<DateTimeOffset?>("PendingSince")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("pending_since");
+
+                    b.Property<string>("SyncedFingerprint")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("synced_fingerprint");
+
+                    b.Property<byte[]>("TokenHash")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("token_hash");
+
+                    b.HasKey("UserId")
+                        .HasName("pk_mylife_links");
+
+                    b.HasIndex("TokenHash")
+                        .IsUnique()
+                        .HasDatabaseName("ix_mylife_links_token_hash");
+
+                    b.ToTable("mylife_links", (string)null);
                 });
 
             modelBuilder.Entity("MyDocs.Server.Data.ObjectHistoryEntry", b =>
@@ -1673,6 +1723,16 @@ namespace MyDocs.Server.Data.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_document_versions_documents_document_id");
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.MyLifeLink", b =>
+                {
+                    b.HasOne("MyDocs.Server.Data.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_mylife_links_users_user_id");
                 });
 
             modelBuilder.Entity("MyDocs.Server.Data.ObjectHistoryEntry", b =>

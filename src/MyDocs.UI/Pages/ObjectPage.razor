@@ -69,6 +69,14 @@ else
                     <MudLink Href="@($"object/{successor}")" Typo="Typo.caption">@L["LifecycleReplacedByLink", Directory.TitleOf(successor) ?? "?"]</MudLink>
                 }
             }
+            @if (!_editing && _item is { DeletedAt: null })
+            {
+                <MudSpacer />
+                <MudTooltip Text="@L["MyLifeObjectHelp"]">
+                    <MudSwitch T="bool" Value="_item.MyLife" ValueChanged="SetMyLifeAsync" Disabled="@(!_item.CanEdit || _busy)" Color="Color.Primary"
+                               Label="@L["MyLifeObjectSwitch"]" data-testid="object-mylife" />
+                </MudTooltip>
+            }
         </MudStack>
 
         @if (_editing)
@@ -223,6 +231,27 @@ else
         catch (ApiException exception)
         {
             _error = exception.Code;
+        }
+    }
+
+    [Inject] private MyLifeClient MyLife { get; set; } = default!;
+
+    /// <summary>„In myLife führen“ (57) umschalten; geht nicht über das Formular, damit es auch ohne Bearbeiten geht.</summary>
+    private async Task SetMyLifeAsync(bool enabled)
+    {
+        _busy = true;
+        try
+        {
+            await MyLife.SetObjectAsync(_item!.Id, enabled);
+            _item = _item with { MyLife = enabled };
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"ObjectError_{exception.Code}"], Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
         }
     }
 

@@ -1,6 +1,6 @@
 # Abnahme von M1 bis M4 auf der Synology
 
-Checkliste für die Meilensteine M1 (Teil 1–8), M2 (Teil 9–12) und M3 (ab Teil 13) auf der DS1520+ ([meilensteine.md](../meilensteine.md)). Erst danach kommen echte Daten (67). Zum Abhaken: `[ ]` durch `[x]` ersetzen. Wenn etwas nicht wie beschrieben funktioniert: notieren, was du getan hast und was passiert ist, dann weiter mit dem nächsten Punkt.
+Checkliste für die Meilensteine M1 (Teil 1–8), M2 (Teil 9–12), M3 (Teil 13–17), M4 (Teil 18) und M5 (Teil 19) auf der DS1520+ ([meilensteine.md](../meilensteine.md)). Erst danach kommen echte Daten (67). Zum Abhaken: `[ ]` durch `[x]` ersetzen. Wenn etwas nicht wie beschrieben funktioniert: notieren, was du getan hast und was passiert ist, dann weiter mit dem nächsten Punkt.
 
 Gebraucht werden drei Konten mit eigenen Mail-Adressen: **A** (Administrator), **B** (Mitglied) und **C** (Gast). Für Teil 1–8 müssen die Adressen nicht echt sein; für die Abnahme von M2 (Teil 9–12) brauchen A und B echte Postfächer.
 
@@ -174,6 +174,24 @@ Anleitung: [desktop.md](desktop.md). Je System:
 - [ ] **Abmelden** im Client → das Gerät verschwindet aus der Liste
 
 **Abnahme M4:** Eine Excel-Liste lässt sich auf allen drei Systemen öffnen, ändern und speichern, und jede Speicherung ist eine Version.
+
+## 19. Abgleich mit myLife (M5, als B, myLife auf dem Stand mit „Abgleich mit myDocs“)
+
+Vorher: `MYDOCS_MYLIFE_URL` und `MYLIFE_MYDOCS_URL` gesetzt (installation.md, Abschnitt 6d).
+
+- [ ] myDocs → Benutzermenü → **myLife**: Die Liste zeigt die eigenen Einträge und die Haushaltseinträge, für die B zuständig ist; ein Eintrag von C fehlt
+- [ ] **Mit myLife verbinden** → das Token erscheint einmal; **In myLife öffnen** → myLife fragt nach dem Entsperren „Mit myDocs unter … verbinden?“, ohne Warnung zur Adresse
+- [ ] Nach **Verbinden** zeigt myLife die Einträge als „neu“; **Verschlüsselt übernehmen** → die Einträge stehen in den Bereichen, das Datenblatt zeigt „gepflegt in myDocs“
+- [ ] In myLife **Bearbeiten**: Titel und Felder sind gesperrt, Wunsch und Notiz lassen sich ändern und speichern
+- [ ] An einer Versicherung in myDocs die Beitragshöhe ändern und die Police mit **Nach myLife übernehmen** markieren → myDocs → myLife zeigt „Seit dem letzten Abgleich hat sich etwas geändert“; in myLife zeigt die Übersicht „1 Änderungen aus myDocs“
+- [ ] Übernehmen → in myLife stehen der neue Beitrag und die Police; die Seite myLife in myDocs zeigt „auf dem aktuellen Stand“
+- [ ] Im Container von myLife (`docker exec` auf die Datenbank) `SELECT payload FROM objects LIMIT 1` → nur Chiffrat, kein Beitrag und kein Versicherer im Klartext
+- [ ] **In myLife führen** an einem Eintrag ausschalten → beim nächsten Abgleich „nicht mehr in myDocs“, Standard „als eigenen Eintrag behalten“
+- [ ] Eine Prüfung in myDocs 14 Tage überfällig werden lassen (oder einen Eintrag mit überfälliger Prüfung nehmen) → nach dem Abgleich zeigt das Datenblatt in myLife „Stand ungeprüft seit …“, auch im Lesemodus einer Vertrauensperson
+- [ ] **Verbindung trennen** in myDocs → myLife meldet „Das Token gilt nicht mehr“
+- [ ] In myLife **myDocs-Wiederherstellung** anlegen und den Ablageort der 24 Wörter eintragen
+
+**Abnahme M5:** Eine Änderung an einer Versicherung in myDocs steht nach dem Abgleich verschlüsselt in myLife, und der myLife-Server sieht nur Chiffrat.
 
 ## Ergebnis
 

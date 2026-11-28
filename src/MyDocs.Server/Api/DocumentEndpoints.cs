@@ -481,6 +481,7 @@ internal static class DocumentEndpoints
             LockedByName = lockedBy,
             LockedAt = lockedBy is null ? null : document.LockedAt,
             LockedByMe = lockedBy is not null && document.LockedBy == caller.UserId,
+            ToMyLife = document.ToMyLife,
         };
     }
 

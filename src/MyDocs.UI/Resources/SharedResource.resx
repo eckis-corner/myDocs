@@ -21,6 +21,9 @@
   <data name="AppName" xml:space="preserve"><value>myDocs</value></data>
   <data name="AreaEmpty" xml:space="preserve"><value>Noch keine Einträge.</value></data>
   <data name="AreaNotAvailable" xml:space="preserve"><value>Diesen Bereich führt myDocs nicht.</value></data>
+  <data name="Audit_mylife-connected" xml:space="preserve"><value>Mit myLife verbunden</value></data>
+  <data name="Audit_mylife-revoked" xml:space="preserve"><value>Verbindung mit myLife getrennt</value></data>
+  <data name="Audit_mylife-synced" xml:space="preserve"><value>Abgleich mit myLife übernommen</value></data>
   <data name="AuditAction" xml:space="preserve"><value>Was</value></data>
   <data name="AuditActor" xml:space="preserve"><value>Wer</value></data>
   <data name="AuditAt" xml:space="preserve"><value>Zeitpunkt</value></data>
@@ -126,6 +129,7 @@
   <data name="CommentsTitle" xml:space="preserve"><value>Kommentare</value></data>
   <data name="Confirm" xml:space="preserve"><value>Bestätigen</value></data>
   <data name="Copied" xml:space="preserve"><value>In die Zwischenablage kopiert.</value></data>
+  <data name="Copy" xml:space="preserve"><value>Kopieren</value></data>
   <data name="CopyLink" xml:space="preserve"><value>Link kopieren</value></data>
   <data name="DashDeadlines" xml:space="preserve"><value>Fristen in den nächsten 90 Tagen</value></data>
   <data name="DashDue" xml:space="preserve"><value>Überfällig und diese Woche</value></data>
@@ -227,6 +231,9 @@
   <data name="DocumentSource_scan" xml:space="preserve"><value>Scanner</value></data>
   <data name="DocumentSource_upload" xml:space="preserve"><value>Hochgeladen</value></data>
   <data name="DocumentTitle" xml:space="preserve"><value>Bezeichnung</value></data>
+  <data name="DocumentToMyLife" xml:space="preserve"><value>Geht als Kopie nach myLife</value></data>
+  <data name="DocumentToMyLifeOff" xml:space="preserve"><value>Nicht mehr nach myLife</value></data>
+  <data name="DocumentToMyLifeOn" xml:space="preserve"><value>Nach myLife übernehmen</value></data>
   <data name="DocumentUpload" xml:space="preserve"><value>Hochladen</value></data>
   <data name="DocumentVersionAdded" xml:space="preserve"><value>Neue Version gespeichert.</value></data>
   <data name="DocumentVersionDownload" xml:space="preserve"><value>Version {0} vom {1} ({2})</value></data>
@@ -371,6 +378,36 @@ diese Vorgänge sind seit 14 Tagen überfällig und gehen jetzt an den ganzen Ha
   <data name="MasterKeyShow" xml:space="preserve"><value>Hauptschlüssel anzeigen</value></data>
   <data name="MasterKeyTitle" xml:space="preserve"><value>Hauptschlüssel</value></data>
   <data name="MasterKeyWarning" xml:space="preserve"><value>Wer diese Wörter und die Dateien hat, kann alle Dokumente lesen. Nicht abfotografieren, nicht per Mail verschicken. Die Anzeige steht im Protokoll.</value></data>
+  <data name="MyLifeConnect" xml:space="preserve"><value>Mit myLife verbinden</value></data>
+  <data name="MyLifeConnectedSince" xml:space="preserve"><value>Verbunden seit {0}</value></data>
+  <data name="MyLifeCurrent" xml:space="preserve"><value>myLife ist auf dem aktuellen Stand.</value></data>
+  <data name="MyLifeDisconnect" xml:space="preserve"><value>Verbindung trennen</value></data>
+  <data name="MyLifeDisconnectConfirm" xml:space="preserve"><value>myLife kann danach nichts mehr abholen. Was schon in myLife steht, bleibt dort.</value></data>
+  <data name="MyLifeDisconnected" xml:space="preserve"><value>Verbindung getrennt.</value></data>
+  <data name="MyLifeDocuments" xml:space="preserve"><value>{0} Dokumente</value></data>
+  <data name="MyLifeError_invalid-fingerprint" xml:space="preserve"><value>Ungültige Quittung.</value></data>
+  <data name="MyLifeError_invalid-token" xml:space="preserve"><value>Das Token gilt nicht (mehr).</value></data>
+  <data name="MyLifeError_no-person" xml:space="preserve"><value>Dein Konto gehört zu keiner Person im Haushalt. Ohne Person gibt es nichts für myLife.</value></data>
+  <data name="MyLifeError_too-large" xml:space="preserve"><value>Die Datei ist größer als 25 MB; myLife nimmt sie nicht an.</value></data>
+  <data name="MyLifeIntro" xml:space="preserve"><value>myLife holt sich von hier, was im Ernstfall gebraucht wird: deine eigenen Einträge und die des Haushalts, für die du zuständig bist, jeweils mit „In myLife führen“, dazu die Dokumente mit „Nach myLife übernehmen“. myLife liest nur, verschlüsselt im Browser und zeigt dir vorher die Änderungen.</value></data>
+  <data name="MyLifeLastSynced" xml:space="preserve"><value>Zuletzt abgeglichen: {0}</value></data>
+  <data name="MyLifeLastUsed" xml:space="preserve"><value>zuletzt abgefragt {0}</value></data>
+  <data name="MyLifeNeverSynced" xml:space="preserve"><value>Noch nie abgeglichen.</value></data>
+  <data name="MyLifeNewToken" xml:space="preserve"><value>Neues Token</value></data>
+  <data name="MyLifeNewTokenConfirm" xml:space="preserve"><value>Das bisherige Token gilt danach nicht mehr; myLife braucht das neue.</value></data>
+  <data name="MyLifeNotConnected" xml:space="preserve"><value>Noch nicht mit myLife verbunden.</value></data>
+  <data name="MyLifeNoUrl" xml:space="preserve"><value>Die Adresse von myLife ist nicht eingestellt (MYDOCS_MYLIFE_URL). Adresse und Token in myLife unter „Abgleich mit myDocs“ einfügen.</value></data>
+  <data name="MyLifeObjectHelp" xml:space="preserve"><value>Geht in den Tresor der Eigentümerin oder des Eigentümers, bei Haushaltseinträgen der zuständigen Person.</value></data>
+  <data name="MyLifeObjectsEmpty" xml:space="preserve"><value>Nichts, was an myLife geht.</value></data>
+  <data name="MyLifeObjectsIntro" xml:space="preserve"><value>Verweise auf Einträge, die nicht mitgehen, entfallen in myLife; Ablageorte kommen mit.</value></data>
+  <data name="MyLifeObjectsTitle" xml:space="preserve"><value>Was an myLife geht ({0})</value></data>
+  <data name="MyLifeObjectSwitch" xml:space="preserve"><value>In myLife führen</value></data>
+  <data name="MyLifeOpen" xml:space="preserve"><value>In myLife öffnen</value></data>
+  <data name="MyLifePending" xml:space="preserve"><value>Seit dem letzten Abgleich hat sich etwas geändert. Öffne myLife, um es zu übernehmen.</value></data>
+  <data name="MyLifeServerUrl" xml:space="preserve"><value>Adresse von myDocs</value></data>
+  <data name="MyLifeTitle" xml:space="preserve"><value>myLife</value></data>
+  <data name="MyLifeToken" xml:space="preserve"><value>Token für myLife</value></data>
+  <data name="MyLifeTokenOnce" xml:space="preserve"><value>Das Token erscheint nur jetzt. Es erlaubt nur das Lesen der Einträge oben; wer es hat, kann sie lesen.</value></data>
   <data name="NavAdmin" xml:space="preserve"><value>Verwaltung</value></data>
   <data name="NavAreas" xml:space="preserve"><value>Bereiche</value></data>
   <data name="NavHome" xml:space="preserve"><value>Übersicht</value></data>
@@ -623,6 +660,7 @@ diese Vorgänge sind seit 14 Tagen überfällig und gehen jetzt an den ganzen Ha
   <data name="TaskTitle_final-invoice" xml:space="preserve"><value>Letzte Abrechnung prüfen</value></data>
   <data name="TaskTitle_inbox" xml:space="preserve"><value>Posteingang abarbeiten</value></data>
   <data name="TaskTitle_loan-end" xml:space="preserve"><value>Kredit läuft aus: Anschluss klären</value></data>
+  <data name="TaskTitle_mylife-sync" xml:space="preserve"><value>myLife abgleichen</value></data>
   <data name="TaskTitle_renew-or-replace" xml:space="preserve"><value>Verlängern oder ersetzen?</value></data>
   <data name="TaskTitle_review" xml:space="preserve"><value>Prüfen, ob alles noch stimmt</value></data>
   <data name="TaskWait" xml:space="preserve"><value>Wartet auf Dritte</value></data>

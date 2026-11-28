@@ -70,6 +70,9 @@ public sealed class Document
     public DateTimeOffset? LockedAt { get; set; }
 
     public DateTimeOffset? LockExpiresAt { get; set; }
+
+    /// <summary>Geht als feste Kopie der aktuellen Version mit nach myLife (58).</summary>
+    public bool ToMyLife { get; set; }
 }
 
 /// <summary>Übernommene Mail (148), damit sie nach einem Abbruch nicht zweimal in den Posteingang kommt.</summary>

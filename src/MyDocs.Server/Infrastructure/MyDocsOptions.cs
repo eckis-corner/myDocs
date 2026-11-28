@@ -46,4 +46,16 @@ public sealed class MyDocsOptions
     /// Haushalts, in Unterordnern mit der E-Mail-Adresse eines Kontos in dessen eigenen.
     /// </summary>
     public string? ScanDirectory { get; set; }
+
+    /// <summary>
+    /// Adresse von myLife (56, 166), etwa <c>https://mylife.eckis-corner.de</c>, aus <c>MYDOCS_MYLIFE_URL</c>. Nur dieser
+    /// Origin darf die Brücke unter <c>/api/mylife</c> aus dem Browser abfragen. Leer: keine Brücke.
+    /// </summary>
+    public string? MyLifeUrl { get; set; }
+
+    /// <summary>Origin einer Adresse (<c>https://host[:port]</c>, ohne Pfad); null, wenn sie fehlt oder kein http(s) ist.</summary>
+    public static string? Origin(string? url) =>
+        Uri.TryCreate(url?.Trim(), UriKind.Absolute, out var uri) && (uri.Scheme == Uri.UriSchemeHttps || uri.Scheme == Uri.UriSchemeHttp)
+            ? uri.GetLeftPart(UriPartial.Authority)
+            : null;
 }

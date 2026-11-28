@@ -1,0 +1,172 @@
+@page "/account/mylife"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@* Verbindung mit myLife (M5.1, 162): lesendes Token anlegen oder widerrufen, Stand des Abgleichs, was übertragen wird. *@
+@using MyDocs.Shared.MyLife
+@inject IStringLocalizer<SharedResource> L
+@inject MyLifeClient MyLife
+@inject IDialogService Dialogs
+@inject ISnackbar Snackbar
+@inject IJSRuntime Js
+
+<PageTitle>@L["AppName"] – @L["MyLifeTitle"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h4" HtmlTag="h1">@L["MyLifeTitle"]</MudText>
+    <MudText Typo="Typo.body2" Class="mydocs-muted">@L["MyLifeIntro"]</MudText>
+    @if (_status is null)
+    {
+        <MudProgressLinear Indeterminate Color="Color.Primary" />
+    }
+    else if (!_status.HasPerson)
+    {
+        <MudAlert Severity="Severity.Info">@L["MyLifeError_no-person"]</MudAlert>
+    }
+    else
+    {
+        <MudPaper Class="pa-4" Elevation="1">
+            <MudStack Spacing="2">
+                @if (_status.Connected)
+                {
+                    <MudText data-testid="mylife-connected">
+                        @L["MyLifeConnectedSince", _status.CreatedAt!.Value.ToLocalTime().ToString("d", CultureInfo.CurrentCulture)]
+                        @if (_status.LastUsedAt is { } used)
+                        {
+                            <span> · @L["MyLifeLastUsed", used.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)]</span>
+                        }
+                    </MudText>
+                    <MudText data-testid="mylife-synced">
+                        @(_status.LastSyncedAt is { } synced ? L["MyLifeLastSynced", synced.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)] : L["MyLifeNeverSynced"])
+                    </MudText>
+                    @if (_status.Pending)
+                    {
+                        <MudAlert Severity="Severity.Info" Dense data-testid="mylife-pending">@L["MyLifePending"]</MudAlert>
+                    }
+                    else if (_status.LastSyncedAt is not null)
+                    {
+                        <MudAlert Severity="Severity.Success" Dense data-testid="mylife-current">@L["MyLifeCurrent"]</MudAlert>
+                    }
+                }
+                else
+                {
+                    <MudText data-testid="mylife-not-connected">@L["MyLifeNotConnected"]</MudText>
+                }
+
+                @if (_connect is { } connect)
+                {
+                    <MudAlert Severity="Severity.Warning" Dense>@L["MyLifeTokenOnce"]</MudAlert>
+                    <MudTextField T="string" Value="connect.ServerUrl" Label="@L["MyLifeServerUrl"]" Variant="Variant.Outlined" ReadOnly />
+                    <MudTextField T="string" Value="connect.Token" Label="@L["MyLifeToken"]" Variant="Variant.Outlined" ReadOnly
+                                  Adornment="Adornment.End" AdornmentIcon="@Icons.Material.Outlined.ContentCopy" OnAdornmentClick="CopyAsync"
+                                  AdornmentAriaLabel="@L["Copy"]" UserAttributes="@TokenAttributes" />
+                    @if (connect.ConnectUrl is { } url)
+                    {
+                        <div>
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="@url" Target="_blank" rel="noopener noreferrer"
+                                       StartIcon="@Icons.Material.Outlined.OpenInNew" data-testid="mylife-open">@L["MyLifeOpen"]</MudButton>
+                        </div>
+                    }
+                    else
+                    {
+                        <MudText Typo="Typo.body2" Class="mydocs-muted">@L["MyLifeNoUrl"]</MudText>
+                    }
+                }
+
+                <MudStack Row Spacing="2">
+                    <MudButton Variant="@(_status.Connected ? Variant.Outlined : Variant.Filled)" Color="Color.Primary" OnClick="ConnectAsync" Disabled="_busy"
+                               data-testid="mylife-connect">@(_status.Connected ? L["MyLifeNewToken"] : L["MyLifeConnect"])</MudButton>
+                    @if (_status.Connected)
+                    {
+                        <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="DisconnectAsync" Disabled="_busy" data-testid="mylife-disconnect">@L["MyLifeDisconnect"]</MudButton>
+                    }
+                </MudStack>
+            </MudStack>
+        </MudPaper>
+
+        <MudText Typo="Typo.h6" HtmlTag="h2">@L["MyLifeObjectsTitle", _status.Objects.Count]</MudText>
+        <MudText Typo="Typo.body2" Class="mydocs-muted">@L["MyLifeObjectsIntro"]</MudText>
+        @if (_status.Objects.Count == 0)
+        {
+            <MudText Class="mydocs-muted" data-testid="mylife-objects-empty">@L["MyLifeObjectsEmpty"]</MudText>
+        }
+        else
+        {
+            <MudPaper Elevation="1">
+                <MudSimpleTable Dense Elevation="0" data-testid="mylife-objects">
+                    <tbody>
+                        @foreach (var item in _status.Objects)
+                        {
+                            <tr data-testid="mylife-object">
+                                <td><MudLink Href="@($"object/{item.Id}")">@item.Title</MudLink></td>
+                                <td>@Text.Type(item.TypeKey)</td>
+                                <td>@(item.Documents > 0 ? L["MyLifeDocuments", item.Documents] : string.Empty)</td>
+                            </tr>
+                        }
+                    </tbody>
+                </MudSimpleTable>
+            </MudPaper>
+        }
+    }
+</MudStack>
+
+@code {
+    private static readonly Dictionary<string, object> TokenAttributes = new() { ["data-testid"] = "mylife-token" };
+    private MyLifeLinkDto? _status;
+    private MyLifeConnectResult? _connect;
+    private bool _busy;
+
+    [Inject] private CatalogText Text { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => _status = await MyLife.StatusAsync();
+
+    private async Task ConnectAsync()
+    {
+        if (_status!.Connected && await Dialogs.ShowMessageBoxAsync(L["MyLifeNewToken"], L["MyLifeNewTokenConfirm"].Value, L["MyLifeNewToken"], L["Cancel"]) != true)
+        {
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            _connect = await MyLife.ConnectAsync();
+            _status = await MyLife.StatusAsync();
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"MyLifeError_{exception.Code}"], Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task DisconnectAsync()
+    {
+        if (await Dialogs.ShowMessageBoxAsync(L["MyLifeDisconnect"], L["MyLifeDisconnectConfirm"].Value, L["MyLifeDisconnect"], L["Cancel"]) != true)
+        {
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            await MyLife.DisconnectAsync();
+            _connect = null;
+            _status = await MyLife.StatusAsync();
+            Snackbar.Add(L["MyLifeDisconnected"], Severity.Success);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private async Task CopyAsync()
+    {
+        if (_connect is not null && await Js.InvokeAsync<bool>("myDocs.copyText", _connect.Token))
+        {
+            Snackbar.Add(L["Copied"], Severity.Success);
+        }
+    }
+}

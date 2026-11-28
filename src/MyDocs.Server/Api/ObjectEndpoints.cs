@@ -481,6 +481,7 @@ internal static class ObjectEndpoints
             item.LifecycleState, item.LifecycleDate, item.ReplacedById)
         {
             Review = ReviewPlan.Info(item, access.Today),
+            MyLife = item.MyLifeSync,
         };
     }
 

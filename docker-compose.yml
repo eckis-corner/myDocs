@@ -18,6 +18,8 @@ services:
       MyDocs__WorkerUrl: http://worker:8080
       # Scan-Ordner (M3.5): Freigabe, in die der Scanner schreibt; leer lassen, wenn es keinen gibt.
       MyDocs__ScanDirectory: /scan
+      # Brücke zu myLife (M5): Adresse von myLife; nur sie darf /api/mylife aus dem Browser abfragen. Leer: keine Brücke.
+      MyDocs__MyLifeUrl: ${MYDOCS_MYLIFE_URL:-}
       TZ: ${TZ:-Europe/Berlin}
     networks:
       - default

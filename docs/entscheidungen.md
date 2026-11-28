@@ -325,6 +325,32 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | ---: | --- | --- |
 | 161 | Pakete | Die CI baut den Client bei jedem Push für **win-x64, osx-arm64, osx-x64, linux-x64**, eigenständig (mit .NET), als Artefakt; ein Tag `v*` legt ein GitHub-Release mit allen Paketen an. macOS bekommt ein `.app`-Bundle, Windows ein ZIP, Linux ein tar.gz. **Nicht signiert** und nicht notarisiert (kein Zertifikat): SmartScreen und Gatekeeper warnen beim ersten Start; die Anleitung steht in `docs/betrieb/desktop.md`. Unter Linux werden WebKitGTK 4.1, GTK 3, libnotify und `secret-tool` vorausgesetzt. Kein Installer und keine automatische Aktualisierung vorerst. |
 
+## Runde 25 (28.11.2026, M5.1 Brücke in myDocs)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 162 | Lesendes Token | Umsetzung von 56: Unter **Benutzermenü → myLife** legt jedes Konto **ein** Token an (`mdl_` und 256 Bit Zufall), in der Datenbank nur als SHA-256, angezeigt genau einmal. Ein neues Token ersetzt das alte, **Verbindung trennen** löscht es. Es gilt nur für die drei Endpunkte unter `/api/mylife` (Stand, Dokumentinhalt, Quittung), nicht für die übrige API, und nur, solange das Konto besteht, nicht gesperrt ist und zu einer Person gehört. Kein Ablaufdatum, weil myLife selten geöffnet wird; die Seite zeigt „zuletzt abgefragt“. Verbinden, Trennen, Quittung und jede Dokumentkopie stehen im Protokoll. |
+| 163 | Umfang je Person | Zu 57: In den Tresor einer Person gehen ihre **eigenen privaten Einträge** und die **Haushaltseinträge, für die sie zuständig ist**, jeweils mit **In myLife führen** (Schalter am Eintrag, vorbelegt an, weil der Katalog von myDocs nur myLife-Typen enthält). Dazu kommen die **Ablageorte**, auf die diese Einträge verweisen, auch wenn jemand anderes für sie zuständig ist (63). Freigegebene private Einträge anderer gehen nicht mit. Verweise auf Einträge, die nicht mitgehen, entfallen; der Name eines Ablageorts bleibt im Feld. Notizen, Vorgänge, Kommentare und Historie bleiben in myDocs. |
+| 164 | Brückenformat | JSON, Version 1, beschrieben in [brueckenformat.md](brueckenformat.md). Beide Apps haben eigene Klassen dafür, ein gemeinsames Paket gibt es nicht. Je Eintrag: Typ, Titel, Katalogfelder, Ablageorte, Ablaufdatum, Lebenszyklus (Zustand, Datum und `ended` für alles, was in myLife „beendet“ heißt, 29), zuletzt geprüft, überfällig seit, markierte Dokumente. Ein **Fingerabdruck** (SHA-256 über den Inhalt ohne Zeitstempel) sagt, ob sich etwas geändert hat. Erweitert wird nur durch Ergänzen. |
+| 165 | Quittung und Vorgang | Nach dem Übernehmen schickt myLife den Fingerabdruck an `POST /api/mylife/synced`. myDocs merkt sich ihn je Konto. Der Wiedervorlage-Dienst vergleicht alle 15 Minuten: Weicht der aktuelle Stand **30 Tage** vom quittierten ab (bei neuen Verbindungen ab dem Verbinden), entsteht je Person **ein** Vorgang „myLife abgleichen“ (60); die passende Quittung schließt ihn, Trennen verwirft ihn. Die Seite **myLife** zeigt, ob etwas offen ist und was übertragen wird. |
+| 166 | Browser-Zugriff | **CORS** nur für `/api/mylife`, nur für den Origin aus `MYDOCS_MYLIFE_URL`, nur GET und POST, **ohne Cookies**. In myLife steht der Origin aus `MYLIFE_MYDOCS_URL` zusätzlich in `connect-src`. Ohne beide Einträge gibt es keine Brücke. |
+
+## Runde 26 (28.11.2026, M5.2 Abgleich in myLife)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 167 | Verbindung in myLife | Adresse und Token liegen **mit dem Tresorschlüssel verschlüsselt** in einer eigenen Spalte am Konto (Kontext `mydocs-bridge`), nicht in einem Bereich: Vertrauenspersonen bekommen sie nie, und der myLife-Server sieht nur Chiffrat. Verbinden geht über **In myLife öffnen** in myDocs (Adresse und Token im `#`-Teil des Links, den kein Server sieht und den myLife sofort aus dem Verlauf nimmt) oder durch Einfügen. Vor dem Speichern fragt myLife nach und warnt, wenn die Adresse nicht die freigegebene ist. |
+| 168 | Verknüpfung und Schreibschutz | Zu 59: Verknüpft wird über `myDocs` in der verschlüsselten Nutzlast (ID in myDocs, Stand, Lebenszyklus, überfällig seit). **Titel, Katalogfelder, Ablageorte, Ablaufdatum, Status und „zuletzt geprüft“** sind dann schreibgeschützt („gepflegt in myDocs“), auch wenn jemand am Formular vorbei speichert. In myLife bleiben bearbeitbar: Wunsch, Ansprechpartner, Verknüpfungen, Ablageort des Originals, Notizen, Zusatzfelder und Wiedervorlage. **Verknüpfung lösen** macht den Eintrag wieder zu einem eigenen. Überfällige Prüfungen zeigt das Datenblatt als **„Stand ungeprüft seit …“**, auch im Lesemodus der Vertrauenspersonen (14). |
+| 169 | Dokumente | Zu 58: Nur Dokumente mit **Nach myLife übernehmen** (Menü am Dokument, höchstens 25 MB, sonst lehnt myDocs die Markierung ab). Übertragen wird die aktuelle Version als **feste Kopie**, verschlüsselt wie jedes Dokument in myLife. Kommt in myDocs eine neue Fassung, ersetzt der Abgleich die Kopie; die alte geht in den Papierkorb von myLife (30 Tage). Gehört ein Dokument zu zwei übertragenen Einträgen, bekommt jeder eine Kopie. |
+| 170 | Nicht mehr in myDocs | Kommt ein verknüpfter Eintrag nicht mehr (gelöscht, Schalter aus, Zuständigkeit gewechselt), zeigt der Abgleich ihn als „nicht mehr in myDocs“: Standard **als eigenen Eintrag behalten**, wahlweise **in den Papierkorb**. Ein Eintrag, den jemand in myLife in den Papierkorb gelegt hat, bleibt dort und kommt nicht neu. Einträge mit Typen, die myLife nicht kennt, werden übergangen. |
+| 171 | Anstoß | Zu 60: Beim Öffnen der Übersicht prüft myLife einmal je Sitzung im Hintergrund und zeigt „N Änderungen aus myDocs“. Übernommen wird nur auf der Seite **Abgleich mit myDocs** nach Bestätigung, alles auf einmal; bricht etwas ab, gibt es keine Quittung, und der nächste Abgleich zeigt den Rest. |
+
+## Runde 27 (28.11.2026, M5.3 Wiederherstellung)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 172 | myDocs-Wiederherstellung | Zu 46: Die Seite **Abgleich mit myDocs** legt auf Knopfdruck einen Eintrag **„myDocs-Wiederherstellung“** vom Typ **Passwortmanager** an (Bereich 9: der Ort für Notfallzugänge; kein neuer Typ im Katalog nötig): Produkt myDocs, Konto = Adresse, Anleitung zur Rücksicherung. Den **Ablageort der 24 Wörter** (und des Sicherungsschlüssels) trägt man selbst ein; die Wörter gehören nicht hinein (3). Der Eintrag gehört myLife allein und ist nicht mit myDocs verknüpft. |
+
 ## Offen
 
 | Thema | Was fehlt |

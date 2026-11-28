@@ -48,6 +48,8 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
 
     public DbSet<DeviceAuthorization> DeviceAuthorizations => Set<DeviceAuthorization>();
 
+    public DbSet<MyLifeLink> MyLifeLinks => Set<MyLifeLink>();
+
     public DbSet<AuditEntry> AuditLog => Set<AuditEntry>();
 
     public DbSet<WorkTask> Tasks => Set<WorkTask>();
@@ -106,6 +108,7 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
             entity.Property(x => x.Version).IsRowVersion();
             SearchColumns(entity);
             entity.Property(x => x.LifecycleState).HasMaxLength(30);
+            entity.Property(x => x.MyLifeSync).HasColumnName("mylife_sync");
             entity.HasOne<DocObject>().WithMany().HasForeignKey(x => x.ReplacedById).OnDelete(DeleteBehavior.SetNull);
             entity.HasIndex(x => x.TypeKey);
             entity.HasIndex(x => x.OwnerPersonId);
@@ -139,6 +142,7 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
         builder.Entity<Document>(entity =>
         {
             entity.ToTable("documents");
+            entity.Property(x => x.ToMyLife).HasColumnName("to_mylife");
             entity.Property(x => x.Title).HasMaxLength(200);
             entity.Property(x => x.Note).HasMaxLength(2000);
             entity.Property(x => x.Kind).HasMaxLength(30);
@@ -207,6 +211,15 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
             entity.Property(x => x.LastIp).HasMaxLength(50);
             entity.HasIndex(x => x.RefreshTokenHash).IsUnique();
             entity.HasIndex(x => x.UserId);
+            entity.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<MyLifeLink>(entity =>
+        {
+            entity.ToTable("mylife_links");
+            entity.HasKey(x => x.UserId);
+            entity.Property(x => x.SyncedFingerprint).HasMaxLength(64);
+            entity.HasIndex(x => x.TokenHash).IsUnique();
             entity.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         });
 

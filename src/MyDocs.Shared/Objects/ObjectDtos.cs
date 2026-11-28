@@ -70,6 +70,9 @@ public sealed record ObjectDto(Guid Id, string TypeKey, ObjectData Data, Guid? O
 {
     /// <summary>Stand der Prüfung (13–16); null bei Einträgen ohne Prüfung.</summary>
     public ReviewInfoDto? Review { get; init; }
+
+    /// <summary>„In myLife führen“ (57).</summary>
+    public bool MyLife { get; init; } = true;
 }
 
 /// <summary>Neu anlegen oder speichern. <paramref name="OwnerPersonId"/> null heißt Haushalt.</summary>

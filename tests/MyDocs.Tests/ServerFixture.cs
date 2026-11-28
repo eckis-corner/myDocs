@@ -107,6 +107,7 @@ public sealed class ServerFixture : WebApplicationFactory<Program>, IAsyncLifeti
         builder.UseSetting("MyDocs:DataDirectory", _dataDirectory);
         builder.UseSetting("MyDocs:BackupKey", BackupKey);
         builder.UseSetting("MyDocs:ScanDirectory", ScanDirectory);
+        builder.UseSetting("MyDocs:MyLifeUrl", "https://mylife.example.test");
         // Die Tests melden sich viel öfter an als ein Mensch; das Limit gegen Durchprobieren würde sonst greifen.
         builder.UseSetting("MyDocs:AuthRequestsPerMinute", "10000");
         builder.ConfigureTestServices(services =>

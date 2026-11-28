@@ -22,6 +22,8 @@ public sealed class SecurityTests(ServerFixture server) : IClassFixture<ServerFi
         "POST /api/activation/info", "POST /api/activation/start", "POST /api/activation/finish",
         // Desktop-Client: Code mit PKCE oder Refresh-Token gegen Tokens (M4.1)
         "POST /api/devices/token",
+        // Brücke zu myLife: eigene Prüfung des lesenden Tokens, kein Cookie (M5.1, 162)
+        "GET /api/mylife/export", "GET /api/mylife/documents/{id:guid}/content", "POST /api/mylife/synced",
     };
 
     [Fact]

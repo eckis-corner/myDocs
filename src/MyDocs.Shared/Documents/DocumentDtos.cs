@@ -40,6 +40,9 @@ public sealed record DocumentDto(Guid Id, string Title, DateOnly? DocumentDate, 
     public DateTimeOffset? LockedAt { get; init; }
 
     public bool LockedByMe { get; init; }
+
+    /// <summary>Geht als feste Kopie mit nach myLife (58).</summary>
+    public bool ToMyLife { get; init; }
 }
 
 /// <summary>Check-out (17, 156): ausgecheckte Version und wie lange die Sperre hält.</summary>

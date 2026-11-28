@@ -167,6 +167,19 @@ builder.Services.AddRateLimiter(limiter =>
         _ => new FixedWindowRateLimiterOptions { PermitLimit = options.AuthRequestsPerMinute, Window = TimeSpan.FromMinutes(1) }));
 });
 
+// Brücke zu myLife (56, 166): Nur der Origin von myLife darf /api/mylife aus dem Browser abfragen, ohne Cookies.
+builder.Services.AddScoped<MyDocs.Server.Infrastructure.MyLife.MyLifeBridge>();
+builder.Services.AddCors(cors => cors.AddPolicy(MyLifeEndpoints.CorsPolicy, policy =>
+{
+    if (MyDocsOptions.Origin(options.MyLifeUrl) is { } origin)
+    {
+        policy.WithOrigins(origin)
+            .WithMethods(HttpMethods.Get, HttpMethods.Post)
+            .WithHeaders("Authorization", "Content-Type", MyDocs.Shared.ApiHeaders.Csrf)
+            .SetPreflightMaxAge(TimeSpan.FromHours(1));
+    }
+}));
+
 builder.Services.AddRazorComponents()
     .AddInteractiveWebAssemblyComponents();
 
@@ -185,6 +198,7 @@ else
 }
 
 app.UseMiddleware<SecurityHeadersMiddleware>();
+app.UseCors();
 app.UseSerilogRequestLogging();
 app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages: true);
 app.UseMiddleware<CsrfHeaderMiddleware>();
@@ -214,6 +228,7 @@ app.MapAdminProcessingEndpoints();
 app.MapInboxEndpoints(maxRequestBytes);
 app.MapDeviceEndpoints();
 app.MapCheckoutEndpoints(maxRequestBytes);
+app.MapMyLifeEndpoints();
 
 app.MapStaticAssets();
 // Die Seiten sind nur die leere Hülle (kein Prerendering); [Authorize] prüft der Client. Geschützt sind die Daten:

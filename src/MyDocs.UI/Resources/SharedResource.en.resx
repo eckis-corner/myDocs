@@ -21,6 +21,9 @@
   <data name="AppName" xml:space="preserve"><value>myDocs</value></data>
   <data name="AreaEmpty" xml:space="preserve"><value>No entries yet.</value></data>
   <data name="AreaNotAvailable" xml:space="preserve"><value>myDocs does not keep this area.</value></data>
+  <data name="Audit_mylife-connected" xml:space="preserve"><value>Connected to myLife</value></data>
+  <data name="Audit_mylife-revoked" xml:space="preserve"><value>myLife connection removed</value></data>
+  <data name="Audit_mylife-synced" xml:space="preserve"><value>myLife sync applied</value></data>
   <data name="AuditAction" xml:space="preserve"><value>What</value></data>
   <data name="AuditActor" xml:space="preserve"><value>Who</value></data>
   <data name="AuditAt" xml:space="preserve"><value>Time</value></data>
@@ -126,6 +129,7 @@
   <data name="CommentsTitle" xml:space="preserve"><value>Comments</value></data>
   <data name="Confirm" xml:space="preserve"><value>Confirm</value></data>
   <data name="Copied" xml:space="preserve"><value>Copied to the clipboard.</value></data>
+  <data name="Copy" xml:space="preserve"><value>Copy</value></data>
   <data name="CopyLink" xml:space="preserve"><value>Copy link</value></data>
   <data name="DashDeadlines" xml:space="preserve"><value>Deadlines in the next 90 days</value></data>
   <data name="DashDue" xml:space="preserve"><value>Overdue and this week</value></data>
@@ -227,6 +231,9 @@
   <data name="DocumentSource_scan" xml:space="preserve"><value>Scanner</value></data>
   <data name="DocumentSource_upload" xml:space="preserve"><value>Uploaded</value></data>
   <data name="DocumentTitle" xml:space="preserve"><value>Title</value></data>
+  <data name="DocumentToMyLife" xml:space="preserve"><value>Copied to myLife</value></data>
+  <data name="DocumentToMyLifeOff" xml:space="preserve"><value>Stop copying to myLife</value></data>
+  <data name="DocumentToMyLifeOn" xml:space="preserve"><value>Copy to myLife</value></data>
   <data name="DocumentUpload" xml:space="preserve"><value>Upload</value></data>
   <data name="DocumentVersionAdded" xml:space="preserve"><value>New version saved.</value></data>
   <data name="DocumentVersionDownload" xml:space="preserve"><value>Version {0} of {1} ({2})</value></data>
@@ -371,6 +378,36 @@ these tasks have been overdue for 14 days and now go to the whole household:
   <data name="MasterKeyShow" xml:space="preserve"><value>Show master key</value></data>
   <data name="MasterKeyTitle" xml:space="preserve"><value>Master key</value></data>
   <data name="MasterKeyWarning" xml:space="preserve"><value>Whoever has these words and the files can read all documents. Do not photograph them or send them by email. Showing them is recorded in the log.</value></data>
+  <data name="MyLifeConnect" xml:space="preserve"><value>Connect to myLife</value></data>
+  <data name="MyLifeConnectedSince" xml:space="preserve"><value>Connected since {0}</value></data>
+  <data name="MyLifeCurrent" xml:space="preserve"><value>myLife is up to date.</value></data>
+  <data name="MyLifeDisconnect" xml:space="preserve"><value>Disconnect</value></data>
+  <data name="MyLifeDisconnectConfirm" xml:space="preserve"><value>myLife can no longer fetch anything afterwards. What is already in myLife stays there.</value></data>
+  <data name="MyLifeDisconnected" xml:space="preserve"><value>Disconnected.</value></data>
+  <data name="MyLifeDocuments" xml:space="preserve"><value>{0} documents</value></data>
+  <data name="MyLifeError_invalid-fingerprint" xml:space="preserve"><value>Invalid confirmation.</value></data>
+  <data name="MyLifeError_invalid-token" xml:space="preserve"><value>The token is not valid (any more).</value></data>
+  <data name="MyLifeError_no-person" xml:space="preserve"><value>Your account belongs to no person in the household. Without a person there is nothing for myLife.</value></data>
+  <data name="MyLifeError_too-large" xml:space="preserve"><value>The file is larger than 25 MB; myLife does not accept it.</value></data>
+  <data name="MyLifeIntro" xml:space="preserve"><value>myLife fetches from here what is needed in an emergency: your own entries and the household's entries you are in charge of, each with “Keep in myLife”, plus the documents marked “Copy to myLife”. myLife only reads, encrypts in the browser and shows you the changes first.</value></data>
+  <data name="MyLifeLastSynced" xml:space="preserve"><value>Last synced: {0}</value></data>
+  <data name="MyLifeLastUsed" xml:space="preserve"><value>last fetched {0}</value></data>
+  <data name="MyLifeNeverSynced" xml:space="preserve"><value>Never synced.</value></data>
+  <data name="MyLifeNewToken" xml:space="preserve"><value>New token</value></data>
+  <data name="MyLifeNewTokenConfirm" xml:space="preserve"><value>The previous token stops working; myLife needs the new one.</value></data>
+  <data name="MyLifeNotConnected" xml:space="preserve"><value>Not connected to myLife yet.</value></data>
+  <data name="MyLifeNoUrl" xml:space="preserve"><value>The myLife address is not configured (MYDOCS_MYLIFE_URL). Paste address and token in myLife under “Sync with myDocs”.</value></data>
+  <data name="MyLifeObjectHelp" xml:space="preserve"><value>Goes to the owner's vault, for household entries to the person in charge.</value></data>
+  <data name="MyLifeObjectsEmpty" xml:space="preserve"><value>Nothing goes to myLife.</value></data>
+  <data name="MyLifeObjectsIntro" xml:space="preserve"><value>References to entries that do not go along are dropped in myLife; storage locations come along.</value></data>
+  <data name="MyLifeObjectsTitle" xml:space="preserve"><value>What goes to myLife ({0})</value></data>
+  <data name="MyLifeObjectSwitch" xml:space="preserve"><value>Keep in myLife</value></data>
+  <data name="MyLifeOpen" xml:space="preserve"><value>Open in myLife</value></data>
+  <data name="MyLifePending" xml:space="preserve"><value>Something has changed since the last sync. Open myLife to apply it.</value></data>
+  <data name="MyLifeServerUrl" xml:space="preserve"><value>myDocs address</value></data>
+  <data name="MyLifeTitle" xml:space="preserve"><value>myLife</value></data>
+  <data name="MyLifeToken" xml:space="preserve"><value>Token for myLife</value></data>
+  <data name="MyLifeTokenOnce" xml:space="preserve"><value>The token is shown only now. It only allows reading the entries above; whoever has it can read them.</value></data>
   <data name="NavAdmin" xml:space="preserve"><value>Administration</value></data>
   <data name="NavAreas" xml:space="preserve"><value>Areas</value></data>
   <data name="NavHome" xml:space="preserve"><value>Overview</value></data>
@@ -623,6 +660,7 @@ these tasks have been overdue for 14 days and now go to the whole household:
   <data name="TaskTitle_final-invoice" xml:space="preserve"><value>Check the final invoice</value></data>
   <data name="TaskTitle_inbox" xml:space="preserve"><value>Work through the inbox</value></data>
   <data name="TaskTitle_loan-end" xml:space="preserve"><value>Loan ends: arrange what comes next</value></data>
+  <data name="TaskTitle_mylife-sync" xml:space="preserve"><value>Sync myLife</value></data>
   <data name="TaskTitle_renew-or-replace" xml:space="preserve"><value>Renew or replace?</value></data>
   <data name="TaskTitle_review" xml:space="preserve"><value>Check whether everything is still correct</value></data>
   <data name="TaskWait" xml:space="preserve"><value>Waiting for others</value></data>

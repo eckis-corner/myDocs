@@ -28,8 +28,9 @@ myDocs ist der Alltag, [myLife](https://github.com/eckis-corner/myLife) der Notf
 | [docs/objekttypen.md](docs/objekttypen.md) | Lebenszyklus-Muster, Zusatztypen, Prüfregeln, Aufbewahrung |
 | [docs/entscheidungen.md](docs/entscheidungen.md) | Entscheidungsprotokoll und offene Punkte |
 | [docs/meilensteine.md](docs/meilensteine.md) | Umsetzungsplan |
+| [docs/brueckenformat.md](docs/brueckenformat.md) | Was myLife beim Abgleich abholt (Brückenformat Version 1) |
 | [docs/betrieb/installation.md](docs/betrieb/installation.md) | Installation auf der Synology, Sicherung, Rücksicherung, Hauptschlüssel, Updates |
-| [docs/betrieb/abnahme.md](docs/betrieb/abnahme.md) | Checkliste für die Abnahme von M1 |
+| [docs/betrieb/abnahme.md](docs/betrieb/abnahme.md) | Checkliste für die Abnahme von M1 bis M5 |
 | [PROMPT.md](PROMPT.md) | Ursprüngliche Idee |
 
 ## Entwickeln

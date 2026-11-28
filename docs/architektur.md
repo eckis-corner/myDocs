@@ -187,7 +187,7 @@ sequenceDiagram
 - `pg_trgm` für Teilwörter und Tippfehler bei Titeln und Nummern (Policen-, Kunden-, Vertragsnummer, IBAN).
 - Die Rechte sind Teil des SQL: Haushalt ∪ eigene ∪ freigegebene. Fremde private Objekte des Admins kommen nur im Modus „Admin-Einsicht“ dazu.
 
-## 8. Brücke zu myLife (56–64)
+## 8. Brücke zu myLife (56–64, 162–172)
 
 ```mermaid
 sequenceDiagram
@@ -196,22 +196,20 @@ sequenceDiagram
     participant D as myDocs-API
     participant L as myLife-Server
 
-    B->>D: GET /api/mylife/export (lesendes Token)
-    D-->>B: markierte Objekte (Klartext über TLS), Stand, Dokument-Kopien
-    B->>B: Unterschiede zu verknüpften myLife-Objekten (myDocsId)
-    B->>B: Vorschau „3 neu, 5 geändert, 1 beendet“
-    B->>B: nach Bestätigung verschlüsseln (Bereichsschlüssel)
-    B->>L: Objekte und Dokumente speichern (Chiffrat)
-    B->>D: POST /api/mylife/ack (Zeitpunkt des Abgleichs)
+    B->>L: Verbindung holen (Chiffrat), mit dem Tresorschlüssel öffnen
+    B->>D: GET /api/mylife/export (Bearer mdl_…, CORS)
+    D-->>B: Einträge der Person im Klartext über TLS, Fingerabdruck
+    B->>B: Vergleich mit den verknüpften Einträgen (myDocs-ID in der Nutzlast)
+    B->>B: Vorschau „3 neu, 5 geändert, 1 nicht mehr in myDocs“
+    B->>D: GET /api/mylife/documents/{id}/content (nur markierte, neue Fassungen)
+    B->>B: nach Bestätigung verschlüsseln (Bereichs- und Dateischlüssel)
+    B->>L: Einträge und Dokumente speichern (Chiffrat)
+    B->>D: POST /api/mylife/synced (Fingerabdruck)
 ```
 
-- Verknüpft wird über `myDocsId` in der Nutzlast in myLife. Felder aus myDocs sind dort schreibgeschützt.
-- Nur in myLife: Wünsche, Briefe, Bestattung, Organspende, Checkliste, Passwortmanager-Notfallzugang, Vertrauenspersonen, Notfallzugang.
-- Änderungen in myLife:
-  - Seite „Abgleich“
-  - CSP `connect-src` um `https://mydocs.eckis-corner.de` erweitern
-  - Anzeige „gepflegt in myDocs“ und „Stand ungeprüft seit …“
-  - Status *beendet* für archivierte Objekte
+- **myDocs** (`MyLifeBridge`, `MyLifeEndpoints`): Token je Konto (162), Umfang je Person (163), Export im [Brückenformat](brueckenformat.md) (164), Quittung und Vorgang „myLife abgleichen“ nach 30 Tagen (165), CORS nur für myLife (166). Schalter **In myLife führen** am Eintrag, **Nach myLife übernehmen** am Dokument, Seite **Benutzermenü → myLife**.
+- **myLife** (`MyDocsBridge`, Seite „Abgleich mit myDocs“): Verbindung verschlüsselt am Konto (167), Verknüpfung und Schreibschutz (168), feste Kopien der Dokumente (169), Umgang mit Einträgen, die nicht mehr kommen (170), Hinweis auf der Übersicht (171), Eintrag „myDocs-Wiederherstellung“ (172). `connect-src` enthält den Origin von myDocs.
+- Einbahnstraße (59, 61): Von myLife geht nur die Quittung an myDocs. Nur in myLife bleiben Wünsche, Briefe, Bestattung, Organspende, Checkliste, Passwortmanager-Notfallzugang, Vertrauenspersonen und Notfallzugang (64).
 
 ## 9. Datenmodell (PostgreSQL, Entwurf)
 
@@ -220,15 +218,15 @@ sequenceDiagram
 | `users` | Identity-Felder, PersonId, IsAdmin, Status, Sprache, Zeit für die Zusammenfassung |
 | `persons` | Id, Name, Vorname, Geburtsdatum, UserId (optional) |
 | `devices` | Id, UserId, Name, Plattform, RefreshTokenHash, LastSeenAt, RevokedAt |
-| `api_tokens` | Id, UserId, Zweck (`mylife:read`), TokenHash, CreatedAt, RevokedAt |
-| `objects` | Id, TypeKey, Title, Owner (Haushalt oder PersonId), ResponsibleId, LifecycleState, Fields (`jsonb`), SchemaVersion, ExpiryDate, NextReviewOn, LastReviewedAt, OverdueSince, InMyLife, ReplacedById, ArchivedAt, IsDeleted, DeletedAt, `xmin` |
+| `mylife_links` | UserId, TokenHash (SHA-256), CreatedAt, LastUsedAt, LastSyncedAt, SyncedFingerprint, PendingSince (162, 165) |
+| `objects` | Id, TypeKey, Title, Owner (Haushalt oder PersonId), ResponsibleId, LifecycleState, Fields (`jsonb`), SchemaVersion, ExpiryDate, NextReviewOn, LastReviewedAt, OverdueSince, MyLifeSync, ReplacedById, ArchivedAt, IsDeleted, DeletedAt, `xmin` |
 | `object_shares` | ObjectId, PersonId, Recht (lesen/bearbeiten) |
 | `object_history` | Id, ObjectId, At, ActorId, Feld, Alt, Neu |
 | `review_rules` | ObjectId, Art, Parameter (überschreibt die Regel aus dem Katalog) |
 | `tasks` | Id, Kind, Title, ResponsibleId, DueOn, Priority, State, WaitUntil, Outcome, Note, CreatedBy, ClosedAt |
 | `task_objects` | TaskId, ObjectId |
 | `comments` | Id, TaskId oder ObjectId, AuthorId, At, Text |
-| `documents` | Id, Owner, DocumentKind, DocumentDate, Title, CurrentVersionId, InboxState, Source, RetentionUntil, InMyLife, IsDeleted |
+| `documents` | Id, Owner, DocumentKind, DocumentDate, Title, CurrentVersionId, InboxState, Source, RetentionUntil, ToMyLife, IsDeleted |
 | `document_versions` | Id, DocumentId, Nummer, BlobHash, Size, MimeType, FileName, CreatedBy, CreatedAt, HasMacros |
 | `document_objects` | DocumentId, ObjectId |
 | `derivatives` | VersionId, Art (ocrPdf, preview, thumbnail, text), BlobHash, Engine und Version |
@@ -237,7 +235,6 @@ sequenceDiagram
 | `search_index` | Ressource, tsvector, Owner, Rechte-Kontext |
 | `jobs` | Id, Art, Ressource, State, Versuche, NextAttemptAt, Fehler |
 | `mail_senders` | PersonId, Adresse |
-| `mylife_sync` | PersonId, LastAckAt |
 | `settings`, `audit_log`, `mail_outbox` | wie myLife |
 
 ## 10. Betrieb (42–46)

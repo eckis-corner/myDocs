@@ -13,6 +13,7 @@
             <MudMenuItem Icon="@Icons.Material.Outlined.Notifications" Href="account/notifications">@L["NotificationsTitle"]</MudMenuItem>
             <MudMenuItem Icon="@Icons.Material.Outlined.History" Href="account/audit">@L["AuditTitle"]</MudMenuItem>
             <MudMenuItem Icon="@Icons.Material.Outlined.Devices" Href="account/devices" data-testid="nav-devices">@L["DevicesTitle"]</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Outlined.Shield" Href="account/mylife" data-testid="nav-mylife">@L["MyLifeTitle"]</MudMenuItem>
             @if (context.User.IsInRole(HouseholdRoles.Admin))
             {
                 <MudMenuItem Icon="@(AdminView.IsOn ? Icons.Material.Filled.VisibilityOff : Icons.Material.Outlined.Visibility)" OnClick="ToggleAdminViewAsync" data-testid="admin-view-toggle">

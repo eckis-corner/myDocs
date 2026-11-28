@@ -1,6 +1,7 @@
 @* Dokumente eines Objekts (M1.5): hochladen, neue Version, Vorschau, Download, Angaben ändern, löschen. *@
 @inject IStringLocalizer<SharedResource> L
 @inject DocumentClient Documents
+@inject MyLifeClient MyLife
 @inject DocumentLinks Links
 @inject AppInfoClient AppInfo
 @inject IDialogService Dialogs
@@ -77,6 +78,10 @@
                                             : L["DocumentLockedBy", lockedBy, document.LockedAt?.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) ?? string.Empty])
                                     </MudText>
                                 }
+                                @if (document.ToMyLife)
+                                {
+                                    <MudText Typo="Typo.caption" Color="Color.Primary" data-testid="document-mylife">@L["DocumentToMyLife"]</MudText>
+                                }
                                 @if (document.HasMacros)
                                 {
                                     <MudText Typo="Typo.caption" Color="Color.Warning" data-testid="document-macros">@L["DocumentHasMacros"]</MudText>
@@ -130,6 +135,10 @@
                                 }
                                 @if (CanEdit && document.CanEdit)
                                 {
+                                    <MudMenuItem Icon="@(document.ToMyLife ? Icons.Material.Outlined.CloudOff : Icons.Material.Outlined.Shield)"
+                                                 OnClick="() => ToggleMyLifeAsync(document)" data-testid="document-mylife-toggle">
+                                        @(document.ToMyLife ? L["DocumentToMyLifeOff"] : L["DocumentToMyLifeOn"])
+                                    </MudMenuItem>
                                     <MudMenuItem Icon="@Icons.Material.Outlined.Delete" IconColor="Color.Error" OnClick="() => DeleteAsync(document)">@L["Delete"]</MudMenuItem>
                                 }
                             </MudMenu>
@@ -269,6 +278,18 @@
             await RunAsync(() => Documents.DeleteAsync(document.Id));
         }
     }
+
+    private Task ToggleMyLifeAsync(DocumentDto document) => RunAsync(async () =>
+    {
+        try
+        {
+            await MyLife.SetDocumentAsync(document.Id, !document.ToMyLife);
+        }
+        catch (ApiException exception) when (exception.Code == MyDocs.Shared.MyLife.MyLifeErrors.TooLarge)
+        {
+            Snackbar.Add(L["MyLifeError_too-large"], Severity.Warning);
+        }
+    });
 
     private async Task RunAsync(Func<Task> action)
     {

@@ -49,6 +49,9 @@ public sealed class DocObject
     /// <summary>Überfällig seit (14): eine Prüfung ist 14 Tage nach Fälligkeit noch offen. Geht mit nach myLife.</summary>
     public DateOnly? OverdueSince { get; set; }
 
+    /// <summary>„In myLife führen“ (57): vorbelegt, weil jeder Typ in myDocs auch ein Typ von myLife ist.</summary>
+    public bool MyLifeSync { get; set; } = true;
+
     public DateTimeOffset CreatedAt { get; set; }
 
     public Guid CreatedBy { get; set; }

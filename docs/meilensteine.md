@@ -114,6 +114,12 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 ## M5 – Brücke zu myLife (56–64)
 
+**M5.1 Brücke in myDocs ✅ (28.11.2026):** lesendes Token je Konto, Umfang je Person mit „In myLife führen“ und „Nach myLife übernehmen“, Export im [Brückenformat](brueckenformat.md) mit Fingerabdruck, CORS nur für myLife, Quittung und Vorgang „myLife abgleichen“ nach 30 Tagen, Seite **myLife** (162–166). 230 Tests grün.
+
+**M5.2 Abgleich in myLife ✅ (28.11.2026, Branch `m5-mydocs-bridge` in myLife):** Seite „Abgleich mit myDocs“ mit Verbinden über den Link aus myDocs, Vergleich, Übernahme verschlüsselt im Browser, Schreibschutz für Felder aus myDocs, Dokumente als feste Kopie, „Stand ungeprüft seit …“, Hinweis auf der Übersicht, CSP `connect-src` (167–171). In myLife 289 von 290 Tests grün, 1 übersprungen wie vorher; geprüft gegen eine Attrappe von myDocs, der myLife-Server sieht nur Chiffrat.
+
+**M5.3 Wiederherstellung ✅ (28.11.2026):** Eintrag „myDocs-Wiederherstellung“ in myLife auf Knopfdruck (172). **Damit ist M5 fertig.** Nicht geprüft: beide Apps zusammen im echten Browser (CORS und CSP nur in Tests und nach Spezifikation), der Merge und das Release von myLife.
+
 1. myDocs: lesendes Token, Export-Endpunkte, CORS, Vorgang „myLife abgleichen“
 2. myLife: Seite „Abgleich mit myDocs“, Verknüpfung über `myDocsId`, Schreibschutz für Felder aus myDocs, Dokumente als feste Kopie, Anzeige „Stand ungeprüft seit …“
 3. Objekt „myDocs-Wiederherstellung“ in myLife

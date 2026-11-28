@@ -2,7 +2,7 @@
 
 Für DSM 7.2 und neuer mit **Container Manager** (Synology DS1520+, x86-64), neben myLife. Für andere Docker-Hosts gelten dieselben Schritte sinngemäß.
 
-> **Stand M4:** Einrichtung, Anmeldung mit Authenticator-App oder Passkey, Benutzer und Haushalt, Einträge aus dem Katalog, Dokumente mit Versionen, Suche, Protokoll, Admin-Einsicht, Papierkorb, tägliche Sicherung; Lebenszyklus, Vorgänge, Wiedervorlage mit Eskalation, Startseite und Benachrichtigungen per Mail und ntfy; dazu der Worker für Texterkennung, Office-Vorschau und Vorschaubilder mit Volltextsuche im Dokumenttext und der Posteingang mit Kamera, Scan-Ordner und Mail-Eingang. dazu der Desktop-Client ([desktop.md](desktop.md)). Noch nicht: Abgleich mit myLife (M5). Vor echten Daten die Abnahme durchgehen: [abnahme.md](abnahme.md).
+> **Stand M5:** Einrichtung, Anmeldung mit Authenticator-App oder Passkey, Benutzer und Haushalt, Einträge aus dem Katalog, Dokumente mit Versionen, Suche, Protokoll, Admin-Einsicht, Papierkorb, tägliche Sicherung; Lebenszyklus, Vorgänge, Wiedervorlage mit Eskalation, Startseite und Benachrichtigungen per Mail und ntfy; dazu der Worker für Texterkennung, Office-Vorschau und Vorschaubilder mit Volltextsuche im Dokumenttext und der Posteingang mit Kamera, Scan-Ordner und Mail-Eingang. dazu der Desktop-Client ([desktop.md](desktop.md)) und der Abgleich mit myLife (Abschnitt 6d). Vor echten Daten die Abnahme durchgehen: [abnahme.md](abnahme.md).
 
 ## 1. Ordner anlegen
 
@@ -131,6 +131,18 @@ Mitglieder leiten Rechnungen und Briefe an ein **eigenes Postfach** weiter; myDo
 4. **Speichern und Postfach testen** zeigt, wie viele Mails warten.
 
 Angenommen werden nur Mails von Mitgliedern: von ihrer Anmeldeadresse oder einer der weiteren Absenderadressen, die jede Person unter **Benutzermenü → Benachrichtigungen** einträgt, und nur mit bestandener Prüfung (SPF, DKIM oder DMARC). Anhänge (PDF, Bilder, Office) landen im privaten Posteingang des Absenders. Verarbeitete und abgelehnte Mails verschiebt myDocs in die Ordner `myDocs-verarbeitet` und `myDocs-abgelehnt`; dort kann man sie nach einiger Zeit löschen. Warum eine Mail abgelehnt wurde, steht im Protokoll der Person.
+
+## 6d. Abgleich mit myLife
+
+myLife holt sich im Browser, was im Ernstfall gebraucht wird, und verschlüsselt es dort; myDocs liefert nur. Dafür müssen beide Apps einander kennen:
+
+1. In der `.env` von myDocs `MYDOCS_MYLIFE_URL=https://mylife.eckis-corner.de` eintragen, in der `.env` von myLife `MYLIFE_MYDOCS_URL=https://mydocs.eckis-corner.de`. Beide Projekte im Container Manager neu erstellen (myLife ab dem Stand mit „Abgleich mit myDocs“).
+2. Jede Person in myDocs: **Benutzermenü → myLife → Mit myLife verbinden** und dann **In myLife öffnen**. myLife fragt nach dem Entsperren, ob es sich mit myDocs verbinden soll; danach zeigt **Abgleich mit myDocs** die Änderungen, **Verschlüsselt übernehmen** speichert sie.
+3. Was übertragen wird, steht auf der Seite **myLife** in myDocs: die eigenen Einträge und die Haushaltseinträge, für die die Person zuständig ist, solange am Eintrag **In myLife führen** an ist. Dokumente gehen nur mit, wenn sie über das Menü am Dokument **Nach myLife übernehmen** markiert sind (höchstens 25 MB).
+
+Nach 30 Tagen mit offenen Änderungen bekommt die Person den Vorgang „myLife abgleichen“; das Öffnen von myLife und Übernehmen schließt ihn. Das Token gilt nur für den Abgleich und ist auf der Seite **myLife** jederzeit zu trennen; ein neues Token ersetzt das alte. Das Format beschreibt [brueckenformat.md](../brueckenformat.md).
+
+In myLife gehört auch ein Eintrag **myDocs-Wiederherstellung** (auf der Seite „Abgleich mit myDocs“ anlegen): wo die 24 Wörter des Hauptschlüssels und der Sicherungsschlüssel liegen, damit die Familie myDocs im Ernstfall zurückspielen kann (Abschnitt 7).
 
 ## 7. Hauptschlüssel und Sicherung
 

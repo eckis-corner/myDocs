@@ -151,8 +151,8 @@ public sealed class CheckoutTests(ServerFixture server) : IClassFixture<ServerFi
         Assert.True((await GetAsync(_bea, document.Id)).LockedByMe);
 
         await File.WriteAllTextAsync(entry.Path, "Version 2 aus Excel", Ct);
-        await WaitUntilAsync(async () => (await GetAsync(_bea, document.Id)).Versions.Count == 2);
-        Assert.Equal(2, engine.Entries.Single().BaseVersion);
+        // Der Server speichert die Version, bevor der Client die Antwort verarbeitet hat: auf beides warten.
+        await WaitUntilAsync(async () => (await GetAsync(_bea, document.Id)).Versions.Count == 2 && engine.Entries.Single().BaseVersion == 2);
         Assert.Equal("Version 2 aus Excel", await _bea.GetStringAsync($"/api/documents/{document.Id}/content", Ct));
 
         await File.WriteAllTextAsync(entry.Path, "Version 3", Ct);
@@ -217,6 +217,6 @@ public sealed class CheckoutTests(ServerFixture server) : IClassFixture<ServerFi
 
         // Weitere Speicherungen gehen an das Konfliktdokument.
         await File.WriteAllTextAsync(entry.Path, "Beas Fassung, ergänzt", Ct);
-        await WaitUntilAsync(async () => (await GetAsync(_bea, current.DocumentId)).Versions.Count == 2);
+        await WaitUntilAsync(async () => (await GetAsync(_bea, current.DocumentId)).Versions.Count == 2 && engine.Entries.Single().BaseVersion == 2);
     }
 }

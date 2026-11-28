@@ -13,13 +13,13 @@ namespace MyDocs.Server.Infrastructure.Tasks;
 public sealed class ReviewEngine(MyDocsDbContext db, Notifications.Notifier notifier, MyLife.MyLifeBridge bridge, TimeProvider time)
 {
     /// <summary>Was ein Durchlauf getan hat (für Tests und das Protokoll des Containers).</summary>
-    public sealed record Result(int Reviews, int Deadlines, int Lifecycle, int Resumed, int Escalated, int Overdue, int Inbox = 0, int MyLife = 0);
+    public sealed record Result(int Reviews, int Deadlines, int Lifecycle, int Resumed, int Escalated, int Overdue, int Inbox = 0, int MyLife = 0, int Cleanup = 0);
 
     public async Task<Result> RunAsync(CancellationToken ct)
     {
         var now = time.GetUtcNow();
         var today = DateOnly.FromDateTime(now.UtcDateTime);
-        int reviews = 0, deadlines = 0, lifecycle = 0, resumed = 0, escalated = 0, overdue = 0, inboxTasks = 0, myLife = 0;
+        int reviews = 0, deadlines = 0, lifecycle = 0, resumed = 0, escalated = 0, overdue = 0, inboxTasks = 0, myLife = 0, cleanup = 0;
 
         var objects = (await db.Objects.Where(o => !o.IsDeleted).ToListAsync(ct)).Where(ReviewPlan.IsActive).ToList();
         var openRules = (await db.Tasks.Where(t => t.RuleKey != null && t.State != TaskStates.Done && t.State != TaskStates.Discarded).Select(t => t.RuleKey!).ToListAsync(ct)).ToHashSet();
@@ -133,6 +133,55 @@ public sealed class ReviewEngine(MyDocsDbContext db, Notifications.Notifier noti
             }
         }
 
+        // Aufräumen (28, 174): Ist die Aufbewahrung eines Dokuments abgelaufen, gibt es je Person einen Vorgang „Aufräumen“
+        // (wer für den Eintrag zuständig ist bzw. ihn besitzt); sind alle erledigt, schließt der Dienst ihn wieder.
+        var documents = await db.Documents.Where(d => !d.IsDeleted && !d.InInbox && (d.Kind != null || d.RetainUntil != null)).ToListAsync(ct);
+        var documentLinks = await Api.CleanupEndpoints.LinkedAsync(db, [.. documents.Select(d => d.Id)], ct);
+        var cleanupDue = new Dictionary<Guid, DateOnly>();
+        foreach (var document in documents)
+        {
+            var items = documentLinks.GetValueOrDefault(document.Id) ?? [];
+            var until = Documents.Retention.Until(document, items);
+            if (!Documents.Retention.IsDue(until, today) || items.Where(o => !o.IsDeleted).Select(o => o.OwnerPersonId ?? o.ResponsiblePersonId).FirstOrDefault(p => p is not null) is not { } person)
+            {
+                continue;
+            }
+
+            var due = until!.Value.AddDays(1);
+            cleanupDue[person] = cleanupDue.TryGetValue(person, out var earlier) && earlier < due ? earlier : due;
+        }
+
+        foreach (var (person, due) in cleanupDue)
+        {
+            if (openRules.Add($"cleanup:{person}"))
+            {
+                db.Tasks.Add(new WorkTask
+                {
+                    Id = Guid.CreateVersion7(),
+                    Kind = TaskKinds.Cleanup,
+                    Title = "Aufräumen",
+                    TitleKey = "cleanup",
+                    RuleKey = $"cleanup:{person}",
+                    ResponsiblePersonId = person,
+                    DueOn = due < today ? today : due,
+                    CreatedAt = now,
+                    CreatedBy = Guid.Empty,
+                });
+                cleanup++;
+            }
+        }
+
+        foreach (var task in await db.Tasks.Where(t => t.Kind == TaskKinds.Cleanup && t.RuleKey != null && t.State != TaskStates.Done && t.State != TaskStates.Discarded).ToListAsync(ct))
+        {
+            if (task.ResponsiblePersonId is not { } person || !cleanupDue.ContainsKey(person))
+            {
+                task.State = TaskStates.Done;
+                task.ClosedAt = now;
+                task.ClosedBy = Guid.Empty;
+                cleanup++;
+            }
+        }
+
         // Eskalation (14): Stufe 1 am Fälligkeitstag, 2 nach 7 Tagen, 3 nach 14 Tagen; bei Prüfungen danach „überfällig“.
         var open = await db.Tasks.Where(t => (t.State == TaskStates.Open || t.State == TaskStates.InProgress) && t.DueOn != null && t.DueOn <= today).ToListAsync(ct);
         var urgent = new List<Guid>();
@@ -164,7 +213,7 @@ public sealed class ReviewEngine(MyDocsDbContext db, Notifications.Notifier noti
         await db.SaveChangesAsync(ct);
         // Sofort nur Stufe 3 (47); alles andere bringt die tägliche Zusammenfassung.
         await notifier.UrgentAsync(urgent, ct);
-        return new Result(reviews, deadlines, lifecycle, resumed, escalated, overdue, inboxTasks, myLife);
+        return new Result(reviews, deadlines, lifecycle, resumed, escalated, overdue, inboxTasks, myLife, cleanup);
     }
 
     private void Add(DocObject item, string kind, string key, string germanTitle, string rule, DateOnly due, DateTimeOffset now)
@@ -197,7 +246,7 @@ public sealed partial class ReviewService(IServiceScopeFactory scopes, TimeProvi
             {
                 await using var scope = scopes.CreateAsyncScope();
                 var result = await scope.ServiceProvider.GetRequiredService<ReviewEngine>().RunAsync(stoppingToken);
-                if (result.Reviews + result.Deadlines + result.Lifecycle + result.Resumed + result.Escalated + result.Overdue + result.Inbox + result.MyLife > 0)
+                if (result.Reviews + result.Deadlines + result.Lifecycle + result.Resumed + result.Escalated + result.Overdue + result.Inbox + result.MyLife + result.Cleanup > 0)
                 {
                     LogRun(logger, result.Reviews, result.Deadlines, result.Lifecycle, result.Escalated);
                 }

@@ -91,7 +91,7 @@ internal static class DashboardEndpoints
         var payments = new Dictionary<int, (decimal Monthly, int Count)>();
         foreach (var item in objects.Where(o => o.LifecycleState != LifecycleStates.Draft))
         {
-            if (Monthly(item) is not { } monthly || ObjectCatalog.Find(item.TypeKey) is not { } type)
+            if (Payments.Monthly(item) is not { } monthly || ObjectCatalog.Find(item.TypeKey) is not { } type)
             {
                 continue;
             }
@@ -142,35 +142,5 @@ internal static class DashboardEndpoints
             IncompleteCount = incomplete.Count,
             UnreviewedCount = unreviewed.Count,
         });
-    }
-
-    /// <summary>Monatlicher Betrag einer regelmäßigen Zahlung (Katalog: PaymentDefinition); einmalige Zahlungen zählen nicht.</summary>
-    internal static decimal? Monthly(DocObject item)
-    {
-        if (ObjectCatalog.Find(item.TypeKey)?.Payment is not { } payment)
-        {
-            return null;
-        }
-
-        var values = new ObjectData { Fields = item.Fields };
-        if (payment.When is { } condition && !condition.Values.Contains(values.Get(condition.FieldKey)))
-        {
-            return null;
-        }
-
-        if (!FieldValues.TryNumber(values.Get(payment.AmountField), out var amount) || amount <= 0)
-        {
-            return null;
-        }
-
-        var frequency = payment.FixedFrequency ?? (payment.FrequencyField is { } field ? values.Get(field) : null);
-        return frequency switch
-        {
-            "monthly" => amount,
-            "quarterly" => amount / 3m,
-            "halfYearly" => amount / 6m,
-            "yearly" => amount / 12m,
-            _ => null,
-        };
     }
 }

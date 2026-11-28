@@ -86,4 +86,11 @@ public sealed class DocumentClient(HttpClient http)
         await ApiException.EnsureSuccessAsync(response, ct);
         return (await System.Net.Http.Json.HttpContentJsonExtensions.ReadFromJsonAsync<DocumentDto>(response.Content, ct))!;
     }
+
+    /// <summary>Dokumente mit abgelaufener Aufbewahrung (M6.2).</summary>
+    public Task<List<CleanupItemDto>> CleanupAsync(CancellationToken ct = default) => http.GetAsync<List<CleanupItemDto>>("api/cleanup", ct);
+
+    /// <summary>Aufbewahrung von Hand: bis zu einem Tag, dauerhaft oder (beides leer) wieder nach der Regel.</summary>
+    public Task SetRetentionAsync(Guid id, DateOnly? until, bool forever = false, CancellationToken ct = default) =>
+        http.SendAsync(HttpMethod.Put, $"api/documents/{id}/retention", new RetentionRequest(until, forever), ct);
 }

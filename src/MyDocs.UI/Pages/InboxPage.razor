@@ -159,6 +159,20 @@
                                 <MudAutocomplete T="ObjectSummaryDto" Value="_pick" ValueChanged="AddObject" SearchFunc="SearchObjectsAsync" ToStringFunc="Describe"
                                                  Label="@L["InboxEntries"]" HelperText="@L["InboxEntriesHelp"]" Variant="Variant.Outlined" ResetValueOnEmptyText CoerceText="false"
                                                  MaxItems="20" data-testid="inbox-objects" />
+                                @if (_selected?.Suggestions is { Count: > 0 } suggestions)
+                                {
+                                    @* Vorschläge aus dem erkannten Text (175): ein Klick übernimmt den Eintrag. *@
+                                    <MudStack Row Spacing="1" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap" data-testid="inbox-suggestions">
+                                        <MudText Typo="Typo.body2" Class="mydocs-muted">@L["InboxSuggestions"]</MudText>
+                                        @foreach (var suggestion in suggestions.Where(s => _chosen.All(c => c.Id != s.ObjectId)))
+                                        {
+                                            <MudChip T="Guid" Value="suggestion.ObjectId" Icon="@Icons.Material.Outlined.AutoAwesome" Variant="Variant.Text" Color="Color.Info"
+                                                     OnClick="() => AddSuggestion(suggestion)" data-testid="inbox-suggestion">
+                                                @suggestion.Title (@string.Join(", ", suggestion.Fields.Select(f => FieldLabel(suggestion.TypeKey, f))))
+                                            </MudChip>
+                                        }
+                                    </MudStack>
+                                }
                                 @if (_chosen.Count > 0)
                                 {
                                     <MudChipSet T="Guid" AllClosable OnClose="RemoveObject">
@@ -306,6 +320,13 @@
 
         _pick = null;
     }
+
+    private void AddSuggestion(InboxSuggestionDto suggestion) =>
+        AddObject(_objects?.FirstOrDefault(o => o.Id == suggestion.ObjectId)
+            ?? new ObjectSummaryDto(suggestion.ObjectId, suggestion.TypeKey, suggestion.Title, null, null, null, default, []));
+
+    private string FieldLabel(string typeKey, string key) =>
+        MyCommon.Catalog.ObjectCatalog.Find(typeKey) is { } type && type.Field(key) is { } field ? Catalog.Field(type, field) : key;
 
     private void RemoveObject(MudChip<Guid> chip) => _chosen.RemoveAll(c => c.Id == chip.Value);
 

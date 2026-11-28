@@ -1,0 +1,164 @@
+@page "/payments"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@* Übersicht „Zahlungen“ (62, 173): Meins/Haushalt, gruppiert nach Bereich, Konto oder Person, Filter „gekündigt zum …“. *@
+@using MyDocs.Shared.Payments
+@inject IStringLocalizer<SharedResource> L
+@inject CatalogText Catalog
+@inject PaymentClient Payments
+
+<PageTitle>@L["AppName"] – @L["PaymentsTitle"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudStack Row Justify="Justify.SpaceBetween" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
+        <MudText Typo="Typo.h4" HtmlTag="h1">@L["PaymentsTitle"]</MudText>
+        <MudToggleGroup T="bool" Value="_mine" ValueChanged="ScopeChanged" Size="Size.Small" Color="Color.Primary" SelectionMode="SelectionMode.SingleSelection" data-testid="payments-scope">
+            <MudToggleItem Value="true" Text="@L["ScopeMine"]" />
+            <MudToggleItem Value="false" Text="@L["ScopeHousehold"]" />
+        </MudToggleGroup>
+    </MudStack>
+    <MudText Typo="Typo.body2" Class="mydocs-muted">@L["PaymentsIntro"]</MudText>
+
+    @if (_payments is null)
+    {
+        <MudProgressLinear Indeterminate Color="Color.Primary" />
+    }
+    else
+    {
+        var running = _payments;
+        var cancelled = running.Where(p => p.Cancelled).ToList();
+        <MudGrid Spacing="2">
+            <MudItem xs="12" sm="4">
+                <MudPaper Class="pa-3" Elevation="1" data-testid="payments-monthly">
+                    <MudText Typo="Typo.caption" Class="mydocs-muted">@L["PaymentsPerMonth"]</MudText>
+                    <MudText Typo="Typo.h5">@Money(PaymentMath.Monthly(running))</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudPaper Class="pa-3" Elevation="1" data-testid="payments-yearly">
+                    <MudText Typo="Typo.caption" Class="mydocs-muted">@L["PaymentsPerYear"]</MudText>
+                    <MudText Typo="Typo.h5">@Money(PaymentMath.Yearly(running))</MudText>
+                </MudPaper>
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <MudPaper Class="pa-3" Elevation="1" data-testid="payments-after-cancellations">
+                    <MudText Typo="Typo.caption" Class="mydocs-muted">@L["PaymentsAfterCancellations", cancelled.Count]</MudText>
+                    <MudText Typo="Typo.h5">@Money(PaymentMath.Monthly(running.Where(p => !p.Cancelled)))</MudText>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+
+        <MudStack Row Spacing="3" AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
+            <MudSelect T="string" @bind-Value="_group" Label="@L["PaymentsGroupBy"]" Variant="Variant.Outlined" Dense Style="max-width: 14rem" data-testid="payments-group">
+                <MudSelectItem T="string" Value="@("area")">@L["PaymentsGroupArea"]</MudSelectItem>
+                <MudSelectItem T="string" Value="@("account")">@L["PaymentsGroupAccount"]</MudSelectItem>
+                <MudSelectItem T="string" Value="@("person")">@L["PaymentsGroupPerson"]</MudSelectItem>
+            </MudSelect>
+            <MudSwitch T="bool" @bind-Value="_onlyCancelled" Color="Color.Primary" Label="@L["PaymentsOnlyCancelled"]" data-testid="payments-cancelled" />
+            @if (_onlyCancelled)
+            {
+                <MudDatePicker @bind-Date="_cancelledBy" Label="@L["PaymentsCancelledBy"]" Variant="Variant.Outlined" Editable Clearable Margin="Margin.Dense"
+                               Style="max-width: 12rem" />
+            }
+        </MudStack>
+
+        var shown = Filtered().ToList();
+        @if (shown.Count == 0)
+        {
+            <MudText Class="mydocs-muted" data-testid="payments-empty">@L["PaymentsEmpty"]</MudText>
+        }
+        else
+        {
+            @if (_onlyCancelled)
+            {
+                <MudAlert Severity="Severity.Info" Dense data-testid="payments-cancelled-sum">@L["PaymentsCancelledSum", Money(PaymentMath.Monthly(shown)), shown.Count]</MudAlert>
+            }
+            @foreach (var group in Groups(shown))
+            {
+                <MudPaper Elevation="1" data-testid="payments-groupbox">
+                    <MudSimpleTable Dense Elevation="0">
+                        <thead>
+                            <tr>
+                                <th>@group.Name</th>
+                                <th>@L["PaymentsAmount"]</th>
+                                <th>@L["PaymentsPerMonth"]</th>
+                                <th>@L["PaymentsAccount"]</th>
+                                <th>@L["PaymentsResponsible"]</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var payment in group.Payments)
+                            {
+                                <tr data-testid="payment-row">
+                                    <td>
+                                        <MudLink Href="@($"object/{payment.ObjectId}")">@payment.Title</MudLink>
+                                        <MudText Typo="Typo.caption" Class="mydocs-muted">@Catalog.Type(payment.TypeKey)</MudText>
+                                        @if (payment.EndsOn is { } end)
+                                        {
+                                            <MudText Typo="Typo.caption" Color="Color.Warning">@L["PaymentsEndsOn", end.ToString("d", CultureInfo.CurrentCulture)]</MudText>
+                                        }
+                                    </td>
+                                    <td style="white-space: nowrap">@Money(payment.Amount) @(payment.Frequency is { } f ? Catalog.Option("frequency", f) : L["PaymentsNoFrequency"])</td>
+                                    <td style="white-space: nowrap">@(payment.Monthly is { } m ? Money(m) : "–")</td>
+                                    <td>@(payment.AccountTitle ?? "–")</td>
+                                    <td>@(payment.ResponsibleName ?? "–")</td>
+                                </tr>
+                            }
+                            <tr>
+                                <td><b>@L["PaymentsSum"]</b></td>
+                                <td></td>
+                                <td style="white-space: nowrap"><b>@Money(PaymentMath.Monthly(group.Payments))</b></td>
+                                <td colspan="2" class="mydocs-muted">@L["PaymentsSumYear", Money(PaymentMath.Yearly(group.Payments))]</td>
+                            </tr>
+                        </tbody>
+                    </MudSimpleTable>
+                </MudPaper>
+            }
+        }
+    }
+</MudStack>
+
+@code {
+    private List<PaymentDto>? _payments;
+    private bool _mine = true;
+    private string _group = "area";
+    private bool _onlyCancelled;
+    private DateTime? _cancelledBy;
+
+    /// <summary>Vorbelegung aus der Adresse, etwa <c>?cancelled=true</c> von der Startseite.</summary>
+    [SupplyParameterFromQuery(Name = "cancelled")] public bool? OnlyCancelled { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        _onlyCancelled = OnlyCancelled == true;
+        await LoadAsync();
+    }
+
+    private async Task ScopeChanged(bool mine)
+    {
+        _mine = mine;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _payments = null;
+        _payments = await Payments.ListAsync(!_mine);
+    }
+
+    private IEnumerable<PaymentDto> Filtered() => _onlyCancelled
+        ? _payments!.Where(p => p.EndsOn is { } end && (_cancelledBy is not { } by || end <= DateOnly.FromDateTime(by))).OrderBy(p => p.EndsOn)
+        : _payments!;
+
+    private sealed record Group(string Name, IReadOnlyList<PaymentDto> Payments);
+
+    private IEnumerable<Group> Groups(IEnumerable<PaymentDto> payments) => _group switch
+    {
+        "account" => payments.GroupBy(p => p.AccountTitle ?? L["PaymentsNoAccount"].Value).OrderBy(g => g.Key, StringComparer.CurrentCultureIgnoreCase)
+            .Select(g => new Group(g.Key, [.. g])),
+        "person" => payments.GroupBy(p => p.ResponsibleName ?? L["PaymentsNoPerson"].Value).OrderBy(g => g.Key, StringComparer.CurrentCultureIgnoreCase)
+            .Select(g => new Group(g.Key, [.. g])),
+        _ => payments.GroupBy(p => p.Area).OrderBy(g => g.Key).Select(g => new Group(Catalog.Area(g.Key), [.. g])),
+    };
+
+    private static string Money(decimal value) => value.ToString("N2", CultureInfo.CurrentCulture) + " €";
+}

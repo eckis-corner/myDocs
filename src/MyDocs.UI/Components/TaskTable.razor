@@ -21,6 +21,10 @@
                 <MudIcon Icon="@Icons.Material.Filled.PriorityHigh" Color="Color.Warning" Size="Size.Small" />
             }
             @TaskView.Title(context, L)
+            @if (PageOf(context.Kind) is { } target)
+            {
+                <span @onclick:stopPropagation="true"> · <MudLink Href="@target" Typo="Typo.body2" data-testid="task-open-page">@L["TaskOpenPage"]</MudLink></span>
+            }
             @if (ShowObjects && context.ObjectIds.Count > 0)
             {
                 <span class="mydocs-muted"> · @string.Join(", ", context.ObjectIds.Select(id => Directory.TitleOf(id) ?? "?"))</span>
@@ -56,4 +60,13 @@
             await OnChanged.InvokeAsync();
         }
     }
+
+    /// <summary>Vorgänge des Dienstes, die auf einer eigenen Seite erledigt werden.</summary>
+    private static string? PageOf(string kind) => kind switch
+    {
+        MyDocs.Shared.Tasks.TaskKinds.Inbox => "inbox",
+        MyDocs.Shared.Tasks.TaskKinds.Cleanup => "cleanup",
+        MyDocs.Shared.Tasks.TaskKinds.MyLifeSync => "account/mylife",
+        _ => null,
+    };
 }

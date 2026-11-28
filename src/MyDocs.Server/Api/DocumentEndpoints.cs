@@ -472,6 +472,8 @@ internal static class DocumentEndpoints
         }).ToList();
         var visible = VisibleObjects(access, caller).Select(o => o.Id);
         var objects = await db.DocumentObjects.Where(l => l.DocumentId == document.Id && visible.Contains(l.ObjectId)).Select(l => l.ObjectId).ToListAsync(ct);
+        var linked = await db.Objects.Where(o => db.DocumentObjects.Any(l => l.DocumentId == document.Id && l.ObjectId == o.Id)).ToListAsync(ct);
+        var retainUntil = Infrastructure.Documents.Retention.Until(document, linked);
         var lockedBy = IsLocked(document, access.Now) ? await db.Users.Where(u => u.Id == document.LockedBy).Select(u => u.DisplayName).FirstOrDefaultAsync(ct) ?? "?" : null;
         return new DocumentDto(document.Id, document.Title, document.DocumentDate, document.Note, versions, objects,
             !document.IsDeleted && await CanEditAsync(document.Id, caller, access, db, ct), document.UpdatedAt, document.DeletedAt)
@@ -482,6 +484,8 @@ internal static class DocumentEndpoints
             LockedAt = lockedBy is null ? null : document.LockedAt,
             LockedByMe = lockedBy is not null && document.LockedBy == caller.UserId,
             ToMyLife = document.ToMyLife,
+            RetainUntil = retainUntil,
+            RetentionManual = document.RetainUntil is not null,
         };
     }
 

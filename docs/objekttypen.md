@@ -108,7 +108,9 @@ Arbeitsstand für die Standardwerte. Jedes Objekt kann sie überschreiben.
 | Garantie | – | 4 Wochen vor dem Ende der Garantie |
 | Steuerjahr | – | 6 Wochen vor der Abgabefrist, 2 Wochen vor dem Ende der Einspruchsfrist |
 
-## 6. Dokumentarten und Aufbewahrung (28) – offen
+## 6. Dokumentarten und Aufbewahrung (28)
+
+Umgesetzt mit Entscheidung 174 (`RetentionRules` in `MyDocs.Shared`): Rechnung 2 Jahre ab Jahresende, Beleg 2 Jahre ab Dokumentdatum, Brief 3 Jahre, Vertrag/Police/Kündigung 3 Jahre nach dem Ende der Einträge, Bescheid und Kontoauszug 10 Jahre ab Jahresende, Urkunde und Gehaltsabrechnung dauerhaft. Die Tabelle unten war der Vorschlag dazu.
 
 | Dokumentart | Aufbewahrung (Vorschlag) | Bezugspunkt |
 | --- | --- | --- |

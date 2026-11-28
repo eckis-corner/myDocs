@@ -128,6 +128,12 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 ## M6 – Komfort (20, 28, 62)
 
+**M6.1 Zahlungen ✅ (28.11.2026):** Seite mit Meins/Haushalt, Gruppen nach Bereich, Konto oder Person, Summen, „nach den Kündigungen“ und Filter „gekündigt zum …“ (173).
+
+**M6.2 Aufbewahrung ✅ (28.11.2026):** Fristen je Dokumentart mit Bezugspunkt, von Hand je Dokument, Vorgang und Seite „Aufräumen“, nie automatisch löschen (174).
+
+**M6.3 Zuordnungsvorschläge ✅ (28.11.2026):** Nummern, IBAN und Kennzeichen aus dem erkannten Text schlagen im Posteingang Einträge vor (175). **Damit ist M6 fertig.** 235 Tests grün, dazu 4 gegen den echten Worker in der CI. Nicht geprüft: Vorschläge mit echtem OCR-Text eines Scans.
+
 1. Übersicht „Zahlungen“ mit Haushaltssicht und Filter „gekündigt zum …“
 2. Aufbewahrungsfristen je Dokumentart, Vorgang „Aufräumen“
 3. Zuordnungsvorschläge aus der OCR

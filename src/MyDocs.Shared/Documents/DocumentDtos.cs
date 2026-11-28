@@ -41,6 +41,12 @@ public sealed record DocumentDto(Guid Id, string Title, DateOnly? DocumentDate, 
 
     public bool LockedByMe { get; init; }
 
+    /// <summary>Aufbewahren bis (28, 174): nach Regel oder von Hand; <see cref="RetentionRules.Forever"/> dauerhaft, null ohne Frist.</summary>
+    public DateOnly? RetainUntil { get; init; }
+
+    /// <summary>Von Hand gesetzt statt nach der Regel.</summary>
+    public bool RetentionManual { get; init; }
+
     /// <summary>Geht als feste Kopie mit nach myLife (58).</summary>
     public bool ToMyLife { get; init; }
 }
@@ -66,7 +72,7 @@ public sealed record DocumentUpdateRequest(string Title, DateOnly? DocumentDate,
     public string? Kind { get; init; }
 }
 
-/// <summary>Dokumentarten (20); Texte unter <c>DocumentKind_{Schlüssel}</c>. Später hängen Aufbewahrungsfristen daran (28).</summary>
+/// <summary>Dokumentarten (20); Texte unter <c>DocumentKind_{Schlüssel}</c>. Daran hängen die Aufbewahrungsfristen (28, <see cref="RetentionRules"/>).</summary>
 public static class DocumentKinds
 {
     public static IReadOnlyList<string> All { get; } =
@@ -98,7 +104,13 @@ public sealed record InboxItemDto(Guid Id, string Title, string? Kind, DateOnly?
     bool Household, DateTimeOffset CreatedAt, DocumentVersionDto Current, DateTimeOffset? DeletedAt)
 {
     public bool HasMacros { get; init; }
+
+    /// <summary>Zuordnungsvorschläge aus dem erkannten Text (20, 175), der beste zuerst; nur in der Liste des Posteingangs.</summary>
+    public IReadOnlyList<InboxSuggestionDto> Suggestions { get; init; } = [];
 }
+
+/// <summary>Ein Eintrag, dessen Nummern oder IBAN im Text des Dokuments stehen, mit den Feldern, die passen.</summary>
+public sealed record InboxSuggestionDto(Guid ObjectId, string Title, string TypeKey, IReadOnlyList<string> Fields);
 
 /// <summary>
 /// Zuordnen aus dem Posteingang: Angaben, mindestens ein Eintrag und auf Wunsch ein Vorgang dazu (zuständig ist,

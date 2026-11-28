@@ -1,0 +1,98 @@
+@page "/cleanup"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@* Aufräumen (28, 174): Dokumente nach Ablauf der Aufbewahrung. myDocs löscht nie selbst. *@
+@using MyDocs.Shared.Documents
+@inject IStringLocalizer<SharedResource> L
+@inject DocumentClient Documents
+@inject ObjectDirectory Directory
+@inject IDialogService Dialogs
+@inject ISnackbar Snackbar
+
+<PageTitle>@L["AppName"] – @L["CleanupTitle"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h4" HtmlTag="h1">@L["CleanupTitle"]</MudText>
+    <MudText Typo="Typo.body2" Class="mydocs-muted">@L["CleanupIntro"]</MudText>
+    @if (_items is null)
+    {
+        <MudProgressLinear Indeterminate Color="Color.Primary" />
+    }
+    else if (_items.Count == 0)
+    {
+        <MudAlert Severity="Severity.Success" data-testid="cleanup-empty">@L["CleanupEmpty"]</MudAlert>
+    }
+    else
+    {
+        <MudPaper Elevation="1">
+            <MudSimpleTable Dense Elevation="0" data-testid="cleanup-table">
+                <thead>
+                    <tr><th>@L["DocumentTitle"]</th><th>@L["CleanupRule"]</th><th>@L["CleanupUntil"]</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in _items)
+                    {
+                        <tr data-testid="cleanup-row">
+                            <td>
+                                @item.Title
+                                <MudText Typo="Typo.caption" Class="mydocs-muted">
+                                    @(item.Kind is { } kind ? L[$"DocumentKind_{kind}"] : string.Empty)@(item.DocumentDate is { } date ? $" · {date.ToString("d", CultureInfo.CurrentCulture)}" : string.Empty)
+                                    · @string.Join(", ", item.ObjectIds.Select(id => Directory.TitleOf(id) ?? "?"))
+                                </MudText>
+                            </td>
+                            <td>@(item.Basis is { } basis ? L[$"RetentionBasis_{basis}", item.Years] : L["RetentionManual"])</td>
+                            <td style="white-space: nowrap">@item.RetainUntil.ToString("d", CultureInfo.CurrentCulture)</td>
+                            <td style="text-align: right; white-space: nowrap">
+                                @if (item.CanEdit)
+                                {
+                                    <MudButton Size="Size.Small" OnClick="() => KeepAsync(item, false)" Disabled="_busy" data-testid="cleanup-keep">@L["CleanupKeepYear"]</MudButton>
+                                    <MudButton Size="Size.Small" OnClick="() => KeepAsync(item, true)" Disabled="_busy" data-testid="cleanup-forever">@L["CleanupKeepForever"]</MudButton>
+                                    <MudButton Size="Size.Small" Color="Color.Error" OnClick="() => TrashAsync(item)" Disabled="_busy" data-testid="cleanup-trash">@L["CleanupTrash"]</MudButton>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </MudSimpleTable>
+        </MudPaper>
+    }
+</MudStack>
+
+@code {
+    private List<CleanupItemDto>? _items;
+    private bool _busy;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await Directory.LoadAsync();
+        _items = await Documents.CleanupAsync();
+    }
+
+    private Task KeepAsync(CleanupItemDto item, bool forever) => RunAsync(() =>
+        Documents.SetRetentionAsync(item.Id, forever ? null : DateOnly.FromDateTime(DateTime.Today).AddYears(1), forever));
+
+    private async Task TrashAsync(CleanupItemDto item)
+    {
+        if (await Dialogs.ShowMessageBoxAsync(L["CleanupTrash"], L["DocumentDeleteConfirm", item.Title].Value, L["CleanupTrash"], L["Cancel"]) == true)
+        {
+            await RunAsync(() => Documents.DeleteAsync(item.Id));
+        }
+    }
+
+    private async Task RunAsync(Func<Task> action)
+    {
+        _busy = true;
+        try
+        {
+            await action();
+            _items = await Documents.CleanupAsync();
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"DocumentError_{exception.Code}"], Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

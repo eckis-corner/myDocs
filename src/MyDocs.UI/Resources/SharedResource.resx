@@ -122,6 +122,14 @@
   <data name="CheckoutsEmpty" xml:space="preserve"><value>Keine Dateien in Bearbeitung.</value></data>
   <data name="CheckoutsIntro" xml:space="preserve"><value>Diese Dateien sind auf diesem Rechner ausgecheckt. Jede Speicherung wird eine neue Version; „Fertig“ lädt die letzte hoch und hebt die Sperre auf.</value></data>
   <data name="CheckoutsTitle" xml:space="preserve"><value>In Bearbeitung</value></data>
+  <data name="CleanupEmpty" xml:space="preserve"><value>Nichts aufzuräumen.</value></data>
+  <data name="CleanupIntro" xml:space="preserve"><value>Dokumente, deren vorgeschlagene Aufbewahrung abgelaufen ist. myDocs löscht nie selbst: Lege sie in den Papierkorb oder behalte sie länger. Die Fristen sind Vorschläge, keine Rechtsberatung.</value></data>
+  <data name="CleanupKeepForever" xml:space="preserve"><value>Dauerhaft behalten</value></data>
+  <data name="CleanupKeepYear" xml:space="preserve"><value>1 Jahr länger</value></data>
+  <data name="CleanupRule" xml:space="preserve"><value>Regel</value></data>
+  <data name="CleanupTitle" xml:space="preserve"><value>Aufräumen</value></data>
+  <data name="CleanupTrash" xml:space="preserve"><value>In den Papierkorb</value></data>
+  <data name="CleanupUntil" xml:space="preserve"><value>Aufbewahren bis</value></data>
   <data name="Close" xml:space="preserve"><value>Schließen</value></data>
   <data name="CommentAdd" xml:space="preserve"><value>Kommentar</value></data>
   <data name="CommentSend" xml:space="preserve"><value>Senden</value></data>
@@ -266,6 +274,7 @@
   <data name="HouseholdRole" xml:space="preserve"><value>Rolle im Haushalt</value></data>
   <data name="HouseholdRoleHelp" xml:space="preserve"><value>Mitglieder lesen und ändern den gemeinsamen Bestand, Gäste lesen nur.</value></data>
   <data name="HouseholdTitle" xml:space="preserve"><value>Haushalt</value></data>
+  <data name="InboxSuggestions" xml:space="preserve"><value>Vorschläge:</value></data>
   <data name="InTrash" xml:space="preserve"><value>Im Papierkorb</value></data>
   <data name="InboxAssign" xml:space="preserve"><value>Zuordnen</value></data>
   <data name="InboxAssigned" xml:space="preserve"><value>„{0}“ ist zugeordnet.</value></data>
@@ -475,6 +484,29 @@ diese Vorgänge sind seit 14 Tagen überfällig und gehen jetzt an den ganzen Ha
   <data name="PasskeysTitle" xml:space="preserve"><value>Passkeys</value></data>
   <data name="Password" xml:space="preserve"><value>Passwort</value></data>
   <data name="PasswordHelp" xml:space="preserve"><value>Mindestens {0} Zeichen. Ein Satz aus mehreren Wörtern ist leicht zu merken und sicher.</value></data>
+  <data name="PaymentsAccount" xml:space="preserve"><value>Konto</value></data>
+  <data name="PaymentsAfterCancellations" xml:space="preserve"><value>je Monat nach {0} Kündigungen</value></data>
+  <data name="PaymentsAll" xml:space="preserve"><value>Alle Zahlungen</value></data>
+  <data name="PaymentsAmount" xml:space="preserve"><value>Betrag</value></data>
+  <data name="PaymentsCancelledBy" xml:space="preserve"><value>gekündigt zum (bis)</value></data>
+  <data name="PaymentsCancelledSum" xml:space="preserve"><value>Damit fallen {0} je Monat weg ({1} Einträge).</value></data>
+  <data name="PaymentsEmpty" xml:space="preserve"><value>Keine Zahlungen.</value></data>
+  <data name="PaymentsEndsOn" xml:space="preserve"><value>gekündigt zum {0}</value></data>
+  <data name="PaymentsGroupAccount" xml:space="preserve"><value>Konto</value></data>
+  <data name="PaymentsGroupArea" xml:space="preserve"><value>Bereich</value></data>
+  <data name="PaymentsGroupBy" xml:space="preserve"><value>Gruppieren nach</value></data>
+  <data name="PaymentsGroupPerson" xml:space="preserve"><value>Zuständig</value></data>
+  <data name="PaymentsIntro" xml:space="preserve"><value>Alle regelmäßigen Zahlungen aus Versicherungen, Verträgen, Krediten und Karten, die noch laufen. Gekündigte laufen bis zu ihrem Datum mit.</value></data>
+  <data name="PaymentsNoAccount" xml:space="preserve"><value>Ohne Konto</value></data>
+  <data name="PaymentsNoFrequency" xml:space="preserve"><value>(ohne Rhythmus)</value></data>
+  <data name="PaymentsNoPerson" xml:space="preserve"><value>Ohne Zuständigkeit</value></data>
+  <data name="PaymentsOnlyCancelled" xml:space="preserve"><value>Nur gekündigte</value></data>
+  <data name="PaymentsPerMonth" xml:space="preserve"><value>je Monat</value></data>
+  <data name="PaymentsPerYear" xml:space="preserve"><value>je Jahr</value></data>
+  <data name="PaymentsResponsible" xml:space="preserve"><value>Zuständig</value></data>
+  <data name="PaymentsSum" xml:space="preserve"><value>Summe</value></data>
+  <data name="PaymentsSumYear" xml:space="preserve"><value>{0} je Jahr</value></data>
+  <data name="PaymentsTitle" xml:space="preserve"><value>Zahlungen</value></data>
   <data name="PersonCreate" xml:space="preserve"><value>Person hinzufügen</value></data>
   <data name="PersonDeleteConfirm" xml:space="preserve"><value>{0} entfernen?</value></data>
   <data name="PersonLogin" xml:space="preserve"><value>Konto</value></data>
@@ -501,6 +533,14 @@ diese Vorgänge sind seit 14 Tagen überfällig und gehen jetzt an den ganzen Ha
   <data name="RecoveryCodesTitle" xml:space="preserve"><value>Wiederherstellungscodes</value></data>
   <data name="Reload" xml:space="preserve"><value>Neu laden</value></data>
   <data name="Restore" xml:space="preserve"><value>Wiederherstellen</value></data>
+  <data name="RetentionBasis_DocumentDate" xml:space="preserve"><value>{0} Jahre ab Dokumentdatum</value></data>
+  <data name="RetentionBasis_EndOfYear" xml:space="preserve"><value>{0} Jahre ab Jahresende</value></data>
+  <data name="RetentionBasis_Forever" xml:space="preserve"><value>dauerhaft</value></data>
+  <data name="RetentionBasis_ObjectEnd" xml:space="preserve"><value>{0} Jahre nach dem Ende des Eintrags</value></data>
+  <data name="RetentionByRule" xml:space="preserve"><value>Aufbewahrung nach Regel</value></data>
+  <data name="RetentionForever" xml:space="preserve"><value>dauerhaft aufbewahren</value></data>
+  <data name="RetentionManual" xml:space="preserve"><value>von Hand gesetzt</value></data>
+  <data name="RetentionUntil" xml:space="preserve"><value>aufbewahren bis {0}</value></data>
   <data name="ReviewCreated" xml:space="preserve"><value>Der Vorgang „Prüfung“ steht unter Vorgänge.</value></data>
   <data name="ReviewDeadline_cancellation-deadline" xml:space="preserve"><value>Letzter Kündigungstermin</value></data>
   <data name="ReviewDeadline_loan-end" xml:space="preserve"><value>Kredit läuft aus</value></data>
@@ -630,6 +670,7 @@ diese Vorgänge sind seit 14 Tagen überfällig und gehen jetzt an den ganzen Ha
   <data name="TaskKind_task" xml:space="preserve"><value>Aufgabe</value></data>
   <data name="TaskNew" xml:space="preserve"><value>Neuer Vorgang</value></data>
   <data name="TaskObjects" xml:space="preserve"><value>Betrifft</value></data>
+  <data name="TaskOpenPage" xml:space="preserve"><value>öffnen</value></data>
   <data name="TaskOutcome" xml:space="preserve"><value>Ergebnis</value></data>
   <data name="TaskOutcomeHelp" xml:space="preserve"><value>Bei Prüfungen und Fristen gehört ein Ergebnis dazu.</value></data>
   <data name="TaskOutcomeNote" xml:space="preserve"><value>Was ist herausgekommen?</value></data>
@@ -655,6 +696,7 @@ diese Vorgänge sind seit 14 Tagen überfällig und gehen jetzt an den ganzen Ha
   <data name="TaskTitle_cancellation-confirmation" xml:space="preserve"><value>Kündigungsbestätigung ablegen</value></data>
   <data name="TaskTitle_cancellation-deadline" xml:space="preserve"><value>Kündigen oder verlängern?</value></data>
   <data name="TaskTitle_check-related-contracts" xml:space="preserve"><value>Zugehörige Verträge prüfen</value></data>
+  <data name="TaskTitle_cleanup" xml:space="preserve"><value>Aufräumen</value></data>
   <data name="TaskTitle_create-replacement" xml:space="preserve"><value>Ersatz anlegen</value></data>
   <data name="TaskTitle_direct-debit" xml:space="preserve"><value>Lastschrift prüfen</value></data>
   <data name="TaskTitle_final-invoice" xml:space="preserve"><value>Letzte Abrechnung prüfen</value></data>

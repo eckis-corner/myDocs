@@ -42,9 +42,11 @@ internal static class InboxEndpoints
         var documents = await db.Documents.Where(InboxAccess.VisibleTo(caller)).Where(d => d.IsDeleted == deleted)
             .OrderBy(d => d.CreatedAt).ToListAsync(ct);
         var result = new List<InboxItemDto>();
+        // Vorschläge (175) nur aus Einträgen, die die Person sieht und die noch laufen.
+        var candidates = deleted ? [] : (await access.Visible(caller).ToListAsync(ct)).Where(Infrastructure.Tasks.ReviewPlan.IsActive).ToList();
         foreach (var document in documents)
         {
-            result.Add(await ToItemAsync(document, caller, access, db, ct));
+            result.Add(await ToItemAsync(document, caller, access, db, ct) with { Suggestions = Infrastructure.Inbox.Suggestions.For(document.ContentText, candidates) });
         }
 
         return TypedResults.Ok(result);

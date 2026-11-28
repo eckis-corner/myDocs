@@ -1,6 +1,6 @@
 # Abnahme von M1 bis M4 auf der Synology
 
-Checkliste für die Meilensteine M1 (Teil 1–8), M2 (Teil 9–12), M3 (Teil 13–17), M4 (Teil 18) und M5 (Teil 19) auf der DS1520+ ([meilensteine.md](../meilensteine.md)). Erst danach kommen echte Daten (67). Zum Abhaken: `[ ]` durch `[x]` ersetzen. Wenn etwas nicht wie beschrieben funktioniert: notieren, was du getan hast und was passiert ist, dann weiter mit dem nächsten Punkt.
+Checkliste für die Meilensteine M1 (Teil 1–8), M2 (Teil 9–12), M3 (Teil 13–17), M4 (Teil 18), M5 (Teil 19) und M6 (Teil 20) auf der DS1520+ ([meilensteine.md](../meilensteine.md)). Erst danach kommen echte Daten (67). Zum Abhaken: `[ ]` durch `[x]` ersetzen. Wenn etwas nicht wie beschrieben funktioniert: notieren, was du getan hast und was passiert ist, dann weiter mit dem nächsten Punkt.
 
 Gebraucht werden drei Konten mit eigenen Mail-Adressen: **A** (Administrator), **B** (Mitglied) und **C** (Gast). Für Teil 1–8 müssen die Adressen nicht echt sein; für die Abnahme von M2 (Teil 9–12) brauchen A und B echte Postfächer.
 
@@ -192,6 +192,18 @@ Vorher: `MYDOCS_MYLIFE_URL` und `MYLIFE_MYDOCS_URL` gesetzt (installation.md, Ab
 - [ ] In myLife **myDocs-Wiederherstellung** anlegen und den Ablageort der 24 Wörter eintragen
 
 **Abnahme M5:** Eine Änderung an einer Versicherung in myDocs steht nach dem Abgleich verschlüsselt in myLife, und der myLife-Server sieht nur Chiffrat.
+
+## 20. Komfort (M6, als B)
+
+- [ ] **Zahlungen**: „Meins“ zeigt eigene und zuständige Einträge mit Beitrag; Summen je Monat und Jahr stimmen mit einer Rechnung von Hand überein
+- [ ] „Haushalt“ zeigt auch, wofür A zuständig ist, nie private Einträge von A; Gruppieren nach Konto zeigt das belastete Girokonto
+- [ ] Einen Vertrag **kündigen zum** in drei Monaten → er steht weiter in der Liste mit „gekündigt zum …“; „Nur gekündigte“ zeigt, was je Monat wegfällt
+- [ ] Ein Dokument als **Rechnung** mit Dokumentdatum vor drei Jahren ablegen → an der Liste „aufbewahren bis …“; nach höchstens 15 Minuten der Vorgang **Aufräumen** mit Link zur Seite
+- [ ] Seite **Aufräumen**: **Dauerhaft behalten** → die Zeile verschwindet, später schließt sich der Vorgang; nichts wurde gelöscht
+- [ ] Eine **Police** an einer laufenden Versicherung hat keine Frist; nach „beendet“ steht dort Ende + 3 Jahre
+- [ ] Einen Brief mit Policennummer oder IBAN eines Eintrags scannen → im Posteingang steht beim Zuordnen **Vorschläge:** mit dem Eintrag; ein Klick übernimmt ihn
+
+**Abnahme M6:** Zahlungen, Aufräumen und Vorschläge funktionieren mit echten Unterlagen, und nichts wird ohne Klick gelöscht.
 
 ## Ergebnis
 

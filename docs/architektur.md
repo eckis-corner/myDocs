@@ -141,8 +141,7 @@ flowchart LR
     W3 --> W4
     W1 -->|PDF mit Text| W4
     W4 --> W5["Vorschaubild"]
-    W5 --> W6["Zuordnungsvorschläge (M6)"]
-    W6 --> PE["Posteingang"]
+    W5 --> PE["Posteingang mit Zuordnungsvorschlägen (175)"]
 ```
 
 Ableitungen (OCR-PDF, Vorschau, Text, Vorschaubild) gehören zu einer Version und können jederzeit neu erzeugt werden.
@@ -180,6 +179,16 @@ sequenceDiagram
 
 - Der Scan-Ordner auf der Synology gehört zum Haushalt. Desktop-Eingangsordner, Kamera und IMAP landen privat bei der Person, von der der Eingang stammt.
 - IMAP: nur hinterlegte Absender mit bestandener SPF- und DKIM-Prüfung. Anhänge nur aus einer Positivliste, Makros werden markiert, der Mailtext wird auf Wunsch als PDF abgelegt.
+- **Zuordnungsvorschläge (175):** Beim Anzeigen des Posteingangs vergleicht der Server den erkannten Text mit Nummern, IBAN, Kennzeichen und Domains der Einträge, die die Person sieht (ohne Leerzeichen und Bindestriche, mindestens 6 Zeichen), und schlägt bis zu drei Einträge vor. Zugeordnet wird von Hand.
+
+### 6.5 Aufbewahrung und Aufräumen (28, 174)
+
+- Je Dokumentart eine vorgeschlagene Frist mit Bezugspunkt (Dokumentdatum, Jahresende, Ende der Einträge, dauerhaft), von Hand je Dokument überschreibbar (`documents.retain_until`).
+- Ist die Frist abgelaufen, legt der Wiedervorlage-Dienst je Person einen Vorgang „Aufräumen“ an; die Seite **Aufräumen** zeigt die Dokumente mit „In den Papierkorb“, „1 Jahr länger“, „Dauerhaft behalten“. **Nie automatisch löschen.**
+
+### 6.6 Zahlungen (62, 173)
+
+- Seite **Zahlungen**: alle laufenden regelmäßigen Zahlungen nach dem Katalog (`PaymentDefinition`), „Meins“ oder „Haushalt“, gruppiert nach Bereich, Konto oder zuständiger Person, mit Summen je Monat und Jahr. Gekündigte Einträge laufen bis zu ihrem Datum mit; der Filter „gekündigt zum …“ zeigt, was bis dahin wegfällt.
 
 ## 7. Suche (25, 26)
 

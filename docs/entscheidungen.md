@@ -351,12 +351,19 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | ---: | --- | --- |
 | 172 | myDocs-Wiederherstellung | Zu 46: Die Seite **Abgleich mit myDocs** legt auf Knopfdruck einen Eintrag **„myDocs-Wiederherstellung“** vom Typ **Passwortmanager** an (Bereich 9: der Ort für Notfallzugänge; kein neuer Typ im Katalog nötig): Produkt myDocs, Konto = Adresse, Anleitung zur Rücksicherung. Den **Ablageort der 24 Wörter** (und des Sicherungsschlüssels) trägt man selbst ein; die Wörter gehören nicht hinein (3). Der Eintrag gehört myLife allein und ist nicht mit myDocs verknüpft. |
 
+## Runde 28 (28.11.2026, M6 Komfort)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 173 | Zahlungen | Umsetzung von 62: Seite **Zahlungen** (Navigation und Startseite) mit „Meins“ (zuständig oder Eigentümer) und „Haushalt“ (alles Sichtbare, mit der zuständigen Person), gruppiert nach **Bereich, Konto oder Zuständigkeit**, Summen je Monat und Jahr (je Monat aus der Jahressumme). Es zählen laufende Einträge: nicht im Entwurf, nicht beendet, abgelaufen, ersetzt, abgegeben oder archiviert. **Gekündigte** laufen bis zu ihrem Datum mit; die Kachel „nach den Kündigungen“ und der Filter **„gekündigt zum (bis) …“** zeigen, was wegfällt. Einmalige Zahlungen und solche ohne Rhythmus stehen in der Liste, zählen aber nicht in die Summen. Die Startseite rechnet jetzt genauso (abgelaufene Karten zählen nicht mehr). |
+| 174 | Aufbewahrung | Werte zu 28, Vorschläge auf der sicheren Seite und ausdrücklich keine Rechtsberatung: Rechnung 2 Jahre ab Jahresende, Beleg/Quittung 2 Jahre ab Dokumentdatum, Brief 3 Jahre ab Dokumentdatum, Vertrag, Police und Kündigung 3 Jahre nach dem Ende der zugeordneten Einträge (solange einer läuft, keine Frist), Bescheid und Kontoauszug 10 Jahre ab Jahresende, Urkunde/Zeugnis und Gehaltsabrechnung dauerhaft, Sonstiges und Dokumente ohne Art ohne Frist. Ohne Dokumentdatum zählt der Eingang. Je Dokument lässt sich **dauerhaft behalten** oder ein Datum setzen (Menü am Dokument, Seite **Aufräumen**). Ist eine Frist abgelaufen, gibt es je Person (Eigentümer bzw. zuständig für den ersten Eintrag) **einen** Vorgang „Aufräumen“, der sich schließt, wenn nichts mehr fällig ist. **Nie automatisch löschen**: „In den Papierkorb“ ist ein Klick der Person. |
+| 175 | Zuordnungsvorschläge | Zu 20 und 24: Nicht im Worker (er hat keinen Zugriff auf die Einträge), sondern beim Anzeigen des Posteingangs auf dem Server aus dem gespeicherten Text. Verglichen werden IBAN, alle Text-Felder auf „…Nummer“ (Police, Kunde, Vertrag, Versicherte, Steuer, Personal …), Kennzeichen, Domain und Benutzername, ohne Leerzeichen, Satzzeichen und Groß-/Kleinschreibung, ab 6 Zeichen; IBAN zählt mehr. Bis zu drei Vorschläge aus den Einträgen, die die Person sieht und die noch laufen; ein Klick übernimmt den Eintrag in die Zuordnung, gespeichert wird nur von Hand. |
+
 ## Offen
 
 | Thema | Was fehlt |
 | --- | --- |
 | Zusatztypen (7) | Felder, Bereich und Lebenszyklus-Muster je Typ |
-| Aufbewahrung (28) | Dauer und Bezugspunkt je Dokumentart |
 | Meldungen an Administratoren | Fehlgeschlagene Sicherung, unzustellbare Mails, Fehler im Mail-Eingang oder fehlgeschlagene Verarbeitung per Mail melden (bisher: Seiten „Sicherung“ und „Einstellungen“, Protokoll) |
 | Korrespondenz (21) | Typ für Dokumente ohne passenden Eintrag; gehört zu den Zusatztypen (7) |
 | Desktop-Client | Signierte Pakete (Windows, macOS), Installer, automatische Aktualisierung, Tray-Symbol |

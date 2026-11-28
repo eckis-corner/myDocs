@@ -39,6 +39,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<InboxClient>();
         services.AddScoped<DeviceClient>();
         services.AddScoped<MyLifeClient>();
+        services.AddScoped<PaymentClient>();
         return services;
     }
 }

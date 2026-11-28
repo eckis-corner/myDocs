@@ -122,6 +122,14 @@
   <data name="CheckoutsEmpty" xml:space="preserve"><value>No files being edited.</value></data>
   <data name="CheckoutsIntro" xml:space="preserve"><value>These files are checked out on this computer. Every save becomes a new version; “Done” uploads the last one and releases the lock.</value></data>
   <data name="CheckoutsTitle" xml:space="preserve"><value>Being edited</value></data>
+  <data name="CleanupEmpty" xml:space="preserve"><value>Nothing to clean up.</value></data>
+  <data name="CleanupIntro" xml:space="preserve"><value>Documents whose suggested retention has ended. myDocs never deletes on its own: move them to the trash or keep them longer. The periods are suggestions, not legal advice.</value></data>
+  <data name="CleanupKeepForever" xml:space="preserve"><value>Keep permanently</value></data>
+  <data name="CleanupKeepYear" xml:space="preserve"><value>1 more year</value></data>
+  <data name="CleanupRule" xml:space="preserve"><value>Rule</value></data>
+  <data name="CleanupTitle" xml:space="preserve"><value>Clean up</value></data>
+  <data name="CleanupTrash" xml:space="preserve"><value>Move to trash</value></data>
+  <data name="CleanupUntil" xml:space="preserve"><value>Keep until</value></data>
   <data name="Close" xml:space="preserve"><value>Close</value></data>
   <data name="CommentAdd" xml:space="preserve"><value>Comment</value></data>
   <data name="CommentSend" xml:space="preserve"><value>Send</value></data>
@@ -266,6 +274,7 @@
   <data name="HouseholdRole" xml:space="preserve"><value>Role in the household</value></data>
   <data name="HouseholdRoleHelp" xml:space="preserve"><value>Members read and change the shared records, guests only read.</value></data>
   <data name="HouseholdTitle" xml:space="preserve"><value>Household</value></data>
+  <data name="InboxSuggestions" xml:space="preserve"><value>Suggestions:</value></data>
   <data name="InTrash" xml:space="preserve"><value>In the trash</value></data>
   <data name="InboxAssign" xml:space="preserve"><value>Assign</value></data>
   <data name="InboxAssigned" xml:space="preserve"><value>“{0}” has been assigned.</value></data>
@@ -475,6 +484,29 @@ these tasks have been overdue for 14 days and now go to the whole household:
   <data name="PasskeysTitle" xml:space="preserve"><value>Passkeys</value></data>
   <data name="Password" xml:space="preserve"><value>Password</value></data>
   <data name="PasswordHelp" xml:space="preserve"><value>At least {0} characters. A sentence of several words is easy to remember and secure.</value></data>
+  <data name="PaymentsAccount" xml:space="preserve"><value>Account</value></data>
+  <data name="PaymentsAfterCancellations" xml:space="preserve"><value>per month after {0} cancellations</value></data>
+  <data name="PaymentsAll" xml:space="preserve"><value>All payments</value></data>
+  <data name="PaymentsAmount" xml:space="preserve"><value>Amount</value></data>
+  <data name="PaymentsCancelledBy" xml:space="preserve"><value>cancelled as of (until)</value></data>
+  <data name="PaymentsCancelledSum" xml:space="preserve"><value>This drops {0} per month ({1} entries).</value></data>
+  <data name="PaymentsEmpty" xml:space="preserve"><value>No payments.</value></data>
+  <data name="PaymentsEndsOn" xml:space="preserve"><value>cancelled as of {0}</value></data>
+  <data name="PaymentsGroupAccount" xml:space="preserve"><value>Account</value></data>
+  <data name="PaymentsGroupArea" xml:space="preserve"><value>Area</value></data>
+  <data name="PaymentsGroupBy" xml:space="preserve"><value>Group by</value></data>
+  <data name="PaymentsGroupPerson" xml:space="preserve"><value>Person in charge</value></data>
+  <data name="PaymentsIntro" xml:space="preserve"><value>All recurring payments from insurance policies, contracts, loans and cards that are still running. Cancelled ones count until their end date.</value></data>
+  <data name="PaymentsNoAccount" xml:space="preserve"><value>No account</value></data>
+  <data name="PaymentsNoFrequency" xml:space="preserve"><value>(no frequency)</value></data>
+  <data name="PaymentsNoPerson" xml:space="preserve"><value>Nobody in charge</value></data>
+  <data name="PaymentsOnlyCancelled" xml:space="preserve"><value>Cancelled only</value></data>
+  <data name="PaymentsPerMonth" xml:space="preserve"><value>per month</value></data>
+  <data name="PaymentsPerYear" xml:space="preserve"><value>per year</value></data>
+  <data name="PaymentsResponsible" xml:space="preserve"><value>Person in charge</value></data>
+  <data name="PaymentsSum" xml:space="preserve"><value>Total</value></data>
+  <data name="PaymentsSumYear" xml:space="preserve"><value>{0} per year</value></data>
+  <data name="PaymentsTitle" xml:space="preserve"><value>Payments</value></data>
   <data name="PersonCreate" xml:space="preserve"><value>Add person</value></data>
   <data name="PersonDeleteConfirm" xml:space="preserve"><value>Remove {0}?</value></data>
   <data name="PersonLogin" xml:space="preserve"><value>Account</value></data>
@@ -501,6 +533,14 @@ these tasks have been overdue for 14 days and now go to the whole household:
   <data name="RecoveryCodesTitle" xml:space="preserve"><value>Recovery codes</value></data>
   <data name="Reload" xml:space="preserve"><value>Reload</value></data>
   <data name="Restore" xml:space="preserve"><value>Restore</value></data>
+  <data name="RetentionBasis_DocumentDate" xml:space="preserve"><value>{0} years from the document date</value></data>
+  <data name="RetentionBasis_EndOfYear" xml:space="preserve"><value>{0} years from the end of the year</value></data>
+  <data name="RetentionBasis_Forever" xml:space="preserve"><value>permanently</value></data>
+  <data name="RetentionBasis_ObjectEnd" xml:space="preserve"><value>{0} years after the entry ended</value></data>
+  <data name="RetentionByRule" xml:space="preserve"><value>Retention by rule</value></data>
+  <data name="RetentionForever" xml:space="preserve"><value>keep permanently</value></data>
+  <data name="RetentionManual" xml:space="preserve"><value>set by hand</value></data>
+  <data name="RetentionUntil" xml:space="preserve"><value>keep until {0}</value></data>
   <data name="ReviewCreated" xml:space="preserve"><value>The review task is listed under tasks.</value></data>
   <data name="ReviewDeadline_cancellation-deadline" xml:space="preserve"><value>Last cancellation date</value></data>
   <data name="ReviewDeadline_loan-end" xml:space="preserve"><value>Loan ends</value></data>
@@ -630,6 +670,7 @@ these tasks have been overdue for 14 days and now go to the whole household:
   <data name="TaskKind_task" xml:space="preserve"><value>Task</value></data>
   <data name="TaskNew" xml:space="preserve"><value>New task</value></data>
   <data name="TaskObjects" xml:space="preserve"><value>Concerns</value></data>
+  <data name="TaskOpenPage" xml:space="preserve"><value>open</value></data>
   <data name="TaskOutcome" xml:space="preserve"><value>Outcome</value></data>
   <data name="TaskOutcomeHelp" xml:space="preserve"><value>Reviews and deadlines need an outcome.</value></data>
   <data name="TaskOutcomeNote" xml:space="preserve"><value>What came of it?</value></data>
@@ -655,6 +696,7 @@ these tasks have been overdue for 14 days and now go to the whole household:
   <data name="TaskTitle_cancellation-confirmation" xml:space="preserve"><value>File the cancellation confirmation</value></data>
   <data name="TaskTitle_cancellation-deadline" xml:space="preserve"><value>Cancel or renew?</value></data>
   <data name="TaskTitle_check-related-contracts" xml:space="preserve"><value>Check related contracts</value></data>
+  <data name="TaskTitle_cleanup" xml:space="preserve"><value>Clean up</value></data>
   <data name="TaskTitle_create-replacement" xml:space="preserve"><value>Create a replacement</value></data>
   <data name="TaskTitle_direct-debit" xml:space="preserve"><value>Check the direct debit</value></data>
   <data name="TaskTitle_final-invoice" xml:space="preserve"><value>Check the final invoice</value></data>

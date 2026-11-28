@@ -71,6 +71,9 @@ public sealed class Document
 
     public DateTimeOffset? LockExpiresAt { get; set; }
 
+    /// <summary>Aufbewahrung von Hand (174): bis zu diesem Tag, <see cref="DateOnly.MaxValue"/> dauerhaft; null heißt nach der Regel der Dokumentart.</summary>
+    public DateOnly? RetainUntil { get; set; }
+
     /// <summary>Geht als feste Kopie der aktuellen Version mit nach myLife (58).</summary>
     public bool ToMyLife { get; set; }
 }

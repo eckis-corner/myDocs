@@ -78,6 +78,12 @@
                                             : L["DocumentLockedBy", lockedBy, document.LockedAt?.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) ?? string.Empty])
                                     </MudText>
                                 }
+                                @if (document.RetainUntil is { } retain)
+                                {
+                                    <MudText Typo="Typo.caption" Class="mydocs-muted" data-testid="document-retention">
+                                        @(retain == MyDocs.Shared.Documents.RetentionRules.Forever ? L["RetentionForever"] : L["RetentionUntil", retain.ToString("d", CultureInfo.CurrentCulture)])
+                                    </MudText>
+                                }
                                 @if (document.ToMyLife)
                                 {
                                     <MudText Typo="Typo.caption" Color="Color.Primary" data-testid="document-mylife">@L["DocumentToMyLife"]</MudText>
@@ -139,6 +145,16 @@
                                                  OnClick="() => ToggleMyLifeAsync(document)" data-testid="document-mylife-toggle">
                                         @(document.ToMyLife ? L["DocumentToMyLifeOff"] : L["DocumentToMyLifeOn"])
                                     </MudMenuItem>
+                                    @if (document.RetentionManual)
+                                    {
+                                        <MudMenuItem Icon="@Icons.Material.Outlined.EventRepeat" OnClick="() => RunAsync(() => Documents.SetRetentionAsync(document.Id, null))"
+                                                     data-testid="document-retention-rule">@L["RetentionByRule"]</MudMenuItem>
+                                    }
+                                    else
+                                    {
+                                        <MudMenuItem Icon="@Icons.Material.Outlined.AllInclusive" OnClick="() => RunAsync(() => Documents.SetRetentionAsync(document.Id, null, true))"
+                                                     data-testid="document-retention-forever">@L["CleanupKeepForever"]</MudMenuItem>
+                                    }
                                     <MudMenuItem Icon="@Icons.Material.Outlined.Delete" IconColor="Color.Error" OnClick="() => DeleteAsync(document)">@L["Delete"]</MudMenuItem>
                                 }
                             </MudMenu>

@@ -853,6 +853,10 @@ namespace MyDocs.Server.Data.Migrations
                         .HasColumnType("character varying(2000)")
                         .HasColumnName("note");
 
+                    b.Property<DateOnly?>("RetainUntil")
+                        .HasColumnType("date")
+                        .HasColumnName("retain_until");
+
                     b.Property<string>("SearchText")
                         .HasColumnType("text")
                         .HasColumnName("search_text");

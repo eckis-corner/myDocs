@@ -102,6 +102,8 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 **M4.3 Eingangsordner, Ablage, Benachrichtigungen ✅ (28.11.2026):** Eingangsordner je Rechner, Ablagefläche für Drag & Drop in Browser und Client, Benachrichtigungen des Systems, Rückfrage beim Schließen statt Tray (159, 160). 224 Tests grün.
 
+**M4.4 Builds ✅ (28.11.2026):** Pakete für Windows, macOS (arm64, x64) und Linux in der CI, Release bei Tags, Anleitung `docs/betrieb/desktop.md` (161). Das macOS-Bundle ist lokal gestartet. **Damit ist M4 fertig.** Nicht geprüft: der Client unter Windows und Linux, die Bedienung im Fenster (Anmeldung über den Browser, Bearbeiten mit Office), Benachrichtigungen und Ordnerdialog.
+
 1. `MyDocs.Desktop` mit Photino.Blazor und `MyDocs.UI`
 2. Anmeldung mit PKCE und Loopback, Gerätetoken im Schlüsselspeicher, Geräteverwaltung in der Web-App
 3. Check-out/Check-in mit File-Watcher, Sperren, Konfliktversion, offline weiterarbeiten

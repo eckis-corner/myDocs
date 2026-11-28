@@ -28,7 +28,7 @@ Die Rechte prüft immer der Server, in jeder Abfrage, auch in der Volltextsuche 
 flowchart LR
     subgraph Clients
         WEB["Browser<br/>MyDocs.Web (WASM)<br/>MyDocs.UI + MudBlazor"]
-        DESK["Desktop<br/>MyDocs.Desktop (Photino)<br/>MyDocs.UI + Check-out, Eingangsordner, Tray"]
+        DESK["Desktop<br/>MyDocs.Desktop (Photino)<br/>MyDocs.UI + Check-out, Eingangsordner, Benachrichtigungen"]
         ML["myLife im Browser<br/>Seite „Abgleich mit myDocs“"]
     end
 
@@ -74,7 +74,8 @@ myDocs (dieses Repo)
     MyDocs.Web        Hosting im Browser (Interactive WebAssembly, ohne Prerendering)
     MyDocs.Server     ASP.NET Core: API, Identity, EF Core/Npgsql, Speicher, Hintergrunddienste
     MyDocs.Worker     Verarbeitung (Container mit LibreOffice, OCRmyPDF, Tesseract)
-    MyDocs.Desktop    Photino.Blazor-Host, Check-out/Check-in, Eingangsordner, Tray
+    MyDocs.Desktop    Photino.Blazor-Host (Fenster, Schema mydocs://, Dialoge)
+    MyDocs.Desktop.Core  Anmeldung, Schlüsselspeicher, Check-out/Check-in, Eingangsordner
   tests/
     MyDocs.Tests      xUnit, bUnit, Integrationstests mit Testcontainers
 ```
@@ -84,7 +85,7 @@ myDocs (dieses Repo)
 | **MyDocs.UI** | Dashboard, Objekte (Formular und Datenblatt aus `MyCommon.Ui`), Vorgänge, Posteingang, Dokumente mit Versionen und Vorschau, Suche, Zahlungen, Admin. Greift nie direkt auf Dienste zu, nur über `MyDocs.ApiClient`. Plattformfunktionen (Datei öffnen, Ordner beobachten) über Schnittstellen, die nur der Desktop-Host implementiert. |
 | **MyDocs.Server** | REST-API, Anmeldung (Cookie für den Browser, Token-Endpunkt für Geräte und für myLife), Rechteprüfung, Speicher, Volltextsuche, Audit-Log, Mail-Outbox. Hintergrunddienste: Wiedervorlage und Eskalation, tägliche Zusammenfassung, IMAP-Abruf, Scan-Ordner, Aufbewahrung, myLife-Abgleich, Papierkorb, Sicherung. |
 | **MyDocs.Worker** | Zustandslos, ohne Datenbank und ohne Schlüssel (136): Die App nimmt einen Auftrag aus ihrer Tabelle, schickt die entschlüsselte Datei per HTTP und verschlüsselt PDF, Text und Vorschaubild aus der Antwort. Eine Datei gleichzeitig, Arbeitsdateien im tmpfs, kein Internet. Eigener Container, damit die App schlank bleibt. |
-| **MyDocs.Desktop** | Hostet `MyDocs.UI` in der WebView des Systems. Dazu kommen Check-out/Check-in, Eingangsordner, Tray und Benachrichtigungen. |
+| **MyDocs.Desktop** | Hostet `MyDocs.UI` mit Photino in der WebView des Systems. Die Logik (Anmeldung, Schlüsselspeicher, Check-out/Check-in, Eingangsordner) liegt testbar in `MyDocs.Desktop.Core`; Inhalte lädt die WebView über das Schema `mydocs://` mit dem Gerätetoken. Benachrichtigungen des Systems statt Tray (160). |
 
 ### Warum so
 

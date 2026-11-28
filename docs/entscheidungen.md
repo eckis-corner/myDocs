@@ -319,6 +319,12 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 159 | Eingangsordner | Im Client unter **Posteingang** einen Ordner wählen (Dialog des Systems); er wird alle 10 Sekunden durchgesehen. Fertig geschriebene Dateien (zwei Durchläufe gleich) gehen in den **eigenen** Posteingang (Herkunft „Desktop“) und wandern dann in den Unterordner **„hochgeladen“**, damit nichts verloren geht und nichts doppelt kommt. Ohne Netz bleiben sie liegen; was der Server ablehnt, kommt nach „nicht hochgeladen“. Versteckte Dateien, Office-Sperrdateien (`~$…`) und unfertige Downloads bleiben unberührt. Der Ordner gilt je Rechner. |
 | 160 | Ablage und Tray | Statt eines eigenen Fensters für Drag & Drop eine **Ablagefläche** im Posteingang und an jedem Eintrag, die im Browser und im Client gleich funktioniert. **Kein Tray-Symbol** (abweichend von 36): Photino bietet keins, und eine eigene Lösung je System wäre viel Code für wenig Nutzen. Stattdessen: **Benachrichtigungen des Systems** (neue Version hochgeladen, Konflikt, keine Verbindung, Datei im Posteingang) und beim Schließen mit ausgecheckten Dateien eine **Rückfrage**; Änderungen gehen beim nächsten Start hoch. Läuft der Client nicht, beobachtet auch niemand den Eingangsordner. |
 
+## Runde 24 (28.11.2026, M4.4 Builds)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 161 | Pakete | Die CI baut den Client bei jedem Push für **win-x64, osx-arm64, osx-x64, linux-x64**, eigenständig (mit .NET), als Artefakt; ein Tag `v*` legt ein GitHub-Release mit allen Paketen an. macOS bekommt ein `.app`-Bundle, Windows ein ZIP, Linux ein tar.gz. **Nicht signiert** und nicht notarisiert (kein Zertifikat): SmartScreen und Gatekeeper warnen beim ersten Start; die Anleitung steht in `docs/betrieb/desktop.md`. Unter Linux werden WebKitGTK 4.1, GTK 3, libnotify und `secret-tool` vorausgesetzt. Kein Installer und keine automatische Aktualisierung vorerst. |
+
 ## Offen
 
 | Thema | Was fehlt |
@@ -327,3 +333,4 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | Aufbewahrung (28) | Dauer und Bezugspunkt je Dokumentart |
 | Meldungen an Administratoren | Fehlgeschlagene Sicherung, unzustellbare Mails, Fehler im Mail-Eingang oder fehlgeschlagene Verarbeitung per Mail melden (bisher: Seiten „Sicherung“ und „Einstellungen“, Protokoll) |
 | Korrespondenz (21) | Typ für Dokumente ohne passenden Eintrag; gehört zu den Zusatztypen (7) |
+| Desktop-Client | Signierte Pakete (Windows, macOS), Installer, automatische Aktualisierung, Tray-Symbol |

@@ -1,4 +1,4 @@
-# Abnahme von M1 bis M3 auf der Synology
+# Abnahme von M1 bis M4 auf der Synology
 
 Checkliste für die Meilensteine M1 (Teil 1–8), M2 (Teil 9–12) und M3 (ab Teil 13) auf der DS1520+ ([meilensteine.md](../meilensteine.md)). Erst danach kommen echte Daten (67). Zum Abhaken: `[ ]` durch `[x]` ersetzen. Wenn etwas nicht wie beschrieben funktioniert: notieren, was du getan hast und was passiert ist, dann weiter mit dem nächsten Punkt.
 
@@ -156,6 +156,24 @@ Gebraucht werden drei Konten mit eigenen Mail-Adressen: **A** (Administrator), *
 - [ ] Im Protokoll von B steht bei einer abgelehnten Mail der Grund
 
 **Abnahme M3:** Ein Brief, der per Kamera, Scanner und Mail hereinkommt, ist jedes Mal durchsuchbar und zugeordnet.
+
+## 18. Desktop-Client (M4, als B, auf Windows, macOS und Linux)
+
+Anleitung: [desktop.md](desktop.md). Je System:
+
+- [ ] Paket aus dem Release installieren und starten; **Im Browser anmelden** öffnet den Standardbrowser, nach **Erlauben** zeigt der Client die Übersicht
+- [ ] Web-App → Benutzermenü → **Geräte** zeigt den Rechner als „Dieses Gerät“ nur im Client, im Browser ohne Markierung
+- [ ] Vorschaubilder und PDF-Vorschau erscheinen im Client; **Herunterladen** öffnet die Datei schreibgeschützt in der Standard-App
+- [ ] Eine Excel-Liste: **Bearbeiten**, ändern, speichern → Benachrichtigung, im Browser „2 Versionen“; C bzw. A sieht „In Bearbeitung von B“ und kann keine Version hochladen
+- [ ] WLAN aus, weiter ändern und speichern → Benachrichtigung „keine Verbindung“; Client beenden (Rückfrage), WLAN an, Client starten → die Änderung ist als Version da
+- [ ] A hebt die Sperre auf und lädt selbst eine Version hoch; B speichert danach → Benachrichtigung „Konflikt“, „… (Konflikt B …)“ steht am Eintrag, nichts ist überschrieben
+- [ ] **Fertig**: Die Sperre ist weg, die Datei verschwindet aus „In Bearbeitung“
+- [ ] Posteingang → **Ordner wählen**, eine PDF hineinlegen → nach wenigen Sekunden im Posteingang, die Datei liegt in `hochgeladen`
+- [ ] Eine Datei in die Ablagefläche eines Eintrags ziehen → wird hochgeladen (auch im Browser prüfen)
+- [ ] Gerät in der Web-App widerrufen → der Client zeigt wieder „Verbinden“
+- [ ] **Abmelden** im Client → das Gerät verschwindet aus der Liste
+
+**Abnahme M4:** Eine Excel-Liste lässt sich auf allen drei Systemen öffnen, ändern und speichern, und jede Speicherung ist eine Version.
 
 ## Ergebnis
 

@@ -1,0 +1,70 @@
+@page "/account/devices"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@* Angemeldete Geräte (Desktop-Client, M4.1): ansehen und widerrufen. *@
+@using MyDocs.Shared.Devices
+@inject IStringLocalizer<SharedResource> L
+@inject DeviceClient Devices
+@inject IDialogService Dialogs
+@inject ISnackbar Snackbar
+
+<PageTitle>@L["AppName"] – @L["DevicesTitle"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h4" HtmlTag="h1">@L["DevicesTitle"]</MudText>
+    <MudText Typo="Typo.body2" Class="mydocs-muted">@L["DevicesIntro"]</MudText>
+    @if (_devices is null)
+    {
+        <MudProgressLinear Indeterminate Color="Color.Primary" />
+    }
+    else if (_devices.Count == 0)
+    {
+        <MudText Class="mydocs-muted" data-testid="devices-empty">@L["DevicesEmpty"]</MudText>
+    }
+    else
+    {
+        <MudPaper Elevation="1">
+            <MudSimpleTable Dense Elevation="0" data-testid="devices">
+                <thead>
+                    <tr><th>@L["DeviceName"]</th><th>@L["DeviceSince"]</th><th>@L["DeviceLastUsed"]</th><th></th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var device in _devices)
+                    {
+                        <tr data-testid="device-row">
+                            <td>
+                                @device.Name
+                                @if (device.Current)
+                                {
+                                    <MudChip T="string" Size="Size.Small" Color="Color.Primary" Variant="Variant.Outlined">@L["DeviceCurrent"]</MudChip>
+                                }
+                            </td>
+                            <td>@device.CreatedAt.ToLocalTime().ToString("d", CultureInfo.CurrentCulture)</td>
+                            <td>@device.LastUsedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) @(device.LastIp is { } ip ? $"({ip})" : string.Empty)</td>
+                            <td style="text-align: right">
+                                <MudButton Color="Color.Error" Size="Size.Small" OnClick="() => RevokeAsync(device)" data-testid="device-revoke">@L["DeviceRevoke"]</MudButton>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </MudSimpleTable>
+        </MudPaper>
+    }
+</MudStack>
+
+@code {
+    private List<DeviceDto>? _devices;
+
+    protected override async Task OnInitializedAsync() => _devices = await Devices.ListAsync();
+
+    private async Task RevokeAsync(DeviceDto device)
+    {
+        if (await Dialogs.ShowMessageBoxAsync(L["DeviceRevoke"], L["DeviceRevokeConfirm", device.Name].Value, L["DeviceRevoke"], L["Cancel"]) != true)
+        {
+            return;
+        }
+
+        await Devices.RevokeAsync(device.Id);
+        Snackbar.Add(L["DeviceRevoked", device.Name], Severity.Success);
+        _devices = await Devices.ListAsync();
+    }
+}

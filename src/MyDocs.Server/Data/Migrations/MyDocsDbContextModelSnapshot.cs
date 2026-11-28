@@ -532,6 +532,109 @@ namespace MyDocs.Server.Data.Migrations
                     b.ToTable("comments", (string)null);
                 });
 
+            modelBuilder.Entity("MyDocs.Server.Data.Device", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("LastIp")
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasColumnName("last_ip");
+
+                    b.Property<DateTimeOffset>("LastUsedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("last_used_at");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("name");
+
+                    b.Property<DateTimeOffset>("RefreshExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("refresh_expires_at");
+
+                    b.Property<byte[]>("RefreshTokenHash")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("refresh_token_hash");
+
+                    b.Property<DateTimeOffset?>("RevokedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("revoked_at");
+
+                    b.Property<string>("SecurityStamp")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("security_stamp");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_devices");
+
+                    b.HasIndex("RefreshTokenHash")
+                        .IsUnique()
+                        .HasDatabaseName("ix_devices_refresh_token_hash");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_devices_user_id");
+
+                    b.ToTable("devices", (string)null);
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.DeviceAuthorization", b =>
+                {
+                    b.Property<byte[]>("CodeHash")
+                        .HasColumnType("bytea")
+                        .HasColumnName("code_hash");
+
+                    b.Property<string>("CodeChallenge")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("code_challenge");
+
+                    b.Property<string>("DeviceName")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("device_name");
+
+                    b.Property<DateTimeOffset>("ExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("expires_at");
+
+                    b.Property<string>("RedirectUri")
+                        .IsRequired()
+                        .HasMaxLength(200)
+                        .HasColumnType("character varying(200)")
+                        .HasColumnName("redirect_uri");
+
+                    b.Property<Guid>("UserId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("user_id");
+
+                    b.HasKey("CodeHash")
+                        .HasName("pk_device_authorizations");
+
+                    b.HasIndex("UserId")
+                        .HasDatabaseName("ix_device_authorizations_user_id");
+
+                    b.ToTable("device_authorizations", (string)null);
+                });
+
             modelBuilder.Entity("MyDocs.Server.Data.DocObject", b =>
                 {
                     b.Property<Guid>("Id")
@@ -1474,6 +1577,26 @@ namespace MyDocs.Server.Data.Migrations
                         .HasForeignKey("TaskId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .HasConstraintName("fk_comments_tasks_task_id");
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.Device", b =>
+                {
+                    b.HasOne("MyDocs.Server.Data.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_devices_users_user_id");
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.DeviceAuthorization", b =>
+                {
+                    b.HasOne("MyDocs.Server.Data.AppUser", null)
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_device_authorizations_users_user_id");
                 });
 
             modelBuilder.Entity("MyDocs.Server.Data.DocObject", b =>

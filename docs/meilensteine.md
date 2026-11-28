@@ -96,6 +96,8 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 ## M4 – Desktop-Client (17, 36–38, 41)
 
+**M4.1 Anmeldung und Host ✅ (28.11.2026):** Systembrowser mit PKCE und Loopback, Gerätetokens mit Refresh im Schlüsselspeicher, Seiten „Geräte“ und „Gerät anmelden“, Photino-Host mit `MyDocs.UI` (152–155). 212 Tests grün; der Client startet auf macOS und zeigt die Oberfläche, der ganze Ablauf mit Browser ist nur in den Tests geprüft.
+
 1. `MyDocs.Desktop` mit Photino.Blazor und `MyDocs.UI`
 2. Anmeldung mit PKCE und Loopback, Gerätetoken im Schlüsselspeicher, Geräteverwaltung in der Web-App
 3. Check-out/Check-in mit File-Watcher, Sperren, Konfliktversion, offline weiterarbeiten

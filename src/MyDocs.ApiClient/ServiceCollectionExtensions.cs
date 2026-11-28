@@ -12,12 +12,19 @@ public static class ServiceCollectionExtensions
     public static IServiceCollection AddMyDocsApi(this IServiceCollection services, Uri baseAddress)
     {
         ArgumentNullException.ThrowIfNull(services);
-        services.AddScoped(_ =>
+        return services.AddMyDocsApi(_ =>
         {
             var http = new HttpClient { BaseAddress = baseAddress };
             http.DefaultRequestHeaders.Add(ApiHeaders.Csrf, ApiHeaders.CsrfValue);
             return http;
         });
+    }
+
+    /// <summary>Wie oben mit eigenem HttpClient, etwa mit dem Gerätetoken des Desktop-Clients.</summary>
+    public static IServiceCollection AddMyDocsApi(this IServiceCollection services, Func<IServiceProvider, HttpClient> httpClient)
+    {
+        ArgumentNullException.ThrowIfNull(services);
+        services.AddScoped(httpClient);
         services.AddScoped<AppInfoClient>();
         services.AddScoped<AuthClient>();
         services.AddScoped<AdminClient>();
@@ -30,6 +37,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<DashboardClient>();
         services.AddScoped<NotificationClient>();
         services.AddScoped<InboxClient>();
+        services.AddScoped<DeviceClient>();
         return services;
     }
 }

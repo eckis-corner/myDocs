@@ -1,0 +1,81 @@
+@page "/device/authorize"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@* Freigabe eines Geräts (M4.1): Der Desktop-Client öffnet diese Seite im Systembrowser; nach „Erlauben“ geht der
+   Code an seine Loopback-Adresse. *@
+@using MyDocs.Shared.Devices
+@inject IStringLocalizer<SharedResource> L
+@inject DeviceClient Devices
+@inject NavigationManager Navigation
+
+<PageTitle>@L["AppName"] – @L["DeviceAuthorizeTitle"]</PageTitle>
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-6">
+    <MudPaper Class="pa-6" Elevation="1">
+        <MudStack Spacing="3">
+            <MudText Typo="Typo.h5" HtmlTag="h1">@L["DeviceAuthorizeTitle"]</MudText>
+            @if (!_valid)
+            {
+                <MudAlert Severity="Severity.Error" data-testid="device-invalid">@L["DeviceError_invalid-request"]</MudAlert>
+            }
+            else if (_done is { } done)
+            {
+                <MudAlert Severity="@(done ? Severity.Success : Severity.Info)" data-testid="device-done">@(done ? L["DeviceAuthorized"] : L["DeviceDenied"])</MudAlert>
+            }
+            else
+            {
+                <MudText>@L["DeviceAuthorizeText", DeviceName ?? string.Empty]</MudText>
+                <MudAlert Severity="Severity.Warning" Dense>@L["DeviceAuthorizeWarning"]</MudAlert>
+                <MudStack Row Spacing="2">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AllowAsync" Disabled="_busy" data-testid="device-allow">@L["DeviceAllow"]</MudButton>
+                    <MudButton Variant="Variant.Outlined" OnClick="Deny" Disabled="_busy" data-testid="device-deny">@L["DeviceDeny"]</MudButton>
+                </MudStack>
+            }
+        </MudStack>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private bool _valid;
+    private bool _busy;
+    private bool? _done;
+
+    [SupplyParameterFromQuery(Name = "redirect_uri")] public string? RedirectUri { get; set; }
+
+    [SupplyParameterFromQuery(Name = "code_challenge")] public string? CodeChallenge { get; set; }
+
+    [SupplyParameterFromQuery(Name = "code_challenge_method")] public string? CodeChallengeMethod { get; set; }
+
+    [SupplyParameterFromQuery(Name = "state")] public string? State { get; set; }
+
+    [SupplyParameterFromQuery(Name = "device_name")] public string? DeviceName { get; set; }
+
+    protected override void OnParametersSet() =>
+        _valid = DeviceRules.IsLoopbackRedirect(RedirectUri) && CodeChallengeMethod == "S256" && DeviceRules.IsBase64Url(CodeChallenge, 43, 128)
+            && !string.IsNullOrWhiteSpace(DeviceName) && (State is null || DeviceRules.IsBase64Url(State, 1, 200));
+
+    private async Task AllowAsync()
+    {
+        _busy = true;
+        try
+        {
+            var result = await Devices.AuthorizeAsync(new DeviceAuthorizeRequest(RedirectUri!, CodeChallenge!, CodeChallengeMethod!, DeviceName!, State));
+            _done = true;
+            Navigation.NavigateTo(result.RedirectUrl, forceLoad: true);
+        }
+        catch (ApiException)
+        {
+            _valid = false;
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    /// <summary>Auch eine Ablehnung geht an den Client, damit er nicht weiter wartet.</summary>
+    private void Deny()
+    {
+        _done = false;
+        Navigation.NavigateTo($"{RedirectUri}?error=access_denied{(State is { } state ? $"&state={Uri.EscapeDataString(state)}" : string.Empty)}", forceLoad: true);
+    }
+}

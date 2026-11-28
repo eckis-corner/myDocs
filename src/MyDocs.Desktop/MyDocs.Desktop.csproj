@@ -1,0 +1,21 @@
+<Project Sdk="Microsoft.NET.Sdk.Razor">
+  <!-- Desktop-Client (36, M4): Photino.Blazor hostet MyDocs.UI in der WebView des Systems (Windows, macOS, Linux). -->
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <RootNamespace>MyDocs.Desktop</RootNamespace>
+    <AssemblyName>myDocs</AssemblyName>
+    <ApplicationIcon Condition="Exists('wwwroot\icon.ico')">wwwroot\icon.ico</ApplicationIcon>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="Photino.Blazor" />
+    <PackageReference Include="Microsoft.AspNetCore.Components.WebView" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyDocs.UI\MyDocs.UI.csproj" />
+    <ProjectReference Include="..\MyDocs.Desktop.Core\MyDocs.Desktop.Core.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Update="wwwroot\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>

@@ -19,6 +19,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<ObjectDirectory>();
         services.AddScoped<AdminViewService>();
         services.AddScoped<WebAuthnService>();
+        services.AddScoped<DocumentLinks>();
         services.AddScoped<AuthenticationStateProvider>(sp => sp.GetRequiredService<SessionService>());
         services.AddAuthorizationCore();
         services.AddCascadingAuthenticationState();

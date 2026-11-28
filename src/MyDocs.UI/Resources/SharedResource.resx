@@ -33,6 +33,8 @@
   <data name="Audit_admin-view" xml:space="preserve"><value>Admin-Einsicht</value></data>
   <data name="Audit_backup-created" xml:space="preserve"><value>Sicherung erstellt</value></data>
   <data name="Audit_backup-failed" xml:space="preserve"><value>Sicherung fehlgeschlagen</value></data>
+  <data name="Audit_device-added" xml:space="preserve"><value>Gerät angemeldet</value></data>
+  <data name="Audit_device-revoked" xml:space="preserve"><value>Gerät widerrufen</value></data>
   <data name="Audit_document-assigned" xml:space="preserve"><value>Dokument zugeordnet</value></data>
   <data name="Audit_document-deleted" xml:space="preserve"><value>Dokument gelöscht</value></data>
   <data name="Audit_document-downloaded" xml:space="preserve"><value>Dokument geöffnet</value></data>
@@ -135,6 +137,38 @@
   <data name="DeadlineKind_expiry" xml:space="preserve"><value>läuft ab</value></data>
   <data name="DeadlineKind_task" xml:space="preserve"><value>Frist</value></data>
   <data name="Delete" xml:space="preserve"><value>Löschen</value></data>
+  <data name="DesktopConnect" xml:space="preserve"><value>Mit myDocs verbinden</value></data>
+  <data name="DesktopConnectText" xml:space="preserve"><value>Gib die Adresse eurer myDocs-Instanz ein. Die Anmeldung läuft im Browser mit Passwort und zweitem Faktor; danach gibst du dieses Gerät frei.</value></data>
+  <data name="DesktopOffline" xml:space="preserve"><value>Keine Verbindung</value></data>
+  <data name="DesktopOfflineText" xml:space="preserve"><value>myDocs ist gerade nicht erreichbar. Ausgecheckte Dateien kannst du weiter bearbeiten; sie werden hochgeladen, sobald die Verbindung wieder steht.</value></data>
+  <data name="DesktopRetry" xml:space="preserve"><value>Erneut versuchen</value></data>
+  <data name="DesktopServer" xml:space="preserve"><value>Adresse</value></data>
+  <data name="DesktopServerInvalid" xml:space="preserve"><value>Bitte eine Adresse mit https:// eingeben.</value></data>
+  <data name="DesktopSignIn" xml:space="preserve"><value>Im Browser anmelden</value></data>
+  <data name="DesktopSignInFailed" xml:space="preserve"><value>Die Anmeldung hat nicht geklappt. Bitte im Desktop-Client erneut versuchen.</value></data>
+  <data name="DesktopSignedIn" xml:space="preserve"><value>Das Gerät ist angemeldet. Du kannst dieses Fenster schließen und zu myDocs zurückkehren.</value></data>
+  <data name="DesktopWaiting" xml:space="preserve"><value>Warte auf die Freigabe im Browser …</value></data>
+  <data name="DeviceAllow" xml:space="preserve"><value>Erlauben</value></data>
+  <data name="DeviceAuthorizeText" xml:space="preserve"><value>Der Desktop-Client „{0}“ möchte sich mit deinem Konto anmelden.</value></data>
+  <data name="DeviceAuthorizeTitle" xml:space="preserve"><value>Gerät anmelden</value></data>
+  <data name="DeviceAuthorizeWarning" xml:space="preserve"><value>Erlaube das nur, wenn du den Client gerade selbst auf deinem Rechner gestartet hast.</value></data>
+  <data name="DeviceAuthorized" xml:space="preserve"><value>Erledigt. Du kannst dieses Fenster schließen und zum Desktop-Client wechseln.</value></data>
+  <data name="DeviceCurrent" xml:space="preserve"><value>Dieses Gerät</value></data>
+  <data name="DeviceDenied" xml:space="preserve"><value>Abgelehnt. Das Gerät wurde nicht angemeldet.</value></data>
+  <data name="DeviceDeny" xml:space="preserve"><value>Ablehnen</value></data>
+  <data name="DeviceError_device-not-found" xml:space="preserve"><value>Dieses Gerät gibt es nicht.</value></data>
+  <data name="DeviceError_invalid-grant" xml:space="preserve"><value>Die Anmeldung ist abgelaufen oder wurde widerrufen.</value></data>
+  <data name="DeviceError_invalid-redirect" xml:space="preserve"><value>Die Anfrage des Geräts ist ungültig.</value></data>
+  <data name="DeviceError_invalid-request" xml:space="preserve"><value>Die Anfrage des Geräts ist ungültig. Starte die Anmeldung im Desktop-Client neu.</value></data>
+  <data name="DeviceLastUsed" xml:space="preserve"><value>Zuletzt aktiv</value></data>
+  <data name="DeviceName" xml:space="preserve"><value>Gerät</value></data>
+  <data name="DeviceRevoke" xml:space="preserve"><value>Widerrufen</value></data>
+  <data name="DeviceRevokeConfirm" xml:space="preserve"><value>„{0}“ widerrufen? Das Gerät muss sich danach neu anmelden.</value></data>
+  <data name="DeviceRevoked" xml:space="preserve"><value>„{0}“ ist widerrufen.</value></data>
+  <data name="DeviceSince" xml:space="preserve"><value>Angemeldet am</value></data>
+  <data name="DevicesEmpty" xml:space="preserve"><value>Keine Geräte angemeldet.</value></data>
+  <data name="DevicesIntro" xml:space="preserve"><value>Hier stehen die Desktop-Clients, die du angemeldet hast. Ein widerrufenes Gerät verliert sofort den Zugriff; ausgecheckte Dateien darauf bleiben, werden aber nicht mehr hochgeladen.</value></data>
+  <data name="DevicesTitle" xml:space="preserve"><value>Geräte</value></data>
   <data name="DisplayName" xml:space="preserve"><value>Name</value></data>
   <data name="DocumentDate" xml:space="preserve"><value>Datum des Dokuments</value></data>
   <data name="DocumentDeleteConfirm" xml:space="preserve"><value>„{0}“ löschen? Alle Versionen kommen in den Papierkorb.</value></data>

@@ -1,6 +1,7 @@
 @* Dokumente eines Objekts (M1.5): hochladen, neue Version, Vorschau, Download, Angaben ändern, löschen. *@
 @inject IStringLocalizer<SharedResource> L
 @inject DocumentClient Documents
+@inject DocumentLinks Links
 @inject AppInfoClient AppInfo
 @inject IDialogService Dialogs
 @inject ISnackbar Snackbar
@@ -39,7 +40,7 @@
                         <td style="width: 56px">
                             @if (document.Current.HasThumbnail)
                             {
-                                <img src="@DocumentClient.ThumbnailUrl(document.Id)" alt="" loading="lazy" class="mydocs-thumbnail" data-testid="document-thumbnail" />
+                                <img src="@Links.Thumbnail(document.Id)" alt="" loading="lazy" class="mydocs-thumbnail" data-testid="document-thumbnail" />
                             }
                             else
                             {
@@ -54,7 +55,7 @@
                                 }
                                 else
                                 {
-                                    <MudLink Href="@DocumentClient.ContentUrl(document.Id, download: true)">@document.Title</MudLink>
+                                    <MudLink Href="@Links.Download(document.Id)" OnClick="() => OpenAsync(document, null)">@document.Title</MudLink>
                                 }
                                 <MudText Typo="Typo.caption" Class="mydocs-muted">
                                     @document.Current.FileName · @FormatSize(document.Current.Size)@(document.DocumentDate is { } date ? $" · {date.ToString("d", CultureInfo.CurrentCulture)}" : string.Empty)
@@ -86,7 +87,7 @@
                                 </MudTooltip>
                             }
                             <MudTooltip Text="@L["Download"]">
-                                <MudIconButton Icon="@Icons.Material.Filled.Download" Href="@DocumentClient.ContentUrl(document.Id, download: true)" aria-label="@L["Download"]" Size="Size.Small" />
+                                <MudIconButton Icon="@(Links.IsDesktop ? Icons.Material.Outlined.OpenInNew : Icons.Material.Filled.Download)" Href="@Links.Download(document.Id)" OnClick="() => OpenAsync(document, null)" aria-label="@L["Download"]" Size="Size.Small" />
                             </MudTooltip>
                             <MudMenu Icon="@Icons.Material.Filled.MoreVert" AriaLabel="@L["Actions"]" Dense Size="Size.Small" AnchorOrigin="Origin.BottomRight" TransformOrigin="Origin.TopRight">
                                 @if (CanEdit && document.CanEdit)
@@ -95,7 +96,7 @@
                                 }
                                 @foreach (var version in document.Versions.Skip(1))
                                 {
-                                    <MudMenuItem Icon="@Icons.Material.Outlined.History" Href="@DocumentClient.ContentUrl(document.Id, version.Number, download: true)">
+                                    <MudMenuItem Icon="@Icons.Material.Outlined.History" Href="@Links.Download(document.Id, version.Number)" OnClick="() => OpenAsync(document, version)">
                                         @L["DocumentVersionDownload", version.Number, version.CreatedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture), version.CreatedByName]
                                     </MudMenuItem>
                                 }
@@ -188,13 +189,19 @@
     {
         var parameters = new DialogParameters<DocumentPreviewDialog>
         {
-            { d => d.Url, DocumentClient.PreviewUrl(document.Id) },
-            { d => d.DownloadUrl, DocumentClient.ContentUrl(document.Id, download: true) },
+            { d => d.Url, Links.Preview(document.Id) },
+            { d => d.DownloadUrl, Links.Download(document.Id) },
+            { d => d.DocumentId, document.Id },
+            { d => d.FileName, document.Current.FileName },
             { d => d.Title, document.Title },
             { d => d.ContentType, document.Current.PreviewType ?? document.Current.ContentType },
         };
         await Dialogs.ShowAsync<DocumentPreviewDialog>(document.Title, parameters, new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true, CloseButton = true });
     }
+
+    /// <summary>Im Desktop-Client: mit der Standard-App öffnen; im Browser folgt der Link selbst.</summary>
+    private Task OpenAsync(DocumentDto document, DocumentVersionDto? version) =>
+        Links.IsDesktop ? Links.OpenAsync(document.Id, version?.Number, (version ?? document.Current).FileName) : Task.CompletedTask;
 
     private async Task EditAsync(DocumentDto document)
     {

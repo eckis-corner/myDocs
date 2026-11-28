@@ -4,6 +4,7 @@
 @inject IStringLocalizer<SharedResource> L
 @inject CatalogText Catalog
 @inject InboxClient Inbox
+@inject DocumentLinks Links
 @inject ObjectClient Objects
 @inject AppInfoClient AppInfo
 @inject IDialogService Dialogs
@@ -50,7 +51,7 @@
                                   @onclick="() => Select(item)" data-testid="inbox-item">
                             @if (item.Current.HasThumbnail)
                             {
-                                <img src="@DocumentClient.ThumbnailUrl(item.Id)" alt="" loading="lazy" class="mydocs-thumbnail" />
+                                <img src="@Links.Thumbnail(item.Id)" alt="" loading="lazy" class="mydocs-thumbnail" />
                             }
                             else
                             {
@@ -94,11 +95,11 @@
                             {
                                 @if (Previews.IsImage(previewType))
                                 {
-                                    <img src="@DocumentClient.PreviewUrl(selected.Id)" alt="@selected.Title" style="max-width: 100%; max-height: 60vh; display: block; margin: 0 auto" />
+                                    <img src="@Links.Preview(selected.Id)" alt="@selected.Title" style="max-width: 100%; max-height: 60vh; display: block; margin: 0 auto" />
                                 }
                                 else
                                 {
-                                    <iframe src="@DocumentClient.PreviewUrl(selected.Id)" title="@selected.Title" class="mydocs-preview-frame mydocs-inbox-frame" data-testid="inbox-preview"></iframe>
+                                    <iframe src="@Links.Preview(selected.Id)" title="@selected.Title" class="mydocs-preview-frame mydocs-inbox-frame" data-testid="inbox-preview"></iframe>
                                 }
                             }
                             else
@@ -106,7 +107,7 @@
                                 <MudAlert Severity="Severity.Info" Dense>@L["InboxNoPreview"]</MudAlert>
                             }
                             <div>
-                                <MudButton Href="@DocumentClient.ContentUrl(selected.Id, download: true)" StartIcon="@Icons.Material.Filled.Download" Size="Size.Small">
+                                <MudButton Href="@Links.Download(selected.Id)" OnClick="() => Links.OpenAsync(selected.Id, null, selected.Current.FileName)" StartIcon="@Icons.Material.Filled.Download" Size="Size.Small">
                                     @selected.Current.FileName
                                 </MudButton>
                             </div>

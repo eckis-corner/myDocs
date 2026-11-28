@@ -1,5 +1,6 @@
 @* Vorschau im Browser: PDF im Rahmen, Bilder direkt. Nur für die Typen aus Previews.InlineTypes. *@
 @inject IStringLocalizer<SharedResource> L
+@inject DocumentLinks Links
 
 <MudDialog>
     <DialogContent>
@@ -13,7 +14,7 @@
         }
     </DialogContent>
     <DialogActions>
-        <MudButton Href="@DownloadUrl" StartIcon="@Icons.Material.Filled.Download">@L["Download"]</MudButton>
+        <MudButton Href="@DownloadUrl" OnClick="OpenAsync" StartIcon="@Icons.Material.Filled.Download">@L["Download"]</MudButton>
         <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="() => Dialog.Close()">@L["Close"]</MudButton>
     </DialogActions>
 </MudDialog>
@@ -23,7 +24,14 @@
 
     [Parameter] public string Url { get; set; } = string.Empty;
 
-    [Parameter] public string DownloadUrl { get; set; } = string.Empty;
+    /// <summary>Link zum Herunterladen; null im Desktop-Client, der die Datei selbst öffnet.</summary>
+    [Parameter] public string? DownloadUrl { get; set; }
+
+    [Parameter] public Guid DocumentId { get; set; }
+
+    [Parameter] public string FileName { get; set; } = string.Empty;
+
+    private Task OpenAsync() => DownloadUrl is null ? Links.OpenAsync(DocumentId, null, FileName) : Task.CompletedTask;
 
     [Parameter] public string Title { get; set; } = string.Empty;
 

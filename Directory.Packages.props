@@ -14,6 +14,10 @@
     <PackageVersion Include="Microsoft.Extensions.Localization" Version="10.0.15" />
     <PackageVersion Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="10.0.15" />
     <PackageVersion Include="MudBlazor" Version="9.14.0" />
+    <!-- Desktop-Client (M4): Photino.Blazor; WebView auf dieselbe Version wie die übrigen Komponenten gehoben -->
+    <PackageVersion Include="Photino.Blazor" Version="4.0.13" />
+    <PackageVersion Include="Microsoft.AspNetCore.Components.WebView" Version="10.0.15" />
+    <PackageVersion Include="Microsoft.Extensions.Logging.Console" Version="10.0.15" />
     <PackageVersion Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="10.0.4" />
     <PackageVersion Include="EFCore.NamingConventions" Version="10.0.1" />
     <PackageVersion Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="10.0.15" />

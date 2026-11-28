@@ -1,0 +1,39 @@
+@* Wurzel des Desktop-Clients: ohne Verbindung „Verbinden“, ohne Server „Offline“, sonst die Oberfläche aus MyDocs.UI. *@
+@implements IDisposable
+@inject DeviceSession Session
+@inject DesktopPlatform Platform
+@inject IServiceProvider Services
+
+@if (Session.State == ConnectionState.Connected && !Platform.Offline)
+{
+    <MyDocs.UI.Routes />
+}
+else
+{
+    <ConnectPage Offline="@(Session.State == ConnectionState.Connected && Platform.Offline)" />
+}
+
+@code {
+    protected override void OnInitialized()
+    {
+        Session.Changed += OnChanged;
+        Platform.Changed += OnChanged;
+    }
+
+    private void OnChanged() => _ = InvokeAsync(async () =>
+    {
+        // Nach dem Verbinden fragt die Oberfläche neu, wer angemeldet ist.
+        if (Session.State == ConnectionState.Connected)
+        {
+            await Services.GetRequiredService<MyDocs.UI.Services.SessionService>().RefreshAsync();
+        }
+
+        StateHasChanged();
+    });
+
+    public void Dispose()
+    {
+        Session.Changed -= OnChanged;
+        Platform.Changed -= OnChanged;
+    }
+}

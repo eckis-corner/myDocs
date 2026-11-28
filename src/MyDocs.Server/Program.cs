@@ -75,6 +75,20 @@ builder.Services.AddIdentity<AppUser, IdentityRole<Guid>>(identity =>
     .AddUserStore<ProtectedUserStore>()
     .AddTokenProvider<OneTimeTotpProvider>(OneTimeTotpProvider.Name);
 
+// Desktop-Client (41, 152): Bearer-Token je Gerät neben dem Cookie; die Wahl trifft jede Anfrage selbst.
+builder.Services.AddSingleton<DeviceTokens>();
+builder.Services.AddAuthentication()
+    .AddPolicyScheme(DeviceTokens.SelectorScheme, null, policy => policy.ForwardDefaultSelector = context =>
+        context.Request.Headers.Authorization.ToString().StartsWith("Bearer ", StringComparison.Ordinal) ? DeviceTokens.Scheme : IdentityConstants.ApplicationScheme)
+    .AddScheme<Microsoft.AspNetCore.Authentication.AuthenticationSchemeOptions, DeviceAuthenticationHandler>(DeviceTokens.Scheme, null);
+builder.Services.Configure<Microsoft.AspNetCore.Authentication.AuthenticationOptions>(authentication =>
+{
+    authentication.DefaultScheme = DeviceTokens.SelectorScheme;
+    authentication.DefaultAuthenticateScheme = DeviceTokens.SelectorScheme;
+    authentication.DefaultChallengeScheme = DeviceTokens.SelectorScheme;
+    authentication.DefaultForbidScheme = DeviceTokens.SelectorScheme;
+});
+
 // Sitzungs-Cookie wie myLife: HttpOnly, SameSite=Strict, gleitende Laufzeit. Die API antwortet mit 401/403 statt umzuleiten.
 builder.Services.ConfigureApplicationCookie(cookie =>
 {
@@ -198,6 +212,7 @@ app.MapAdminBackupEndpoints();
 app.MapSettingsEndpoints();
 app.MapAdminProcessingEndpoints();
 app.MapInboxEndpoints(maxRequestBytes);
+app.MapDeviceEndpoints();
 
 app.MapStaticAssets();
 // Die Seiten sind nur die leere Hülle (kein Prerendering); [Authorize] prüft der Client. Geschützt sind die Daten:

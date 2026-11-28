@@ -33,6 +33,8 @@
   <data name="Audit_admin-view" xml:space="preserve"><value>Admin view</value></data>
   <data name="Audit_backup-created" xml:space="preserve"><value>Backup created</value></data>
   <data name="Audit_backup-failed" xml:space="preserve"><value>Backup failed</value></data>
+  <data name="Audit_device-added" xml:space="preserve"><value>Device signed in</value></data>
+  <data name="Audit_device-revoked" xml:space="preserve"><value>Device revoked</value></data>
   <data name="Audit_document-assigned" xml:space="preserve"><value>Document assigned</value></data>
   <data name="Audit_document-deleted" xml:space="preserve"><value>Document deleted</value></data>
   <data name="Audit_document-downloaded" xml:space="preserve"><value>Document opened</value></data>
@@ -135,6 +137,38 @@
   <data name="DeadlineKind_expiry" xml:space="preserve"><value>expires</value></data>
   <data name="DeadlineKind_task" xml:space="preserve"><value>Deadline</value></data>
   <data name="Delete" xml:space="preserve"><value>Delete</value></data>
+  <data name="DesktopConnect" xml:space="preserve"><value>Connect to myDocs</value></data>
+  <data name="DesktopConnectText" xml:space="preserve"><value>Enter the address of your myDocs instance. You sign in in the browser with password and second factor and then allow this device.</value></data>
+  <data name="DesktopOffline" xml:space="preserve"><value>No connection</value></data>
+  <data name="DesktopOfflineText" xml:space="preserve"><value>myDocs cannot be reached right now. You can keep editing checked-out files; they are uploaded once the connection is back.</value></data>
+  <data name="DesktopRetry" xml:space="preserve"><value>Try again</value></data>
+  <data name="DesktopServer" xml:space="preserve"><value>Address</value></data>
+  <data name="DesktopServerInvalid" xml:space="preserve"><value>Please enter an address with https://.</value></data>
+  <data name="DesktopSignIn" xml:space="preserve"><value>Sign in in the browser</value></data>
+  <data name="DesktopSignInFailed" xml:space="preserve"><value>Signing in did not work. Please try again in the desktop client.</value></data>
+  <data name="DesktopSignedIn" xml:space="preserve"><value>The device is signed in. You can close this window and return to myDocs.</value></data>
+  <data name="DesktopWaiting" xml:space="preserve"><value>Waiting for approval in the browser …</value></data>
+  <data name="DeviceAllow" xml:space="preserve"><value>Allow</value></data>
+  <data name="DeviceAuthorizeText" xml:space="preserve"><value>The desktop client “{0}” wants to sign in with your account.</value></data>
+  <data name="DeviceAuthorizeTitle" xml:space="preserve"><value>Sign in a device</value></data>
+  <data name="DeviceAuthorizeWarning" xml:space="preserve"><value>Only allow this if you have just started the client yourself on your computer.</value></data>
+  <data name="DeviceAuthorized" xml:space="preserve"><value>Done. You can close this window and switch to the desktop client.</value></data>
+  <data name="DeviceCurrent" xml:space="preserve"><value>This device</value></data>
+  <data name="DeviceDenied" xml:space="preserve"><value>Denied. The device was not signed in.</value></data>
+  <data name="DeviceDeny" xml:space="preserve"><value>Deny</value></data>
+  <data name="DeviceError_device-not-found" xml:space="preserve"><value>This device does not exist.</value></data>
+  <data name="DeviceError_invalid-grant" xml:space="preserve"><value>The sign-in has expired or was revoked.</value></data>
+  <data name="DeviceError_invalid-redirect" xml:space="preserve"><value>The device request is invalid.</value></data>
+  <data name="DeviceError_invalid-request" xml:space="preserve"><value>The device request is invalid. Start signing in again in the desktop client.</value></data>
+  <data name="DeviceLastUsed" xml:space="preserve"><value>Last active</value></data>
+  <data name="DeviceName" xml:space="preserve"><value>Device</value></data>
+  <data name="DeviceRevoke" xml:space="preserve"><value>Revoke</value></data>
+  <data name="DeviceRevokeConfirm" xml:space="preserve"><value>Revoke “{0}”? The device has to sign in again afterwards.</value></data>
+  <data name="DeviceRevoked" xml:space="preserve"><value>“{0}” has been revoked.</value></data>
+  <data name="DeviceSince" xml:space="preserve"><value>Signed in on</value></data>
+  <data name="DevicesEmpty" xml:space="preserve"><value>No devices signed in.</value></data>
+  <data name="DevicesIntro" xml:space="preserve"><value>These are the desktop clients you signed in. A revoked device loses access immediately; files checked out on it stay but are no longer uploaded.</value></data>
+  <data name="DevicesTitle" xml:space="preserve"><value>Devices</value></data>
   <data name="DisplayName" xml:space="preserve"><value>Name</value></data>
   <data name="DocumentDate" xml:space="preserve"><value>Document date</value></data>
   <data name="DocumentDeleteConfirm" xml:space="preserve"><value>Delete “{0}”? All versions go to the trash.</value></data>

@@ -1,10 +1,18 @@
 @* Ohne Anmeldung zur Anmeldeseite; ist myDocs noch nicht eingerichtet, zum Einrichtungsassistenten. *@
 @inject NavigationManager Navigation
 @inject AuthClient Auth
+@inject IServiceProvider Services
 
 @code {
     protected override async Task OnInitializedAsync()
     {
+        // Der Desktop-Client meldet sich über den Systembrowser an, nicht über die Anmeldeseite.
+        if (Services.GetService<IDesktopPlatform>() is { } desktop)
+        {
+            desktop.ShowConnect();
+            return;
+        }
+
         var setupRequired = false;
         try
         {

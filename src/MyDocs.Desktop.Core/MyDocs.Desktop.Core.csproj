@@ -1,0 +1,15 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <!-- Logik des Desktop-Clients ohne Oberfläche (M4): Anmeldung, Schlüsselspeicher, Check-out, Eingangsordner. Testbar ohne Photino. -->
+  <PropertyGroup>
+    <RootNamespace>MyDocs.Desktop.Core</RootNamespace>
+    <!-- LibraryImport für die Anmeldeinformationsverwaltung von Windows -->
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\MyDocs.Shared\MyDocs.Shared.csproj" />
+    <ProjectReference Include="..\MyDocs.ApiClient\MyDocs.ApiClient.csproj" />
+  </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="MyDocs.Tests" />
+  </ItemGroup>
+</Project>

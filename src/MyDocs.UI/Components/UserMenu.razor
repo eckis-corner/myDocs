@@ -12,6 +12,7 @@
             <MudMenuItem Icon="@Icons.Material.Outlined.Security" Href="account/security">@L["SecurityTitle"]</MudMenuItem>
             <MudMenuItem Icon="@Icons.Material.Outlined.Notifications" Href="account/notifications">@L["NotificationsTitle"]</MudMenuItem>
             <MudMenuItem Icon="@Icons.Material.Outlined.History" Href="account/audit">@L["AuditTitle"]</MudMenuItem>
+            <MudMenuItem Icon="@Icons.Material.Outlined.Devices" Href="account/devices" data-testid="nav-devices">@L["DevicesTitle"]</MudMenuItem>
             @if (context.User.IsInRole(HouseholdRoles.Admin))
             {
                 <MudMenuItem Icon="@(AdminView.IsOn ? Icons.Material.Filled.VisibilityOff : Icons.Material.Outlined.Visibility)" OnClick="ToggleAdminViewAsync" data-testid="admin-view-toggle">
@@ -37,9 +38,18 @@
         Navigation.NavigateTo(Navigation.Uri, forceLoad: false);
     }
 
+    [Inject] private IServiceProvider Services { get; set; } = default!;
+
     private async Task LogoutAsync()
     {
         AdminView.Set(false);
+        // Im Desktop-Client heißt Abmelden: Gerät widerrufen, Token löschen, wieder „Verbinden“.
+        if (Services.GetService<IDesktopPlatform>() is { } desktop)
+        {
+            await desktop.DisconnectAsync();
+            return;
+        }
+
         await Session.LogoutAsync();
         Navigation.NavigateTo("login");
     }

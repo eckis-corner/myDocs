@@ -20,6 +20,8 @@ public sealed class SecurityTests(ServerFixture server) : IClassFixture<ServerFi
         "POST /api/auth/login/passkey/options", "POST /api/auth/login/passkey",
         // Aktivierung über den Link des Administrators (Einmal-Token im #-Teil der Adresse)
         "POST /api/activation/info", "POST /api/activation/start", "POST /api/activation/finish",
+        // Desktop-Client: Code mit PKCE oder Refresh-Token gegen Tokens (M4.1)
+        "POST /api/devices/token",
     };
 
     [Fact]

@@ -16,6 +16,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\src\MyDocs.Server\MyDocs.Server.csproj" />
     <ProjectReference Include="..\..\src\MyDocs.UI\MyDocs.UI.csproj" />
+    <ProjectReference Include="..\..\src\MyDocs.Desktop.Core\MyDocs.Desktop.Core.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Using Include="Xunit" />

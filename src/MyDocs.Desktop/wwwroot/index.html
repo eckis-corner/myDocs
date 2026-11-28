@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
+    <!-- Wie im Browser keine Inline-Skripte; Inhalte (Vorschau, Vorschaubild) kommen über das Schema mydocs: mit dem Gerätetoken. -->
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: mydocs:; font-src 'self' data:; connect-src 'self'; frame-src mydocs: blob:; object-src 'none'; base-uri 'self'; form-action 'none'" />
+    <base href="/" />
+    <title>myDocs</title>
+    <link rel="stylesheet" href="_content/MudBlazor/MudBlazor.min.css" />
+    <link rel="stylesheet" href="_content/MyDocs.UI/css/app.css" />
+</head>
+<body>
+    <div id="app">myDocs wird geladen …</div>
+    <script src="_content/MudBlazor/MudBlazor.min.js"></script>
+    <script src="_content/MyDocs.UI/js/mydocs.js"></script>
+    <script src="_framework/blazor.webview.js"></script>
+</body>
+</html>

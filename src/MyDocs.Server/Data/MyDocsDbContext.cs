@@ -44,6 +44,10 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
 
     public DbSet<ProcessedMail> ProcessedMails => Set<ProcessedMail>();
 
+    public DbSet<Device> Devices => Set<Device>();
+
+    public DbSet<DeviceAuthorization> DeviceAuthorizations => Set<DeviceAuthorization>();
+
     public DbSet<AuditEntry> AuditLog => Set<AuditEntry>();
 
     public DbSet<WorkTask> Tasks => Set<WorkTask>();
@@ -193,6 +197,27 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
             entity.HasIndex(x => x.BlobHash);
             entity.HasOne<Blob>().WithMany().HasForeignKey(x => x.SourceHash).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne<Blob>().WithMany().HasForeignKey(x => x.BlobHash).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<Device>(entity =>
+        {
+            entity.ToTable("devices");
+            entity.Property(x => x.Name).HasMaxLength(100);
+            entity.Property(x => x.SecurityStamp).HasMaxLength(200);
+            entity.Property(x => x.LastIp).HasMaxLength(50);
+            entity.HasIndex(x => x.RefreshTokenHash).IsUnique();
+            entity.HasIndex(x => x.UserId);
+            entity.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<DeviceAuthorization>(entity =>
+        {
+            entity.ToTable("device_authorizations");
+            entity.HasKey(x => x.CodeHash);
+            entity.Property(x => x.DeviceName).HasMaxLength(100);
+            entity.Property(x => x.RedirectUri).HasMaxLength(200);
+            entity.Property(x => x.CodeChallenge).HasMaxLength(100);
+            entity.HasOne<AppUser>().WithMany().HasForeignKey(x => x.UserId).OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<ProcessedMail>(entity =>

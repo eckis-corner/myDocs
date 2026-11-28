@@ -1,0 +1,87 @@
+@* Verbinden mit einer Instanz (M4.1): Adresse eingeben, im Systembrowser anmelden und das Gerät freigeben. *@
+@inject IStringLocalizer<SharedResource> L
+@inject DeviceSession Session
+@inject DesktopPlatform Platform
+@inject DesktopSettingsStore Settings
+
+<MudThemeProvider Theme="_theme" IsDarkMode="false" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<MudContainer MaxWidth="MaxWidth.Small" Class="mt-12">
+    <MudPaper Class="pa-6" Elevation="1">
+        <MudStack Spacing="3">
+            <AppLogo />
+            @if (Offline)
+            {
+                <MudText Typo="Typo.h5" HtmlTag="h1">@L["DesktopOffline"]</MudText>
+                <MudText>@L["DesktopOfflineText"]</MudText>
+                <div>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="Platform.Retry">@L["DesktopRetry"]</MudButton>
+                </div>
+            }
+            else
+            {
+                <MudText Typo="Typo.h5" HtmlTag="h1">@L["DesktopConnect"]</MudText>
+                <MudText>@L["DesktopConnectText"]</MudText>
+                <MudTextField T="string" @bind-Value="_server" Label="@L["DesktopServer"]" Placeholder="https://mydocs.example.org" Variant="Variant.Outlined"
+                              Disabled="@(Session.State == ConnectionState.Connecting)" />
+                @if (_error is { } error)
+                {
+                    <MudAlert Severity="Severity.Error" Dense>@error</MudAlert>
+                }
+
+                @if (Session.State == ConnectionState.Connecting)
+                {
+                    <MudAlert Severity="Severity.Info" Dense>@L["DesktopWaiting"]</MudAlert>
+                    <MudProgressLinear Indeterminate Color="Color.Primary" />
+                }
+                else
+                {
+                    <div>
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Login" OnClick="ConnectAsync">@L["DesktopSignIn"]</MudButton>
+                    </div>
+                }
+            }
+        </MudStack>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private readonly MudTheme _theme = MyDocsTheme.Create();
+    private string? _server;
+    private string? _error;
+
+    [Parameter] public bool Offline { get; set; }
+
+    protected override void OnInitialized() => _server = Settings.Load().ServerUrl;
+
+    private async Task ConnectAsync()
+    {
+        _error = null;
+        var text = (_server ?? string.Empty).Trim();
+        if (!text.Contains("://", StringComparison.Ordinal))
+        {
+            text = "https://" + text;
+        }
+
+        if (!Uri.TryCreate(text.EndsWith('/') ? text : text + "/", UriKind.Absolute, out var server)
+            || (server.Scheme != Uri.UriSchemeHttps && !(server.Scheme == Uri.UriSchemeHttp && server.IsLoopback)))
+        {
+            _error = L["DesktopServerInvalid"];
+            return;
+        }
+
+        try
+        {
+            await Session.ConnectAsync(server, SystemShell.DeviceName(), uri => { SystemShell.Open(uri.ToString()); return Task.CompletedTask; },
+                L["DesktopSignedIn"], L["DesktopSignInFailed"], CancellationToken.None);
+        }
+        catch (Exception exception) when (exception is SignInFailedException or HttpRequestException or OperationCanceledException
+            or MyDocs.ApiClient.ApiException or MyDocs.Desktop.Core.Secrets.SecretStoreUnavailableException)
+        {
+            _error = exception is MyDocs.Desktop.Core.Secrets.SecretStoreUnavailableException ? exception.Message : L["DesktopSignInFailed"];
+        }
+    }
+}

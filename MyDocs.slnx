@@ -1,6 +1,8 @@
 <Solution>
   <Folder Name="/src/">
     <Project Path="src/MyDocs.ApiClient/MyDocs.ApiClient.csproj" />
+    <Project Path="src/MyDocs.Desktop/MyDocs.Desktop.csproj" />
+    <Project Path="src/MyDocs.Desktop.Core/MyDocs.Desktop.Core.csproj" />
     <Project Path="src/MyDocs.Server/MyDocs.Server.csproj" />
     <Project Path="src/MyDocs.Shared/MyDocs.Shared.csproj" />
     <Project Path="src/MyDocs.UI/MyDocs.UI.csproj" />

@@ -80,6 +80,17 @@ public sealed class InboxPageTests : BunitContext
     }
 
     [Fact]
+    public void TheCameraPageStartsWithoutPagesAndOpensTheRearCamera()
+    {
+        var page = Render<CameraPage>();
+
+        Assert.Contains("Noch keine Seiten.", page.Find("[data-testid=camera-empty]").TextContent, StringComparison.Ordinal);
+        var input = page.Find("input[data-testid=camera-take-input]");
+        Assert.Equal(("image/*", "environment"), (input.GetAttribute("accept"), input.GetAttribute("capture")));
+        Assert.Empty(page.FindAll("[data-testid=camera-save]"));
+    }
+
+    [Fact]
     public void TheProcessingCardShowsTheWorkerAndOffersARetry()
     {
         _api.OnJson("GET /api/admin/processing", new ProcessingStatusDto(true, false, 3, 2, 40))

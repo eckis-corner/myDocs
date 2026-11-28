@@ -49,6 +49,12 @@ public static class DocumentKinds
     public static bool IsValid(string? kind) => kind is null || All.Contains(kind);
 }
 
+/// <summary>Kamera-Upload (23): so viele Seiten höchstens in einem Dokument.</summary>
+public static class CameraLimits
+{
+    public const int MaxPages = 50;
+}
+
 /// <summary>Eingangskanäle (19); Texte unter <c>DocumentSource_{Schlüssel}</c>.</summary>
 public static class DocumentSources
 {
@@ -85,6 +91,8 @@ public static class DocumentErrors
     public const string TitleRequired = "title-required";
     public const string InvalidKind = "invalid-kind";
     public const string TaskTitleRequired = "task-title-required";
+    public const string InvalidImage = "invalid-image";
+    public const string TooManyPages = "too-many-pages";
 }
 
 /// <summary>Was der Browser direkt anzeigen darf. Alles andere nur als Download, vor allem kein SVG und kein HTML.</summary>

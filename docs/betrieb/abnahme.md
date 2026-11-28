@@ -126,6 +126,14 @@ Gebraucht werden drei Konten mit eigenen Mail-Adressen: **A** (Administrator), *
 - [ ] Die Suche nach einem Wort aus einem Dokument im Posteingang findet es und führt in den Posteingang
 - [ ] Ein Dokument eine Woche liegen lassen: Vorgang „Posteingang abarbeiten“ bei B, nach dem Zuordnen ist er weg
 
+## 15. Kamera (M3.4, als B am Handy)
+
+- [ ] Posteingang → **Kamera** → **Seite fotografieren**: Die Rückkamera öffnet sich; drei Seiten eines Briefs aufnehmen
+- [ ] Eine Seite nach vorn schieben, eine drehen, eine an zwei Rändern zuschneiden: Die Vorschau zeigt es gleich
+- [ ] **Als PDF in den Posteingang**: Das Dokument „Kamera …“ erscheint, nach der Verarbeitung mit Vorschaubild; die Vorschau zeigt die Seiten in der gewählten Reihenfolge, gerade ausgerichtet und zugeschnitten
+- [ ] Die Suche nach einem Wort aus dem Brief findet das Dokument
+- [ ] Am Computer: **Fotos wählen** mit mehreren Bildern auf einmal
+
 ## Ergebnis
 
 - [ ] Alle Punkte erledigt oder die Abweichungen notiert und an Claude weitergegeben

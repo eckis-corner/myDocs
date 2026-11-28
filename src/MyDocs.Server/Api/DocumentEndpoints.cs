@@ -353,7 +353,7 @@ internal static class DocumentEndpoints
         }
 
         var reader = new MultipartReader(boundary, request.Body);
-        while (await reader.ReadNextSectionAsync(ct) is { } section)
+        while (await NextSectionAsync(reader, ct) is { } section)
         {
             if (!ContentDispositionHeaderValue.TryParse(section.ContentDisposition, out var disposition) || !disposition.IsFileDisposition())
             {
@@ -374,6 +374,19 @@ internal static class DocumentEndpoints
         }
 
         return none;
+    }
+
+    /// <summary>Nächster Abschnitt; ein leerer oder abgebrochener Multipart-Body heißt: keine (weitere) Datei.</summary>
+    internal static async Task<MultipartSection?> NextSectionAsync(MultipartReader reader, CancellationToken ct)
+    {
+        try
+        {
+            return await reader.ReadNextSectionAsync(ct);
+        }
+        catch (Exception exception) when (exception is IOException or InvalidDataException)
+        {
+            return null;
+        }
     }
 
     private static string CleanFileName(string? name)

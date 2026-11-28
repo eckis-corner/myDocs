@@ -274,6 +274,12 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 144 | Zuordnen | Titel, **Dokumentart** (Rechnung, Schreiben, Vertrag, Police, Bescheid, Abrechnung/Kontoauszug, Kündigung/Bestätigung, Urkunde/Nachweis, Beleg, Gehaltsabrechnung, Sonstiges), Datum und **mindestens ein Eintrag**, den die Person bearbeiten darf; auf Wunsch ein Vorgang dazu (Art „Aufgabe“, zuständig ist, wer zuordnet, verknüpft mit denselben Einträgen). Danach gelten die Rechte der Einträge (100); das Protokoll des Eigentümers zeigt „Dokument zugeordnet“. Die Dokumentart lässt sich auch an jedem Dokument ändern. Der Typ „Korrespondenz“ für Dokumente ohne passenden Eintrag (21) kommt mit den Zusatztypen; bis dahin braucht jedes Dokument einen bestehenden Eintrag. |
 | 145 | Weitergeben, verwerfen | Ein privates Dokument gibt seine Person an den Haushalt; eines aus dem Haushalt übernimmt jedes Mitglied für sich. **Verwerfen** legt es in den Papierkorb: 30 Tage unter „Verworfene“ mit „Zurückholen“, dann endgültig gelöscht. Dokumente im Posteingang leert der Papierkorb nicht, obwohl sie keinen Eintrag haben. |
 
+## Runde 18 (28.11.2026, M3.4 Kamera)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 146 | Kamera | Seite **Posteingang → Kamera** (`/inbox/camera`): „Seite fotografieren“ öffnet am Handy die Rückkamera (`capture="environment"`), „Fotos wählen“ nimmt vorhandene Bilder. Jede Seite lässt sich verschieben, in 90-Grad-Schritten drehen und an jedem Rand um bis zu 45 % grob zuschneiden. Der Browser gibt jede Seite als JPEG aus (längere Kante höchstens 3000 Pixel, Qualität 0,85); die Bilder bleiben bis dahin nur im Speicher des Browsers. Der **Server baut daraus das PDF** selbst, ohne die Bilder neu zu kodieren, jede Seite so groß, dass sie in A4 passt; das ist das Original. Gerade richten, Drehen nach Text und OCR macht der Worker wie bei jedem Scan (138). Höchstens 50 Seiten, zusammen höchstens so groß wie eine Datei (78); nur Graustufen- und RGB-JPEG. Das Dokument heißt „Kamera <Datum> <Uhrzeit>“ und landet im eigenen Posteingang oder, per Schalter, in dem des Haushalts. |
+
 ## Offen
 
 | Thema | Was fehlt |

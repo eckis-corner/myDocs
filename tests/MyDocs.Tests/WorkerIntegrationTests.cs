@@ -92,6 +92,18 @@ public sealed class WorkerIntegrationTests
     }
 
     [Fact]
+    public async Task CameraPdfsAreReadByPopplerAndOcrmypdf()
+    {
+        var worker = Worker();
+        var pdf = MyDocs.Server.Infrastructure.Inbox.JpegPdf.Build([TestImages.RgbJpeg, TestImages.GrayJpeg]);
+
+        Assert.Equal(2, (await worker.TextAsync(Input(pdf), Ct)).Count(c => c == '\f'));
+        Assert.Equal(FakeWorker.PngSignature, (await worker.ThumbnailAsync(Input(pdf), Bytes, Ct))[..8]);
+        var ocr = await worker.PdfAsync(Input(pdf), "pdf", ".pdf", Bytes, Ct);
+        Assert.StartsWith("%PDF-", Encoding.ASCII.GetString(ocr, 0, 5), StringComparison.Ordinal);
+    }
+
+    [Fact]
     public async Task BrokenFilesAreRejected()
     {
         var worker = Worker();

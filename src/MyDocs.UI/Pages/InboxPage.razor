@@ -19,6 +19,7 @@
         @if (!_discarded)
         {
             <MudSwitch T="bool" @bind-Value="_household" Color="Color.Primary" Label="@L["InboxForHousehold"]" data-testid="inbox-household" />
+            <MudButton Href="inbox/camera" Variant="Variant.Outlined" StartIcon="@Icons.Material.Filled.PhotoCamera" data-testid="inbox-camera">@L["InboxCamera"]</MudButton>
             <InputFile id="inbox-upload" class="mydocs-hidden-input" OnChange="UploadAsync" multiple data-testid="inbox-input" />
             <MudButton HtmlTag="label" for="inbox-upload" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.UploadFile"
                        Disabled="_busy" data-testid="inbox-upload">@L["InboxUpload"]</MudButton>

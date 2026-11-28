@@ -89,6 +89,25 @@
   <data name="BackupNow" xml:space="preserve"><value>Jetzt sichern</value></data>
   <data name="BackupTitle" xml:space="preserve"><value>Sicherung</value></data>
   <data name="BirthDate" xml:space="preserve"><value>Geburtsdatum</value></data>
+  <data name="CameraCrop" xml:space="preserve"><value>Zuschneiden</value></data>
+  <data name="CameraCropBottom" xml:space="preserve"><value>Unten</value></data>
+  <data name="CameraCropLeft" xml:space="preserve"><value>Links</value></data>
+  <data name="CameraCropRight" xml:space="preserve"><value>Rechts</value></data>
+  <data name="CameraCropTop" xml:space="preserve"><value>Oben</value></data>
+  <data name="CameraDown" xml:space="preserve"><value>Nach hinten</value></data>
+  <data name="CameraEmpty" xml:space="preserve"><value>Noch keine Seiten.</value></data>
+  <data name="CameraIntro" xml:space="preserve"><value>Fotografiere jede Seite einzeln, möglichst gerade und hell. Sortieren, drehen und grob zuschneiden geht hier; gerade richten und Text erkennen macht myDocs danach selbst.</value></data>
+  <data name="CameraPage" xml:space="preserve"><value>Seite {0}</value></data>
+  <data name="CameraPick" xml:space="preserve"><value>Fotos wählen</value></data>
+  <data name="CameraRemove" xml:space="preserve"><value>Seite entfernen</value></data>
+  <data name="CameraRotateLeft" xml:space="preserve"><value>Nach links drehen</value></data>
+  <data name="CameraRotateRight" xml:space="preserve"><value>Nach rechts drehen</value></data>
+  <data name="CameraSave" xml:space="preserve"><value>{0} Seiten als PDF in den Posteingang</value></data>
+  <data name="CameraSaved" xml:space="preserve"><value>{0} Seiten im Posteingang.</value></data>
+  <data name="CameraTake" xml:space="preserve"><value>Seite fotografieren</value></data>
+  <data name="CameraTitle" xml:space="preserve"><value>Mit der Kamera erfassen</value></data>
+  <data name="CameraTooMany" xml:space="preserve"><value>Höchstens {0} Seiten je Dokument.</value></data>
+  <data name="CameraUp" xml:space="preserve"><value>Nach vorn</value></data>
   <data name="Cancel" xml:space="preserve"><value>Abbrechen</value></data>
   <data name="Close" xml:space="preserve"><value>Schließen</value></data>
   <data name="CommentAdd" xml:space="preserve"><value>Kommentar</value></data>
@@ -120,6 +139,7 @@
   <data name="DocumentDeleteConfirm" xml:space="preserve"><value>„{0}“ löschen? Alle Versionen kommen in den Papierkorb.</value></data>
   <data name="DocumentError_forbidden" xml:space="preserve"><value>Dafür fehlt die Berechtigung.</value></data>
   <data name="DocumentError_http-413" xml:space="preserve"><value>Die Datei ist zu groß.</value></data>
+  <data name="DocumentError_invalid-image" xml:space="preserve"><value>Eine Seite ist kein lesbares Bild.</value></data>
   <data name="DocumentError_invalid-kind" xml:space="preserve"><value>Diese Dokumentart gibt es nicht.</value></data>
   <data name="DocumentError_needs-object" xml:space="preserve"><value>Ein Dokument gehört zu mindestens einem Eintrag.</value></data>
   <data name="DocumentError_no-file" xml:space="preserve"><value>Keine Datei erhalten.</value></data>
@@ -127,6 +147,7 @@
   <data name="DocumentError_task-title-required" xml:space="preserve"><value>Bitte einen Titel für den Vorgang eingeben.</value></data>
   <data name="DocumentError_title-required" xml:space="preserve"><value>Bitte eine Bezeichnung eingeben.</value></data>
   <data name="DocumentError_too-large" xml:space="preserve"><value>Die Datei ist zu groß (höchstens {1} MB).</value></data>
+  <data name="DocumentError_too-many-pages" xml:space="preserve"><value>Zu viele Seiten für ein Dokument.</value></data>
   <data name="DocumentKind" xml:space="preserve"><value>Dokumentart</value></data>
   <data name="DocumentKind_cancellation" xml:space="preserve"><value>Kündigung / Bestätigung</value></data>
   <data name="DocumentKind_certificate" xml:space="preserve"><value>Urkunde / Nachweis</value></data>
@@ -182,6 +203,7 @@
   <data name="InTrash" xml:space="preserve"><value>Im Papierkorb</value></data>
   <data name="InboxAssign" xml:space="preserve"><value>Zuordnen</value></data>
   <data name="InboxAssigned" xml:space="preserve"><value>„{0}“ ist zugeordnet.</value></data>
+  <data name="InboxCamera" xml:space="preserve"><value>Kamera</value></data>
   <data name="InboxCreateTask" xml:space="preserve"><value>Vorgang dazu anlegen</value></data>
   <data name="InboxDiscard" xml:space="preserve"><value>Verwerfen</value></data>
   <data name="InboxDiscardConfirm" xml:space="preserve"><value>„{0}“ verwerfen? Es liegt dann 30 Tage unter „Verworfene“.</value></data>

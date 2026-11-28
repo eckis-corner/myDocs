@@ -89,6 +89,25 @@
   <data name="BackupNow" xml:space="preserve"><value>Back up now</value></data>
   <data name="BackupTitle" xml:space="preserve"><value>Backup</value></data>
   <data name="BirthDate" xml:space="preserve"><value>Date of birth</value></data>
+  <data name="CameraCrop" xml:space="preserve"><value>Crop</value></data>
+  <data name="CameraCropBottom" xml:space="preserve"><value>Bottom</value></data>
+  <data name="CameraCropLeft" xml:space="preserve"><value>Left</value></data>
+  <data name="CameraCropRight" xml:space="preserve"><value>Right</value></data>
+  <data name="CameraCropTop" xml:space="preserve"><value>Top</value></data>
+  <data name="CameraDown" xml:space="preserve"><value>Move down</value></data>
+  <data name="CameraEmpty" xml:space="preserve"><value>No pages yet.</value></data>
+  <data name="CameraIntro" xml:space="preserve"><value>Photograph each page separately, as straight and bright as possible. Sort, rotate and roughly crop here; myDocs straightens the pages and recognises the text afterwards.</value></data>
+  <data name="CameraPage" xml:space="preserve"><value>Page {0}</value></data>
+  <data name="CameraPick" xml:space="preserve"><value>Choose photos</value></data>
+  <data name="CameraRemove" xml:space="preserve"><value>Remove page</value></data>
+  <data name="CameraRotateLeft" xml:space="preserve"><value>Rotate left</value></data>
+  <data name="CameraRotateRight" xml:space="preserve"><value>Rotate right</value></data>
+  <data name="CameraSave" xml:space="preserve"><value>{0} pages as PDF into the inbox</value></data>
+  <data name="CameraSaved" xml:space="preserve"><value>{0} pages in the inbox.</value></data>
+  <data name="CameraTake" xml:space="preserve"><value>Take a photo</value></data>
+  <data name="CameraTitle" xml:space="preserve"><value>Capture with the camera</value></data>
+  <data name="CameraTooMany" xml:space="preserve"><value>At most {0} pages per document.</value></data>
+  <data name="CameraUp" xml:space="preserve"><value>Move up</value></data>
   <data name="Cancel" xml:space="preserve"><value>Cancel</value></data>
   <data name="Close" xml:space="preserve"><value>Close</value></data>
   <data name="CommentAdd" xml:space="preserve"><value>Comment</value></data>
@@ -120,6 +139,7 @@
   <data name="DocumentDeleteConfirm" xml:space="preserve"><value>Delete “{0}”? All versions go to the trash.</value></data>
   <data name="DocumentError_forbidden" xml:space="preserve"><value>You do not have permission for this.</value></data>
   <data name="DocumentError_http-413" xml:space="preserve"><value>The file is too large.</value></data>
+  <data name="DocumentError_invalid-image" xml:space="preserve"><value>A page is not a readable image.</value></data>
   <data name="DocumentError_invalid-kind" xml:space="preserve"><value>This document type does not exist.</value></data>
   <data name="DocumentError_needs-object" xml:space="preserve"><value>A document belongs to at least one entry.</value></data>
   <data name="DocumentError_no-file" xml:space="preserve"><value>No file received.</value></data>
@@ -127,6 +147,7 @@
   <data name="DocumentError_task-title-required" xml:space="preserve"><value>Please enter a title for the task.</value></data>
   <data name="DocumentError_title-required" xml:space="preserve"><value>Please enter a title.</value></data>
   <data name="DocumentError_too-large" xml:space="preserve"><value>The file is too large (at most {1} MB).</value></data>
+  <data name="DocumentError_too-many-pages" xml:space="preserve"><value>Too many pages for one document.</value></data>
   <data name="DocumentKind" xml:space="preserve"><value>Document type</value></data>
   <data name="DocumentKind_cancellation" xml:space="preserve"><value>Cancellation / confirmation</value></data>
   <data name="DocumentKind_certificate" xml:space="preserve"><value>Certificate</value></data>
@@ -182,6 +203,7 @@
   <data name="InTrash" xml:space="preserve"><value>In the trash</value></data>
   <data name="InboxAssign" xml:space="preserve"><value>Assign</value></data>
   <data name="InboxAssigned" xml:space="preserve"><value>“{0}” has been assigned.</value></data>
+  <data name="InboxCamera" xml:space="preserve"><value>Camera</value></data>
   <data name="InboxCreateTask" xml:space="preserve"><value>Create a task for it</value></data>
   <data name="InboxDiscard" xml:space="preserve"><value>Discard</value></data>
   <data name="InboxDiscardConfirm" xml:space="preserve"><value>Discard “{0}”? It stays under “Discarded” for 30 days.</value></data>

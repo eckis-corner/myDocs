@@ -57,6 +57,20 @@ h1:focus {
     background-color: var(--mud-palette-primary-hover);
 }
 
+.mydocs-camera-frame {
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    background-color: var(--mud-palette-background-gray);
+}
+
+.mydocs-camera-frame img {
+    max-width: 200px;
+    max-height: 200px;
+}
+
 .mydocs-inbox-frame {
     height: 60vh;
 }

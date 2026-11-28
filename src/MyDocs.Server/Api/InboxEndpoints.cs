@@ -29,6 +29,7 @@ internal static class InboxEndpoints
         var group = app.MapGroup("/api/inbox").RequireAuthorization(PersonEndpoints.MemberPolicy);
         group.MapGet("", ListAsync);
         group.MapPost("", UploadAsync).DisableAntiforgery().WithMetadata(new RequestSizeLimitAttribute(maxRequestBytes));
+        group.MapPost("/camera", CameraAsync).DisableAntiforgery().WithMetadata(new RequestSizeLimitAttribute(maxRequestBytes));
         group.MapPost("/{id:guid}/assign", AssignAsync);
         group.MapPut("/{id:guid}/owner", OwnerAsync);
         return app;
@@ -67,6 +68,80 @@ internal static class InboxEndpoints
 
         var document = await InboxIntake.AddAsync(db, processing, audit, upload.Hash, upload.Size, upload.FileName, upload.ContentType,
             household == true ? null : caller.PersonId, DocumentSources.Upload, null, caller.UserId, time.GetUtcNow(), ct);
+        await db.SaveChangesAsync(ct);
+        return TypedResults.Ok(await ToItemAsync(document, caller, access, db, ct));
+    }
+
+    /// <summary>
+    /// Kamera (23, 146): die Seiten als JPEG in der gewählten Reihenfolge; daraus wird ein PDF, das der Worker wie jeden
+    /// Scan dreht, gerade richtet und erkennt. Zusammen höchstens so groß wie eine Datei.
+    /// </summary>
+    private static async Task<IResult> CameraAsync(bool? household, HttpRequest request, ClaimsPrincipal principal, ObjectAccess access,
+        MyDocsDbContext db, BlobStore blobs, ProcessingScheduler processing, AuditLog audit, IOptions<MyDocsOptions> options, TimeProvider time, CancellationToken ct)
+    {
+        var caller = await access.CallerAsync(principal, ct);
+        if (caller.PersonId is null && household != true)
+        {
+            return ApiProblems.Of(DocumentErrors.Forbidden, StatusCodes.Status403Forbidden);
+        }
+
+        var maxBytes = options.Value.MaxFileSizeMegabytes * 1024L * 1024L;
+        if (!Microsoft.Net.Http.Headers.MediaTypeHeaderValue.TryParse(request.ContentType, out var type)
+            || Microsoft.Net.Http.Headers.HeaderUtilities.RemoveQuotes(type.Boundary).Value is not { Length: > 0 } boundary)
+        {
+            return ApiProblems.Of(DocumentErrors.NoFile);
+        }
+
+        var pages = new List<byte[]>();
+        long total = 0;
+        var reader = new Microsoft.AspNetCore.WebUtilities.MultipartReader(boundary, request.Body);
+        try
+        {
+            while (await reader.ReadNextSectionAsync(ct) is { } section)
+            {
+                if (pages.Count >= CameraLimits.MaxPages)
+                {
+                    return ApiProblems.Of(DocumentErrors.TooManyPages);
+                }
+
+                using var buffer = new MemoryStream();
+                await section.Body.CopyToAsync(buffer, ct);
+                total += buffer.Length;
+                if (total > maxBytes)
+                {
+                    return ApiProblems.Of(DocumentErrors.TooLarge, StatusCodes.Status413PayloadTooLarge);
+                }
+
+                pages.Add(buffer.ToArray());
+            }
+        }
+        catch (Exception exception) when (exception is IOException or InvalidDataException)
+        {
+            // Abgebrochener oder leerer Multipart-Body.
+            return ApiProblems.Of(DocumentErrors.NoFile);
+        }
+
+        if (pages.Count == 0)
+        {
+            return ApiProblems.Of(DocumentErrors.NoFile);
+        }
+
+        byte[] pdf;
+        try
+        {
+            pdf = JpegPdf.Build(pages);
+        }
+        catch (InvalidJpegException)
+        {
+            return ApiProblems.Of(DocumentErrors.InvalidImage);
+        }
+
+        var now = time.GetUtcNow();
+        var local = TimeZoneInfo.ConvertTime(now, TimeZoneInfo.Local);
+        var fileName = $"Kamera {local.ToString("yyyy-MM-dd HH.mm", System.Globalization.CultureInfo.InvariantCulture)}.pdf";
+        var (hash, size) = await blobs.StoreAsync(new MemoryStream(pdf), long.MaxValue, ct);
+        var document = await InboxIntake.AddAsync(db, processing, audit, hash, size, fileName, "application/pdf",
+            household == true ? null : caller.PersonId, DocumentSources.Camera, null, caller.UserId, now, ct);
         await db.SaveChangesAsync(ct);
         return TypedResults.Ok(await ToItemAsync(document, caller, access, db, ct));
     }

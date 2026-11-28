@@ -21,6 +21,23 @@ public sealed class InboxClient(HttpClient http)
         return (await System.Net.Http.Json.HttpContentJsonExtensions.ReadFromJsonAsync<InboxItemDto>(response.Content, ct))!;
     }
 
+    /// <summary>Kamera: die Seiten als JPEG in ihrer Reihenfolge; der Server macht daraus ein PDF.</summary>
+    public async Task<InboxItemDto> UploadCameraAsync(IReadOnlyList<byte[]> pages, bool household, CancellationToken ct = default)
+    {
+        using var form = new MultipartFormDataContent();
+        for (var i = 0; i < pages.Count; i++)
+        {
+            var page = new ByteArrayContent(pages[i]);
+            page.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+            form.Add(page, "page", $"seite-{i + 1}.jpg");
+        }
+
+        using var message = new HttpRequestMessage(HttpMethod.Post, new Uri($"api/inbox/camera{(household ? "?household=true" : string.Empty)}", UriKind.Relative)) { Content = form };
+        using var response = await http.SendAsync(message, ct);
+        await ApiException.EnsureSuccessAsync(response, ct);
+        return (await System.Net.Http.Json.HttpContentJsonExtensions.ReadFromJsonAsync<InboxItemDto>(response.Content, ct))!;
+    }
+
     public Task<DocumentDto> AssignAsync(Guid id, InboxAssignRequest request, CancellationToken ct = default) =>
         http.SendAsync<InboxAssignRequest, DocumentDto>(HttpMethod.Post, $"api/inbox/{id}/assign", request, ct);
 

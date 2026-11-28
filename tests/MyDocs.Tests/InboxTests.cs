@@ -248,6 +248,57 @@ public sealed class InboxTests(ServerFixture server) : IClassFixture<ServerFixtu
         Assert.DoesNotContain((await _bea.GetFromJsonAsync<List<SearchHitDto>>("/api/search?q=Bescheid", Ct))!, h => h.Id == mine.Id);
     }
 
+    private static async Task<HttpResponseMessage> CameraAsync(HttpClient client, params byte[][] pages)
+    {
+        using var form = new MultipartFormDataContent();
+        for (var i = 0; i < pages.Length; i++)
+        {
+            var page = new ByteArrayContent(pages[i]);
+            page.Headers.ContentType = new MediaTypeHeaderValue("image/jpeg");
+            form.Add(page, "page", $"seite-{i + 1}.jpg");
+        }
+
+        return await client.PostAsync(new Uri("/api/inbox/camera", UriKind.Relative), form, Ct);
+    }
+
+    [Fact]
+    public async Task CameraPagesBecomeOnePdfInThePrivateInbox()
+    {
+        var response = await CameraAsync(_bea, TestImages.RgbJpeg, TestImages.GrayJpeg);
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var item = (await response.Content.ReadFromJsonAsync<InboxItemDto>(Ct))!;
+
+        Assert.Equal((DocumentSources.Camera, false), (item.Source, item.Household));
+        Assert.StartsWith("Kamera ", item.Title, StringComparison.Ordinal);
+        Assert.Equal("application/pdf", item.Current.ContentType);
+        var pdf = Encoding.Latin1.GetString(await _bea.GetByteArrayAsync($"/api/documents/{item.Id}/content", Ct));
+        Assert.StartsWith("%PDF-1.4", pdf, StringComparison.Ordinal);
+        Assert.Equal(2, System.Text.RegularExpressions.Regex.Count(pdf, "/Type /Page /"));
+        Assert.Contains("/DeviceGray", pdf, StringComparison.Ordinal);
+        Assert.EndsWith("%%EOF\n", pdf, StringComparison.Ordinal);
+        Assert.DoesNotContain(await ListAsync(_carl), i => i.Id == item.Id);
+    }
+
+    [Fact]
+    public async Task CameraAcceptsOnlyJpegsAndALimitedNumberOfPages()
+    {
+        Assert.Equal(HttpStatusCode.BadRequest, (await CameraAsync(_bea, FakeWorker.PngSignature)).StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, (await CameraAsync(_bea)).StatusCode);
+        var tooMany = Enumerable.Repeat(TestImages.GrayJpeg, CameraLimits.MaxPages + 1).ToArray();
+        var response = await CameraAsync(_bea, tooMany);
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Contains(DocumentErrors.TooManyPages, await response.Content.ReadAsStringAsync(Ct), StringComparison.Ordinal);
+        Assert.Equal(HttpStatusCode.Forbidden, (await CameraAsync(_guest, TestImages.RgbJpeg)).StatusCode);
+    }
+
+    [Fact]
+    public void JpegSizesAndColorsAreRead()
+    {
+        Assert.Equal(new MyDocs.Server.Infrastructure.Inbox.JpegPdf.JpegInfo(64, 48, 3), MyDocs.Server.Infrastructure.Inbox.JpegPdf.Read(TestImages.RgbJpeg));
+        Assert.Equal(new MyDocs.Server.Infrastructure.Inbox.JpegPdf.JpegInfo(40, 30, 1), MyDocs.Server.Infrastructure.Inbox.JpegPdf.Read(TestImages.GrayJpeg));
+        Assert.Throws<MyDocs.Server.Infrastructure.Inbox.InvalidJpegException>(() => MyDocs.Server.Infrastructure.Inbox.JpegPdf.Read("GIF89a"u8));
+    }
+
     private async Task RunReviewAsync()
     {
         await using var scope = server.Services.CreateAsyncScope();

@@ -33,6 +33,7 @@
   <data name="Audit_admin-view" xml:space="preserve"><value>Admin view</value></data>
   <data name="Audit_backup-created" xml:space="preserve"><value>Backup created</value></data>
   <data name="Audit_backup-failed" xml:space="preserve"><value>Backup failed</value></data>
+  <data name="Audit_document-assigned" xml:space="preserve"><value>Document assigned</value></data>
   <data name="Audit_document-deleted" xml:space="preserve"><value>Document deleted</value></data>
   <data name="Audit_document-downloaded" xml:space="preserve"><value>Document opened</value></data>
   <data name="Audit_document-restored" xml:space="preserve"><value>Document restored</value></data>
@@ -100,7 +101,8 @@
   <data name="DashDeadlines" xml:space="preserve"><value>Deadlines in the next 90 days</value></data>
   <data name="DashDue" xml:space="preserve"><value>Overdue and this week</value></data>
   <data name="DashInbox" xml:space="preserve"><value>Inbox</value></data>
-  <data name="DashInboxSoon" xml:space="preserve"><value>Scanner, email and camera follow with M3.</value></data>
+  <data name="DashInboxEmpty" xml:space="preserve"><value>Nothing in the inbox.</value></data>
+  <data name="DashInboxOpen" xml:space="preserve"><value>Open the inbox</value></data>
   <data name="DashIncomplete" xml:space="preserve"><value>{0} entries with missing details</value></data>
   <data name="DashMyLife" xml:space="preserve"><value>{0} entries waiting for the myLife sync</value></data>
   <data name="DashNoDeadlines" xml:space="preserve"><value>No deadlines.</value></data>
@@ -118,15 +120,33 @@
   <data name="DocumentDeleteConfirm" xml:space="preserve"><value>Delete “{0}”? All versions go to the trash.</value></data>
   <data name="DocumentError_forbidden" xml:space="preserve"><value>You do not have permission for this.</value></data>
   <data name="DocumentError_http-413" xml:space="preserve"><value>The file is too large.</value></data>
+  <data name="DocumentError_invalid-kind" xml:space="preserve"><value>This document type does not exist.</value></data>
   <data name="DocumentError_needs-object" xml:space="preserve"><value>A document belongs to at least one entry.</value></data>
   <data name="DocumentError_no-file" xml:space="preserve"><value>No file received.</value></data>
   <data name="DocumentError_not-found" xml:space="preserve"><value>This document does not exist or you may not see it.</value></data>
+  <data name="DocumentError_task-title-required" xml:space="preserve"><value>Please enter a title for the task.</value></data>
   <data name="DocumentError_title-required" xml:space="preserve"><value>Please enter a title.</value></data>
   <data name="DocumentError_too-large" xml:space="preserve"><value>The file is too large (at most {1} MB).</value></data>
+  <data name="DocumentKind" xml:space="preserve"><value>Document type</value></data>
+  <data name="DocumentKind_cancellation" xml:space="preserve"><value>Cancellation / confirmation</value></data>
+  <data name="DocumentKind_certificate" xml:space="preserve"><value>Certificate</value></data>
+  <data name="DocumentKind_contract" xml:space="preserve"><value>Contract</value></data>
+  <data name="DocumentKind_invoice" xml:space="preserve"><value>Invoice</value></data>
+  <data name="DocumentKind_letter" xml:space="preserve"><value>Letter</value></data>
+  <data name="DocumentKind_notice" xml:space="preserve"><value>Official notice</value></data>
+  <data name="DocumentKind_other" xml:space="preserve"><value>Other</value></data>
+  <data name="DocumentKind_payslip" xml:space="preserve"><value>Payslip</value></data>
+  <data name="DocumentKind_policy" xml:space="preserve"><value>Policy</value></data>
+  <data name="DocumentKind_receipt" xml:space="preserve"><value>Receipt</value></data>
+  <data name="DocumentKind_statement" xml:space="preserve"><value>Statement</value></data>
   <data name="DocumentNewVersion" xml:space="preserve"><value>Upload new version</value></data>
   <data name="DocumentPreview" xml:space="preserve"><value>Preview</value></data>
   <data name="DocumentProcessing" xml:space="preserve"><value>Processing …</value></data>
   <data name="DocumentProcessingFailed" xml:space="preserve"><value>Text recognition and preview failed</value></data>
+  <data name="DocumentSource_camera" xml:space="preserve"><value>Camera</value></data>
+  <data name="DocumentSource_mail" xml:space="preserve"><value>Email</value></data>
+  <data name="DocumentSource_scan" xml:space="preserve"><value>Scanner</value></data>
+  <data name="DocumentSource_upload" xml:space="preserve"><value>Uploaded</value></data>
   <data name="DocumentTitle" xml:space="preserve"><value>Title</value></data>
   <data name="DocumentUpload" xml:space="preserve"><value>Upload</value></data>
   <data name="DocumentVersionAdded" xml:space="preserve"><value>New version saved.</value></data>
@@ -160,6 +180,31 @@
   <data name="HouseholdRoleHelp" xml:space="preserve"><value>Members read and change the shared records, guests only read.</value></data>
   <data name="HouseholdTitle" xml:space="preserve"><value>Household</value></data>
   <data name="InTrash" xml:space="preserve"><value>In the trash</value></data>
+  <data name="InboxAssign" xml:space="preserve"><value>Assign</value></data>
+  <data name="InboxAssigned" xml:space="preserve"><value>“{0}” has been assigned.</value></data>
+  <data name="InboxCreateTask" xml:space="preserve"><value>Create a task for it</value></data>
+  <data name="InboxDiscard" xml:space="preserve"><value>Discard</value></data>
+  <data name="InboxDiscardConfirm" xml:space="preserve"><value>Discard “{0}”? It stays under “Discarded” for 30 days.</value></data>
+  <data name="InboxDiscardedEmpty" xml:space="preserve"><value>Nothing discarded.</value></data>
+  <data name="InboxEmpty" xml:space="preserve"><value>The inbox is empty.</value></data>
+  <data name="InboxEntries" xml:space="preserve"><value>Entries</value></data>
+  <data name="InboxEntriesHelp" xml:space="preserve"><value>At least one entry the document belongs to.</value></data>
+  <data name="InboxForHousehold" xml:space="preserve"><value>Into the household inbox</value></data>
+  <data name="InboxHousehold" xml:space="preserve"><value>Household</value></data>
+  <data name="InboxIntro" xml:space="preserve"><value>Whatever arrives by camera, scanner or email waits here until it is assigned to an entry. After {0} days the inbox becomes due.</value></data>
+  <data name="InboxNoPreview" xml:space="preserve"><value>No preview. The file can be downloaded.</value></data>
+  <data name="InboxPrivate" xml:space="preserve"><value>Private</value></data>
+  <data name="InboxReceived" xml:space="preserve"><value>Received {0}</value></data>
+  <data name="InboxRestore" xml:space="preserve"><value>Restore</value></data>
+  <data name="InboxSelect" xml:space="preserve"><value>Select a document.</value></data>
+  <data name="InboxShowDiscarded" xml:space="preserve"><value>Discarded</value></data>
+  <data name="InboxTakeOver" xml:space="preserve"><value>Take it over</value></data>
+  <data name="InboxTaskDue" xml:space="preserve"><value>Due on</value></data>
+  <data name="InboxTaskTitle" xml:space="preserve"><value>What needs to be done?</value></data>
+  <data name="InboxTitle" xml:space="preserve"><value>Inbox</value></data>
+  <data name="InboxToHousehold" xml:space="preserve"><value>Give to the household</value></data>
+  <data name="InboxUpload" xml:space="preserve"><value>Upload</value></data>
+  <data name="InboxUploaded" xml:space="preserve"><value>{0} files in the inbox.</value></data>
   <data name="IsAdmin" xml:space="preserve"><value>Administrator</value></data>
   <data name="Language" xml:space="preserve"><value>Language</value></data>
   <data name="LanguageName_de" xml:space="preserve"><value>Deutsch</value></data>
@@ -471,6 +516,7 @@ these tasks have been overdue for 14 days and now go to the whole household:
   <data name="TaskTitle_create-replacement" xml:space="preserve"><value>Create a replacement</value></data>
   <data name="TaskTitle_direct-debit" xml:space="preserve"><value>Check the direct debit</value></data>
   <data name="TaskTitle_final-invoice" xml:space="preserve"><value>Check the final invoice</value></data>
+  <data name="TaskTitle_inbox" xml:space="preserve"><value>Work through the inbox</value></data>
   <data name="TaskTitle_loan-end" xml:space="preserve"><value>Loan ends: arrange what comes next</value></data>
   <data name="TaskTitle_renew-or-replace" xml:space="preserve"><value>Renew or replace?</value></data>
   <data name="TaskTitle_review" xml:space="preserve"><value>Check whether everything is still correct</value></data>

@@ -116,6 +116,16 @@ Gebraucht werden drei Konten mit eigenen Mail-Adressen: **A** (Administrator), *
 - [ ] Per SSH: `sudo docker exec mydocs-worker-1 ls /tmp` ist nach der Verarbeitung leer; `sudo docker exec mydocs-worker-1 python3 -c "import urllib.request; urllib.request.urlopen('https://example.com', timeout=5)"` scheitert (kein Internet)
 - [ ] Worker stoppen, ein Dokument hochladen: Es wird gespeichert und bleibt „Wird verarbeitet …“; Worker starten: nach spätestens 10 Minuten fertig
 
+## 14. Posteingang (M3.3, als A, B und C)
+
+- [ ] B: Posteingang → **Hochladen** von drei Dateien: alle drei erscheinen als „Privat“; A sieht sie nicht, auch nicht in der Admin-Einsicht; C sieht im Menü keinen Posteingang
+- [ ] B zuordnen: Titel ändern, Dokumentart „Rechnung“, Datum, zwei Einträge, „Vorgang dazu anlegen“ mit Fälligkeit; danach steht das Dokument an beiden Einträgen und der Vorgang unter „Vorgänge“ bei B
+- [ ] B: **An den Haushalt geben**; A sieht es jetzt und kann **Selbst übernehmen**
+- [ ] B: **Verwerfen**, unter „Verworfene“ **Zurückholen**
+- [ ] Startseite: Der Block „Posteingang“ zählt bei „Meins“ nur den eigenen, bei „Haushalt“ auch den gemeinsamen; ein Klick auf einen Titel öffnet ihn im Posteingang
+- [ ] Die Suche nach einem Wort aus einem Dokument im Posteingang findet es und führt in den Posteingang
+- [ ] Ein Dokument eine Woche liegen lassen: Vorgang „Posteingang abarbeiten“ bei B, nach dem Zuordnen ist er weg
+
 ## Ergebnis
 
 - [ ] Alle Punkte erledigt oder die Abweichungen notiert und an Claude weitergegeben

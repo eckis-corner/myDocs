@@ -77,6 +77,8 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 **M3.2 Volltext über den Dokumenttext ✅ (28.11.2026):** erkannter Text mit eigenem Index, Wortstämme und Teilwörter, Fundstelle in den Treffern (141). 158 Tests grün, dazu 3 gegen den echten Worker.
 
+**M3.3 Posteingang ✅ (28.11.2026):** privater und gemeinsamer Posteingang, Zuordnen mit Dokumentart, Datum, Einträgen und Vorgang, Weitergeben, Verwerfen, fällig nach 7 Tagen, Startseite und Suche (142–145). 170 Tests grün.
+
 1. Container `mydocs-worker`, Auftragstabelle, OCRmyPDF zu PDF/A, LibreOffice-Vorschau, Vorschaubilder
 2. Volltextsuche über den Dokumenttext (`german`, `pg_trgm`)
 3. Posteingang mit Zuordnung, Dokumentart und Datum

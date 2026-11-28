@@ -33,6 +33,7 @@
   <data name="Audit_admin-view" xml:space="preserve"><value>Admin-Einsicht</value></data>
   <data name="Audit_backup-created" xml:space="preserve"><value>Sicherung erstellt</value></data>
   <data name="Audit_backup-failed" xml:space="preserve"><value>Sicherung fehlgeschlagen</value></data>
+  <data name="Audit_document-assigned" xml:space="preserve"><value>Dokument zugeordnet</value></data>
   <data name="Audit_document-deleted" xml:space="preserve"><value>Dokument gelöscht</value></data>
   <data name="Audit_document-downloaded" xml:space="preserve"><value>Dokument geöffnet</value></data>
   <data name="Audit_document-restored" xml:space="preserve"><value>Dokument wiederhergestellt</value></data>
@@ -100,7 +101,8 @@
   <data name="DashDeadlines" xml:space="preserve"><value>Fristen in den nächsten 90 Tagen</value></data>
   <data name="DashDue" xml:space="preserve"><value>Überfällig und diese Woche</value></data>
   <data name="DashInbox" xml:space="preserve"><value>Posteingang</value></data>
-  <data name="DashInboxSoon" xml:space="preserve"><value>Scanner, Mail und Kamera folgen mit M3.</value></data>
+  <data name="DashInboxEmpty" xml:space="preserve"><value>Nichts im Posteingang.</value></data>
+  <data name="DashInboxOpen" xml:space="preserve"><value>Zum Posteingang</value></data>
   <data name="DashIncomplete" xml:space="preserve"><value>{0} Einträge mit fehlenden Angaben</value></data>
   <data name="DashMyLife" xml:space="preserve"><value>{0} Einträge warten auf den Abgleich mit myLife</value></data>
   <data name="DashNoDeadlines" xml:space="preserve"><value>Keine Fristen.</value></data>
@@ -118,15 +120,33 @@
   <data name="DocumentDeleteConfirm" xml:space="preserve"><value>„{0}“ löschen? Alle Versionen kommen in den Papierkorb.</value></data>
   <data name="DocumentError_forbidden" xml:space="preserve"><value>Dafür fehlt die Berechtigung.</value></data>
   <data name="DocumentError_http-413" xml:space="preserve"><value>Die Datei ist zu groß.</value></data>
+  <data name="DocumentError_invalid-kind" xml:space="preserve"><value>Diese Dokumentart gibt es nicht.</value></data>
   <data name="DocumentError_needs-object" xml:space="preserve"><value>Ein Dokument gehört zu mindestens einem Eintrag.</value></data>
   <data name="DocumentError_no-file" xml:space="preserve"><value>Keine Datei erhalten.</value></data>
   <data name="DocumentError_not-found" xml:space="preserve"><value>Dieses Dokument gibt es nicht oder du darfst es nicht sehen.</value></data>
+  <data name="DocumentError_task-title-required" xml:space="preserve"><value>Bitte einen Titel für den Vorgang eingeben.</value></data>
   <data name="DocumentError_title-required" xml:space="preserve"><value>Bitte eine Bezeichnung eingeben.</value></data>
   <data name="DocumentError_too-large" xml:space="preserve"><value>Die Datei ist zu groß (höchstens {1} MB).</value></data>
+  <data name="DocumentKind" xml:space="preserve"><value>Dokumentart</value></data>
+  <data name="DocumentKind_cancellation" xml:space="preserve"><value>Kündigung / Bestätigung</value></data>
+  <data name="DocumentKind_certificate" xml:space="preserve"><value>Urkunde / Nachweis</value></data>
+  <data name="DocumentKind_contract" xml:space="preserve"><value>Vertrag</value></data>
+  <data name="DocumentKind_invoice" xml:space="preserve"><value>Rechnung</value></data>
+  <data name="DocumentKind_letter" xml:space="preserve"><value>Schreiben</value></data>
+  <data name="DocumentKind_notice" xml:space="preserve"><value>Bescheid</value></data>
+  <data name="DocumentKind_other" xml:space="preserve"><value>Sonstiges</value></data>
+  <data name="DocumentKind_payslip" xml:space="preserve"><value>Gehaltsabrechnung</value></data>
+  <data name="DocumentKind_policy" xml:space="preserve"><value>Police / Versicherungsschein</value></data>
+  <data name="DocumentKind_receipt" xml:space="preserve"><value>Beleg / Quittung</value></data>
+  <data name="DocumentKind_statement" xml:space="preserve"><value>Abrechnung / Kontoauszug</value></data>
   <data name="DocumentNewVersion" xml:space="preserve"><value>Neue Version hochladen</value></data>
   <data name="DocumentPreview" xml:space="preserve"><value>Vorschau</value></data>
   <data name="DocumentProcessing" xml:space="preserve"><value>Wird verarbeitet …</value></data>
   <data name="DocumentProcessingFailed" xml:space="preserve"><value>Texterkennung und Vorschau fehlgeschlagen</value></data>
+  <data name="DocumentSource_camera" xml:space="preserve"><value>Kamera</value></data>
+  <data name="DocumentSource_mail" xml:space="preserve"><value>Mail</value></data>
+  <data name="DocumentSource_scan" xml:space="preserve"><value>Scanner</value></data>
+  <data name="DocumentSource_upload" xml:space="preserve"><value>Hochgeladen</value></data>
   <data name="DocumentTitle" xml:space="preserve"><value>Bezeichnung</value></data>
   <data name="DocumentUpload" xml:space="preserve"><value>Hochladen</value></data>
   <data name="DocumentVersionAdded" xml:space="preserve"><value>Neue Version gespeichert.</value></data>
@@ -160,6 +180,31 @@
   <data name="HouseholdRoleHelp" xml:space="preserve"><value>Mitglieder lesen und ändern den gemeinsamen Bestand, Gäste lesen nur.</value></data>
   <data name="HouseholdTitle" xml:space="preserve"><value>Haushalt</value></data>
   <data name="InTrash" xml:space="preserve"><value>Im Papierkorb</value></data>
+  <data name="InboxAssign" xml:space="preserve"><value>Zuordnen</value></data>
+  <data name="InboxAssigned" xml:space="preserve"><value>„{0}“ ist zugeordnet.</value></data>
+  <data name="InboxCreateTask" xml:space="preserve"><value>Vorgang dazu anlegen</value></data>
+  <data name="InboxDiscard" xml:space="preserve"><value>Verwerfen</value></data>
+  <data name="InboxDiscardConfirm" xml:space="preserve"><value>„{0}“ verwerfen? Es liegt dann 30 Tage unter „Verworfene“.</value></data>
+  <data name="InboxDiscardedEmpty" xml:space="preserve"><value>Nichts verworfen.</value></data>
+  <data name="InboxEmpty" xml:space="preserve"><value>Der Posteingang ist leer.</value></data>
+  <data name="InboxEntries" xml:space="preserve"><value>Einträge</value></data>
+  <data name="InboxEntriesHelp" xml:space="preserve"><value>Mindestens ein Eintrag, zu dem das Dokument gehört.</value></data>
+  <data name="InboxForHousehold" xml:space="preserve"><value>In den Posteingang des Haushalts</value></data>
+  <data name="InboxHousehold" xml:space="preserve"><value>Haushalt</value></data>
+  <data name="InboxIntro" xml:space="preserve"><value>Was über Kamera, Scanner oder Mail hereinkommt, wartet hier, bis es einem Eintrag zugeordnet ist. Nach {0} Tagen wird der Posteingang fällig.</value></data>
+  <data name="InboxNoPreview" xml:space="preserve"><value>Keine Vorschau. Die Datei lässt sich herunterladen.</value></data>
+  <data name="InboxPrivate" xml:space="preserve"><value>Privat</value></data>
+  <data name="InboxReceived" xml:space="preserve"><value>Eingang {0}</value></data>
+  <data name="InboxRestore" xml:space="preserve"><value>Zurückholen</value></data>
+  <data name="InboxSelect" xml:space="preserve"><value>Wähle ein Dokument aus.</value></data>
+  <data name="InboxShowDiscarded" xml:space="preserve"><value>Verworfene</value></data>
+  <data name="InboxTakeOver" xml:space="preserve"><value>Selbst übernehmen</value></data>
+  <data name="InboxTaskDue" xml:space="preserve"><value>Fällig am</value></data>
+  <data name="InboxTaskTitle" xml:space="preserve"><value>Was ist zu tun?</value></data>
+  <data name="InboxTitle" xml:space="preserve"><value>Posteingang</value></data>
+  <data name="InboxToHousehold" xml:space="preserve"><value>An den Haushalt geben</value></data>
+  <data name="InboxUpload" xml:space="preserve"><value>Hochladen</value></data>
+  <data name="InboxUploaded" xml:space="preserve"><value>{0} Dateien im Posteingang.</value></data>
   <data name="IsAdmin" xml:space="preserve"><value>Administrator</value></data>
   <data name="Language" xml:space="preserve"><value>Sprache</value></data>
   <data name="LanguageName_de" xml:space="preserve"><value>Deutsch</value></data>
@@ -471,6 +516,7 @@ diese Vorgänge sind seit 14 Tagen überfällig und gehen jetzt an den ganzen Ha
   <data name="TaskTitle_create-replacement" xml:space="preserve"><value>Ersatz anlegen</value></data>
   <data name="TaskTitle_direct-debit" xml:space="preserve"><value>Lastschrift prüfen</value></data>
   <data name="TaskTitle_final-invoice" xml:space="preserve"><value>Letzte Abrechnung prüfen</value></data>
+  <data name="TaskTitle_inbox" xml:space="preserve"><value>Posteingang abarbeiten</value></data>
   <data name="TaskTitle_loan-end" xml:space="preserve"><value>Kredit läuft aus: Anschluss klären</value></data>
   <data name="TaskTitle_renew-or-replace" xml:space="preserve"><value>Verlängern oder ersetzen?</value></data>
   <data name="TaskTitle_review" xml:space="preserve"><value>Prüfen, ob alles noch stimmt</value></data>

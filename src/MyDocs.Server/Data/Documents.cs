@@ -45,6 +45,21 @@ public sealed class Document
 
     /// <summary>Erkannter Text der aktuellen Version (OCR bzw. Textebene, M3); null, solange nichts erkannt ist.</summary>
     public string? ContentText { get; set; }
+
+    /// <summary>Dokumentart (<see cref="MyDocs.Shared.Documents.DocumentKinds"/>), etwa Rechnung oder Bescheid.</summary>
+    public string? Kind { get; set; }
+
+    /// <summary>Liegt im Posteingang (20): noch keinem Eintrag zugeordnet.</summary>
+    public bool InInbox { get; set; }
+
+    /// <summary>Wessen Posteingang: eine Person (privat) oder null für den Haushalt.</summary>
+    public Guid? InboxPersonId { get; set; }
+
+    /// <summary>Eingangskanal (<see cref="MyDocs.Shared.Documents.DocumentSources"/>).</summary>
+    public string Source { get; set; } = MyDocs.Shared.Documents.DocumentSources.Upload;
+
+    /// <summary>Herkunft in Worten, etwa Absender und Betreff einer Mail; ohne Inhalt.</summary>
+    public string? SourceDetail { get; set; }
 }
 
 /// <summary>Unveränderliche Fassung eines Dokuments.</summary>

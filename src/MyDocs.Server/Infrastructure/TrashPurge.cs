@@ -8,7 +8,7 @@ namespace MyDocs.Server.Infrastructure;
 
 /// <summary>
 /// Leert den Papierkorb (30): Objekte und Dokumente, die länger als 30 Tage gelöscht sind, verschwinden endgültig, mit
-/// Versionen, Freigaben, Historie und Suchtext. Dokumente ohne Objekt verschwinden mit. Eine verschlüsselte Datei wird
+/// Versionen, Freigaben, Historie und Suchtext. Dokumente ohne Objekt verschwinden mit, außer sie liegen im Posteingang. Eine verschlüsselte Datei wird
 /// erst entfernt, wenn keine Version mehr auf sie verweist (99). Der Eintrag im Audit-Log bleibt ohne Inhalt.
 /// </summary>
 public sealed partial class TrashPurge(IServiceProvider services, TimeProvider time, ILogger<TrashPurge> logger) : BackgroundService
@@ -47,7 +47,7 @@ public sealed partial class TrashPurge(IServiceProvider services, TimeProvider t
         await db.SaveChangesAsync(ct);
 
         var documents = await db.Documents
-            .Where(d => (d.IsDeleted && d.DeletedAt < cutoff) || !db.DocumentObjects.Any(l => l.DocumentId == d.Id))
+            .Where(d => (d.IsDeleted && d.DeletedAt < cutoff) || (!d.InInbox && !db.DocumentObjects.Any(l => l.DocumentId == d.Id)))
             .ToListAsync(ct);
         var ids = documents.Select(d => d.Id).ToList();
         var versions = await db.DocumentVersions.Where(v => ids.Contains(v.DocumentId)).ToListAsync(ct);

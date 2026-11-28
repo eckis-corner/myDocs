@@ -29,6 +29,7 @@ public static class ServiceCollectionExtensions
         services.AddScoped<TaskClient>();
         services.AddScoped<DashboardClient>();
         services.AddScoped<NotificationClient>();
+        services.AddScoped<InboxClient>();
         return services;
     }
 }

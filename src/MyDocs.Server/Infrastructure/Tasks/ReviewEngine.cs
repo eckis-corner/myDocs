@@ -13,13 +13,13 @@ namespace MyDocs.Server.Infrastructure.Tasks;
 public sealed class ReviewEngine(MyDocsDbContext db, Notifications.Notifier notifier, TimeProvider time)
 {
     /// <summary>Was ein Durchlauf getan hat (für Tests und das Protokoll des Containers).</summary>
-    public sealed record Result(int Reviews, int Deadlines, int Lifecycle, int Resumed, int Escalated, int Overdue);
+    public sealed record Result(int Reviews, int Deadlines, int Lifecycle, int Resumed, int Escalated, int Overdue, int Inbox = 0);
 
     public async Task<Result> RunAsync(CancellationToken ct)
     {
         var now = time.GetUtcNow();
         var today = DateOnly.FromDateTime(now.UtcDateTime);
-        int reviews = 0, deadlines = 0, lifecycle = 0, resumed = 0, escalated = 0, overdue = 0;
+        int reviews = 0, deadlines = 0, lifecycle = 0, resumed = 0, escalated = 0, overdue = 0, inboxTasks = 0;
 
         var objects = (await db.Objects.Where(o => !o.IsDeleted).ToListAsync(ct)).Where(ReviewPlan.IsActive).ToList();
         var openRules = (await db.Tasks.Where(t => t.RuleKey != null && t.State != TaskStates.Done && t.State != TaskStates.Discarded).Select(t => t.RuleKey!).ToListAsync(ct)).ToHashSet();
@@ -72,6 +72,44 @@ public sealed class ReviewEngine(MyDocsDbContext db, Notifications.Notifier noti
             resumed++;
         }
 
+        // Posteingang (20, 143): Liegt das älteste Dokument länger als 7 Tage, gibt es je Posteingang einen Vorgang;
+        // ist er leer, schließt der Dienst ihn wieder.
+        var inboxes = await db.Documents.Where(d => d.InInbox && !d.IsDeleted)
+            .GroupBy(d => d.InboxPersonId).Select(g => new { Person = g.Key, Oldest = g.Min(d => d.CreatedAt) }).ToListAsync(ct);
+        foreach (var inbox in inboxes)
+        {
+            var due = DateOnly.FromDateTime(inbox.Oldest.UtcDateTime).AddDays(ReviewRules.InboxDueDays);
+            var rule = $"inbox:{inbox.Person?.ToString() ?? "household"}";
+            if (due <= today && openRules.Add(rule))
+            {
+                db.Tasks.Add(new WorkTask
+                {
+                    Id = Guid.CreateVersion7(),
+                    Kind = TaskKinds.Inbox,
+                    Title = "Posteingang abarbeiten",
+                    TitleKey = "inbox",
+                    RuleKey = rule,
+                    ResponsiblePersonId = inbox.Person,
+                    DueOn = due,
+                    CreatedAt = now,
+                    CreatedBy = Guid.Empty,
+                });
+                inboxTasks++;
+            }
+        }
+
+        var waiting = inboxes.Select(i => $"inbox:{i.Person?.ToString() ?? "household"}").ToHashSet();
+        foreach (var task in await db.Tasks.Where(t => t.Kind == TaskKinds.Inbox && t.RuleKey != null && t.State != TaskStates.Done && t.State != TaskStates.Discarded).ToListAsync(ct))
+        {
+            if (!waiting.Contains(task.RuleKey!))
+            {
+                task.State = TaskStates.Done;
+                task.ClosedAt = now;
+                task.ClosedBy = Guid.Empty;
+                inboxTasks++;
+            }
+        }
+
         // Eskalation (14): Stufe 1 am Fälligkeitstag, 2 nach 7 Tagen, 3 nach 14 Tagen; bei Prüfungen danach „überfällig“.
         var open = await db.Tasks.Where(t => (t.State == TaskStates.Open || t.State == TaskStates.InProgress) && t.DueOn != null && t.DueOn <= today).ToListAsync(ct);
         var urgent = new List<Guid>();
@@ -103,7 +141,7 @@ public sealed class ReviewEngine(MyDocsDbContext db, Notifications.Notifier noti
         await db.SaveChangesAsync(ct);
         // Sofort nur Stufe 3 (47); alles andere bringt die tägliche Zusammenfassung.
         await notifier.UrgentAsync(urgent, ct);
-        return new Result(reviews, deadlines, lifecycle, resumed, escalated, overdue);
+        return new Result(reviews, deadlines, lifecycle, resumed, escalated, overdue, inboxTasks);
     }
 
     private void Add(DocObject item, string kind, string key, string germanTitle, string rule, DateOnly due, DateTimeOffset now)
@@ -136,7 +174,7 @@ public sealed partial class ReviewService(IServiceScopeFactory scopes, TimeProvi
             {
                 await using var scope = scopes.CreateAsyncScope();
                 var result = await scope.ServiceProvider.GetRequiredService<ReviewEngine>().RunAsync(stoppingToken);
-                if (result.Reviews + result.Deadlines + result.Lifecycle + result.Resumed + result.Escalated + result.Overdue > 0)
+                if (result.Reviews + result.Deadlines + result.Lifecycle + result.Resumed + result.Escalated + result.Overdue + result.Inbox > 0)
                 {
                     LogRun(logger, result.Reviews, result.Deadlines, result.Lifecycle, result.Escalated);
                 }

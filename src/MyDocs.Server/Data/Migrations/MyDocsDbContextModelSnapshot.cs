@@ -698,9 +698,22 @@ namespace MyDocs.Server.Data.Migrations
                         .HasColumnType("date")
                         .HasColumnName("document_date");
 
+                    b.Property<bool>("InInbox")
+                        .HasColumnType("boolean")
+                        .HasColumnName("in_inbox");
+
+                    b.Property<Guid?>("InboxPersonId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("inbox_person_id");
+
                     b.Property<bool>("IsDeleted")
                         .HasColumnType("boolean")
                         .HasColumnName("is_deleted");
+
+                    b.Property<string>("Kind")
+                        .HasMaxLength(30)
+                        .HasColumnType("character varying(30)")
+                        .HasColumnName("kind");
 
                     b.Property<string>("Note")
                         .HasMaxLength(2000)
@@ -716,6 +729,17 @@ namespace MyDocs.Server.Data.Migrations
                         .HasColumnType("tsvector")
                         .HasColumnName("search_vector")
                         .HasComputedColumnSql("to_tsvector('german', coalesce(search_text, ''))", true);
+
+                    b.Property<string>("Source")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("source");
+
+                    b.Property<string>("SourceDetail")
+                        .HasMaxLength(300)
+                        .HasColumnType("character varying(300)")
+                        .HasColumnName("source_detail");
 
                     b.Property<string>("Title")
                         .IsRequired()
@@ -741,6 +765,9 @@ namespace MyDocs.Server.Data.Migrations
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("ContentVector"), "gin");
 
+                    b.HasIndex("InboxPersonId")
+                        .HasDatabaseName("ix_documents_inbox_person_id");
+
                     b.HasIndex("SearchText")
                         .HasDatabaseName("ix_documents_search_text");
 
@@ -751,6 +778,10 @@ namespace MyDocs.Server.Data.Migrations
                         .HasDatabaseName("ix_documents_search_vector");
 
                     NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("SearchVector"), "gin");
+
+                    b.HasIndex("InInbox", "InboxPersonId")
+                        .HasDatabaseName("ix_documents_in_inbox_inbox_person_id")
+                        .HasFilter("in_inbox");
 
                     b.ToTable("documents", (string)null);
                 });
@@ -1433,6 +1464,15 @@ namespace MyDocs.Server.Data.Migrations
                         .HasForeignKey("ResponsiblePersonId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .HasConstraintName("fk_objects_persons_responsible_person_id");
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.Document", b =>
+                {
+                    b.HasOne("MyDocs.Server.Data.Person", null)
+                        .WithMany()
+                        .HasForeignKey("InboxPersonId")
+                        .OnDelete(DeleteBehavior.SetNull)
+                        .HasConstraintName("fk_documents_persons_inbox_person_id");
                 });
 
             modelBuilder.Entity("MyDocs.Server.Data.DocumentObject", b =>

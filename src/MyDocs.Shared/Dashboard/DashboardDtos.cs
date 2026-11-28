@@ -16,7 +16,7 @@ public sealed record DashboardDto(
     IReadOnlyList<TaskDto> Overdue,
     IReadOnlyList<TaskDto> DueThisWeek,
     int InboxCount,
-    IReadOnlyList<TaskDto> InboxOldest,
+    IReadOnlyList<MyDocs.Shared.Documents.InboxItemDto> InboxOldest,
     IReadOnlyList<DeadlineItemDto> Deadlines,
     decimal MonthlyTotal,
     IReadOnlyList<PaymentAreaDto> PaymentsByArea,

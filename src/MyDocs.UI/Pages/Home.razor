@@ -82,8 +82,20 @@
             <MudItem xs="12" md="4">
                 <MudPaper Class="pa-4" Elevation="1" Style="height: 100%" data-testid="block-inbox">
                     <MudText Typo="Typo.subtitle1" HtmlTag="h2" Class="mb-2"><b>@L["DashInbox"]</b></MudText>
-                    <MudText Typo="Typo.h5">@_dashboard.InboxCount</MudText>
-                    <MudText Typo="Typo.body2" Class="mydocs-muted">@L["DashInboxSoon"]</MudText>
+                    <MudText Typo="Typo.h5" data-testid="inbox-count">@_dashboard.InboxCount</MudText>
+                    @if (_dashboard.InboxCount == 0)
+                    {
+                        <MudText Typo="Typo.body2" Class="mydocs-muted">@L["DashInboxEmpty"]</MudText>
+                    }
+                    else
+                    {
+                        @foreach (var item in _dashboard.InboxOldest)
+                        {
+                            <div><MudLink Href="@($"inbox?document={item.Id}")" Typo="Typo.body2">@item.Title</MudLink>
+                                <span class="mydocs-muted"> · @item.CreatedAt.ToLocalTime().ToString("d", CultureInfo.CurrentCulture)</span></div>
+                        }
+                        <MudLink Href="inbox" Typo="Typo.body2" Class="mt-1 d-inline-block"><b>@L["DashInboxOpen"]</b></MudLink>
+                    }
                 </MudPaper>
             </MudItem>
             <MudItem xs="12" md="4">

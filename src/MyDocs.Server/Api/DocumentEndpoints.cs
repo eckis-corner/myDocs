@@ -8,6 +8,7 @@ using MyDocs.Server.Data;
 using MyDocs.Server.Infrastructure;
 using MyDocs.Server.Infrastructure.Audit;
 using MyDocs.Server.Infrastructure.Files;
+using MyDocs.Server.Infrastructure.Inbox;
 using MyDocs.Server.Infrastructure.Objects;
 using MyDocs.Server.Infrastructure.Processing;
 using MyDocs.Server.Infrastructure.Search;
@@ -245,7 +246,13 @@ internal static class DocumentEndpoints
             return ApiProblems.Of(DocumentErrors.TitleRequired);
         }
 
+        if (!DocumentKinds.IsValid(request.Kind))
+        {
+            return ApiProblems.Of(DocumentErrors.InvalidKind);
+        }
+
         document.Title = request.Title.Trim();
+        document.Kind = request.Kind;
         document.DocumentDate = request.DocumentDate;
         document.Note = string.IsNullOrWhiteSpace(request.Note) ? null : request.Note.Trim()[..Math.Min(request.Note.Trim().Length, 2000)];
         document.UpdatedAt = time.GetUtcNow();
@@ -285,6 +292,9 @@ internal static class DocumentEndpoints
             return ApiProblems.Of(DocumentErrors.NeedsObject);
         }
 
+        // Zugeordnet heißt: nicht mehr im Posteingang.
+        document.InInbox = false;
+        document.InboxPersonId = null;
         db.DocumentObjects.RemoveRange(current.Where(l => !wanted.Contains(l.ObjectId)));
         db.DocumentObjects.AddRange(wanted.Where(w => current.All(l => l.ObjectId != w)).Select(w => new DocumentObject { DocumentId = id, ObjectId = w }));
         await db.SaveChangesAsync(ct);
@@ -331,10 +341,10 @@ internal static class DocumentEndpoints
         return TypedResults.Ok(await ToDtoAsync(document, caller, access, db, ct));
     }
 
-    private sealed record Upload(string FileName, string ContentType, string Hash, long Size, IResult? Problem);
+    internal sealed record Upload(string FileName, string ContentType, string Hash, long Size, IResult? Problem);
 
     /// <summary>Liest die erste Datei aus dem Multipart-Body und verschlüsselt sie beim Lesen (kein Klartext auf der Platte).</summary>
-    private static async Task<Upload> ReadFileAsync(HttpRequest request, BlobStore blobs, MyDocsOptions options, CancellationToken ct)
+    internal static async Task<Upload> ReadFileAsync(HttpRequest request, BlobStore blobs, MyDocsOptions options, CancellationToken ct)
     {
         var none = new Upload(string.Empty, string.Empty, string.Empty, 0, ApiProblems.Of(DocumentErrors.NoFile));
         if (!MediaTypeHeaderValue.TryParse(request.ContentType, out var type) || HeaderUtilities.RemoveQuotes(type.Boundary).Value is not { Length: > 0 } boundary)
@@ -373,13 +383,13 @@ internal static class DocumentEndpoints
         return string.IsNullOrWhiteSpace(file) ? "Dokument" : file[..Math.Min(file.Length, 255)];
     }
 
-    private static string TitleFrom(string fileName)
+    internal static string TitleFrom(string fileName)
     {
         var title = Path.GetFileNameWithoutExtension(fileName).Replace('_', ' ').Trim();
         return string.IsNullOrWhiteSpace(title) ? fileName : title[..Math.Min(title.Length, 200)];
     }
 
-    private static DocumentVersion Version(Guid documentId, int number, Upload upload, Guid user, DateTimeOffset at) => new()
+    internal static DocumentVersion Version(Guid documentId, int number, Upload upload, Guid user, DateTimeOffset at) => new()
     {
         Id = Guid.CreateVersion7(),
         DocumentId = documentId,
@@ -396,14 +406,21 @@ internal static class DocumentEndpoints
     private static IQueryable<DocObject> VisibleObjects(ObjectAccess access, Caller caller) =>
         access.Visible(caller).Concat(access.Visible(caller, deleted: true));
 
-    private static async Task<Document?> FindVisibleAsync(Guid id, Caller caller, ObjectAccess access, MyDocsDbContext db, CancellationToken ct)
+    /// <summary>Sichtbar über einen seiner Einträge oder im eigenen Posteingang (142).</summary>
+    internal static async Task<Document?> FindVisibleAsync(Guid id, Caller caller, ObjectAccess access, MyDocsDbContext db, CancellationToken ct)
     {
         var visible = VisibleObjects(access, caller).Select(o => o.Id);
-        return await db.Documents.FirstOrDefaultAsync(d => d.Id == id && db.DocumentObjects.Any(l => l.DocumentId == d.Id && visible.Contains(l.ObjectId)), ct);
+        var linked = await db.Documents.FirstOrDefaultAsync(d => d.Id == id && db.DocumentObjects.Any(l => l.DocumentId == d.Id && visible.Contains(l.ObjectId)), ct);
+        return linked ?? await db.Documents.Where(InboxAccess.VisibleTo(caller)).FirstOrDefaultAsync(d => d.Id == id, ct);
     }
 
-    private static async Task<bool> CanEditAsync(Guid documentId, Caller caller, ObjectAccess access, MyDocsDbContext db, CancellationToken ct)
+    internal static async Task<bool> CanEditAsync(Guid documentId, Caller caller, ObjectAccess access, MyDocsDbContext db, CancellationToken ct)
     {
+        if (await db.Documents.AsNoTracking().FirstOrDefaultAsync(d => d.Id == documentId && d.InInbox, ct) is { } inbox)
+        {
+            return InboxAccess.CanSee(caller, inbox);
+        }
+
         var objectIds = db.DocumentObjects.Where(l => l.DocumentId == documentId).Select(l => l.ObjectId);
         foreach (var item in await access.Visible(caller).Where(o => objectIds.Contains(o.Id)).ToListAsync(ct))
         {
@@ -416,7 +433,7 @@ internal static class DocumentEndpoints
         return false;
     }
 
-    private static async Task<DocumentDto> ToDtoAsync(Document document, Caller caller, ObjectAccess access, MyDocsDbContext db, CancellationToken ct)
+    internal static async Task<DocumentDto> ToDtoAsync(Document document, Caller caller, ObjectAccess access, MyDocsDbContext db, CancellationToken ct)
     {
         var rows = await (from v in db.DocumentVersions
                           join u in db.Users on v.CreatedBy equals u.Id into users
@@ -437,11 +454,14 @@ internal static class DocumentEndpoints
         var visible = VisibleObjects(access, caller).Select(o => o.Id);
         var objects = await db.DocumentObjects.Where(l => l.DocumentId == document.Id && visible.Contains(l.ObjectId)).Select(l => l.ObjectId).ToListAsync(ct);
         return new DocumentDto(document.Id, document.Title, document.DocumentDate, document.Note, versions, objects,
-            !document.IsDeleted && await CanEditAsync(document.Id, caller, access, db, ct), document.UpdatedAt, document.DeletedAt);
+            !document.IsDeleted && await CanEditAsync(document.Id, caller, access, db, ct), document.UpdatedAt, document.DeletedAt)
+        {
+            Kind = document.Kind,
+        };
     }
 
     /// <summary>Eigentümer eines privaten Objekts, zu dem das Dokument gehört; er sieht die Einträge im Protokoll.</summary>
-    private static Task<Guid?> OwnerAsync(MyDocsDbContext db, Guid documentId, CancellationToken ct) =>
+    internal static Task<Guid?> OwnerAsync(MyDocsDbContext db, Guid documentId, CancellationToken ct) =>
         (from l in db.DocumentObjects
          join o in db.Objects on l.ObjectId equals o.Id
          where l.DocumentId == documentId && o.OwnerPersonId != null

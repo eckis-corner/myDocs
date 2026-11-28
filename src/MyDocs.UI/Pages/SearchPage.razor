@@ -88,12 +88,14 @@
         }
     }
 
-    private static string Link(SearchHitDto hit) => $"object/{(hit.Kind == SearchKinds.Document ? hit.ObjectId : hit.Id)}";
+    private static string Link(SearchHitDto hit) => hit.Kind == SearchKinds.Document
+        ? hit.ObjectId is { } objectId ? $"object/{objectId}" : $"inbox?document={hit.Id}"
+        : $"object/{hit.Id}";
 
     private static string Icon(SearchHitDto hit) =>
         hit.Kind == SearchKinds.Document ? Icons.Material.Outlined.Description
         : ObjectCatalog.Find(hit.TypeKey) is { } type ? AreaIcons.For(type.Area) : Icons.Material.Outlined.Folder;
 
     private string Kind(SearchHitDto hit) =>
-        hit.Kind == SearchKinds.Document ? L["SearchDocumentIn", hit.ObjectTitle ?? string.Empty] : Catalog.Type(hit.TypeKey ?? string.Empty);
+        hit.Kind == SearchKinds.Document ? hit.ObjectId is null ? L["InboxTitle"] : L["SearchDocumentIn", hit.ObjectTitle ?? string.Empty] : Catalog.Type(hit.TypeKey ?? string.Empty);
 }

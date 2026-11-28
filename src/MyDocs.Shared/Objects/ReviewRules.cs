@@ -9,6 +9,9 @@ namespace MyDocs.Shared.Objects;
 /// </summary>
 public static partial class ReviewRules
 {
+    /// <summary>So viele Tage darf ein Dokument im Posteingang liegen, bis er fällig wird (20, 143).</summary>
+    public const int InboxDueDays = 7;
+
     /// <summary>Frist aus Feldern: Bezugsdatum, Vorlauf der Erinnerung und Textschlüssel des Vorgangs.</summary>
     public sealed record Deadline(string Key, DateOnly Date, int LeadDays);
 

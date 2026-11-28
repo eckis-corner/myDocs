@@ -135,6 +135,11 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
             entity.ToTable("documents");
             entity.Property(x => x.Title).HasMaxLength(200);
             entity.Property(x => x.Note).HasMaxLength(2000);
+            entity.Property(x => x.Kind).HasMaxLength(30);
+            entity.Property(x => x.Source).HasMaxLength(20);
+            entity.Property(x => x.SourceDetail).HasMaxLength(300);
+            entity.HasIndex(x => new { x.InInbox, x.InboxPersonId }).HasFilter("in_inbox");
+            entity.HasOne<Person>().WithMany().HasForeignKey(x => x.InboxPersonId).OnDelete(DeleteBehavior.SetNull);
             SearchColumns(entity);
             // Erkannter Text der aktuellen Version (25, M3.2): eigener Volltextindex, Trigramme nur für Teilwörter.
             entity.Property<NpgsqlTypes.NpgsqlTsVector?>("ContentVector")

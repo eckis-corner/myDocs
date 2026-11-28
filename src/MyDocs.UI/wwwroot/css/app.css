@@ -44,6 +44,23 @@ h1:focus {
     display: block;
 }
 
+.mydocs-clickable {
+    cursor: pointer;
+}
+
+.mydocs-clickable:hover {
+    background-color: var(--mud-palette-action-default-hover);
+}
+
+.mydocs-selected {
+    border-color: var(--mud-palette-primary) !important;
+    background-color: var(--mud-palette-primary-hover);
+}
+
+.mydocs-inbox-frame {
+    height: 60vh;
+}
+
 .mydocs-preview-frame {
     width: 100%;
     height: 75vh;

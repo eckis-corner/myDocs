@@ -14,7 +14,10 @@ public sealed class TaskAccess(MyDocsDbContext db, ObjectAccess objects)
     public IQueryable<WorkTask> Visible(Caller caller)
     {
         var visible = objects.Visible(caller).Select(o => o.Id);
-        return db.Tasks.Where(t => db.TaskObjects.Where(l => l.TaskId == t.Id).All(l => visible.Contains(l.ObjectId)));
+        var person = caller.PersonId;
+        // „Posteingang abarbeiten“ für einen privaten Posteingang sieht nur seine Person (142).
+        return db.Tasks.Where(t => db.TaskObjects.Where(l => l.TaskId == t.Id).All(l => visible.Contains(l.ObjectId))
+            && (t.Kind != MyDocs.Shared.Tasks.TaskKinds.Inbox || t.ResponsiblePersonId == null || t.ResponsiblePersonId == person));
     }
 
     public async Task<bool> CanEditAsync(Caller caller, WorkTask task, CancellationToken ct)
@@ -22,7 +25,7 @@ public sealed class TaskAccess(MyDocsDbContext db, ObjectAccess objects)
         var linked = await db.TaskObjects.Where(l => l.TaskId == task.Id).Select(l => l.ObjectId).ToListAsync(ct);
         if (linked.Count == 0)
         {
-            return caller.IsMember;
+            return caller.IsMember && (task.Kind != MyDocs.Shared.Tasks.TaskKinds.Inbox || task.ResponsiblePersonId == null || task.ResponsiblePersonId == caller.PersonId);
         }
 
         foreach (var item in await objects.Visible(caller).Where(o => linked.Contains(o.Id)).ToListAsync(ct))

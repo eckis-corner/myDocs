@@ -190,6 +190,7 @@ app.MapDashboardEndpoints();
 app.MapAdminBackupEndpoints();
 app.MapSettingsEndpoints();
 app.MapAdminProcessingEndpoints();
+app.MapInboxEndpoints(maxRequestBytes);
 
 app.MapStaticAssets();
 // Die Seiten sind nur die leere Hülle (kein Prerendering); [Authorize] prüft der Client. Geschützt sind die Daten:

@@ -11,7 +11,7 @@ using MyDocs.Shared.Tasks;
 namespace MyDocs.Server.Api;
 
 /// <summary>
-/// Startseite (65): überfällig und diese Woche fällig, Posteingang, Fristen der nächsten 90 Tage, Zahlungen je Monat
+/// Startseite (65): überfällig und diese Woche fällig, Posteingang (Dokumente, M3.3), Fristen der nächsten 90 Tage, Zahlungen je Monat
 /// und Zustand des Bestands. „Meins“ heißt: ich bin zuständig oder Eigentümer. Die Rechte gelten wie überall.
 /// </summary>
 internal static class DashboardEndpoints
@@ -41,7 +41,19 @@ internal static class DashboardEndpoints
         var open = await taskQuery.ToListAsync(ct);
         var overdue = open.Where(t => t.DueOn < today).OrderBy(t => t.DueOn).Take(ListLimit).ToList();
         var thisWeek = open.Where(t => t.DueOn >= today && t.DueOn <= weekEnd).OrderBy(t => t.DueOn).Take(ListLimit).ToList();
-        var inbox = open.Where(t => t.Kind == TaskKinds.Inbox).OrderBy(t => t.CreatedAt).ToList();
+        // Posteingang (20): „Meins“ ist der eigene, „Haushalt“ dazu der gemeinsame.
+        var inboxQuery = db.Documents.Where(MyDocs.Server.Infrastructure.Inbox.InboxAccess.VisibleTo(caller)).Where(d => !d.IsDeleted);
+        if (mine)
+        {
+            inboxQuery = inboxQuery.Where(d => d.InboxPersonId != null);
+        }
+
+        var inboxCount = await inboxQuery.CountAsync(ct);
+        var inboxOldest = new List<MyDocs.Shared.Documents.InboxItemDto>();
+        foreach (var document in await inboxQuery.OrderBy(d => d.CreatedAt).Take(5).ToListAsync(ct))
+        {
+            inboxOldest.Add(await InboxEndpoints.ToItemAsync(document, caller, access, db, ct));
+        }
 
         // Einträge
         var objects = (await access.Visible(caller).ToListAsync(ct)).Where(ReviewPlan.IsActive).ToList();
@@ -113,13 +125,13 @@ internal static class DashboardEndpoints
         }
 
         var myLifeSync = open.Count(t => t.Kind == TaskKinds.MyLifeSync);
-        var dtos = await TaskEndpoints.ToDtosAsync([.. overdue.Concat(thisWeek).Concat(inbox.Take(5)).DistinctBy(t => t.Id)], caller, tasks, db, ct);
+        var dtos = await TaskEndpoints.ToDtosAsync([.. overdue.Concat(thisWeek).DistinctBy(t => t.Id)], caller, tasks, db, ct);
         var byId = dtos.ToDictionary(d => d.Id);
         return TypedResults.Ok(new DashboardDto(
             [.. overdue.Select(t => byId[t.Id])],
             [.. thisWeek.Select(t => byId[t.Id])],
-            inbox.Count,
-            [.. inbox.Take(5).Select(t => byId[t.Id])],
+            inboxCount,
+            inboxOldest,
             [.. deadlines.OrderBy(d => d.Date).Take(ListLimit)],
             payments.Values.Sum(p => p.Monthly),
             [.. payments.OrderBy(p => p.Key).Select(p => new PaymentAreaDto(p.Key, Math.Round(p.Value.Monthly, 2), p.Value.Count))],

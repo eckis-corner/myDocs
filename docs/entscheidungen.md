@@ -265,11 +265,19 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | 140 | Vorschau | Neue Endpunkte `preview` und `thumbnail`. Die Vorschau zeigt das PDF aus dem Worker (Office, Scans mit Textebene), sonst das Original, wenn es in den sicheren Typen steht (101). Öffnen der Vorschau steht wie der Download im Protokoll. Vorschaubilder erscheinen in der Liste der Dokumente; sie stehen wie Listen nicht im Protokoll. Solange ein Dokument wartet, steht „Wird verarbeitet …“ daneben. |
 | 141 | Volltext über den Inhalt | Der erkannte Text der **aktuellen Version** steht in `documents.content_text` (höchstens 300 000 Zeichen, etwa 100 Seiten) mit eigenem Volltextindex (`german`) und Trigramm-Index. Die Suche findet ihn über Wortstämme und Teilwörter; die Tippfehler-Ähnlichkeit gilt nur für Titel, Angaben und Dateinamen, weil sie jeden langen Text ganz lesen müsste. Er zählt in der Rangfolge halb so viel wie die Angaben. Als Fundstelle zeigt die Suche das erste Vorkommen mit etwas Umgebung. Die Rechte gelten wie bisher in der Abfrage (26). |
 
+## Runde 17 (28.11.2026, M3.3 Posteingang)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 142 | Wem der Posteingang gehört | Jedes Mitglied hat einen **privaten** Posteingang, dazu gibt es einen des **Haushalts**. Den privaten sieht und bearbeitet nur seine Person, den des Haushalts jedes Mitglied; Gäste haben keinen. Die Admin-Einsicht gilt hier nicht, weil noch nichts einem Eintrag gehört. Hochladen ohne Eintrag geht in den eigenen Posteingang (Schalter „In den Posteingang des Haushalts“), Kamera ebenso, Mail in den des Absenders (49), der Scan-Ordner je nach Unterordner (M3.5). Die Suche findet Dokumente im eigenen und im gemeinsamen Posteingang; die Startseite zählt bei „Meins“ den eigenen, bei „Haushalt“ beide. |
+| 143 | Fällig | Liegt das älteste Dokument eines Posteingangs länger als **7 Tage** (schließt „X Tage“ aus 20), legt die Wiedervorlage einen Vorgang „Posteingang abarbeiten“ an, einen je Posteingang, zuständig ist seine Person bzw. niemand beim Haushalt. Er eskaliert wie jeder Vorgang und schließt sich selbst, sobald der Posteingang leer ist. Den Vorgang zu einem privaten Posteingang sieht nur seine Person, auch in Zusammenfassung und Eskalation. |
+| 144 | Zuordnen | Titel, **Dokumentart** (Rechnung, Schreiben, Vertrag, Police, Bescheid, Abrechnung/Kontoauszug, Kündigung/Bestätigung, Urkunde/Nachweis, Beleg, Gehaltsabrechnung, Sonstiges), Datum und **mindestens ein Eintrag**, den die Person bearbeiten darf; auf Wunsch ein Vorgang dazu (Art „Aufgabe“, zuständig ist, wer zuordnet, verknüpft mit denselben Einträgen). Danach gelten die Rechte der Einträge (100); das Protokoll des Eigentümers zeigt „Dokument zugeordnet“. Die Dokumentart lässt sich auch an jedem Dokument ändern. Der Typ „Korrespondenz“ für Dokumente ohne passenden Eintrag (21) kommt mit den Zusatztypen; bis dahin braucht jedes Dokument einen bestehenden Eintrag. |
+| 145 | Weitergeben, verwerfen | Ein privates Dokument gibt seine Person an den Haushalt; eines aus dem Haushalt übernimmt jedes Mitglied für sich. **Verwerfen** legt es in den Papierkorb: 30 Tage unter „Verworfene“ mit „Zurückholen“, dann endgültig gelöscht. Dokumente im Posteingang leert der Papierkorb nicht, obwohl sie keinen Eintrag haben. |
+
 ## Offen
 
 | Thema | Was fehlt |
 | --- | --- |
 | Zusatztypen (7) | Felder, Bereich und Lebenszyklus-Muster je Typ |
 | Aufbewahrung (28) | Dauer und Bezugspunkt je Dokumentart |
-| Posteingang (20) | Wert für „X Tage“, bis ein Eintrag fällig wird |
 | Meldungen an Administratoren | Fehlgeschlagene Sicherung oder unzustellbare Mails per Mail melden (bisher: Seite „Sicherung“ und Protokoll) |

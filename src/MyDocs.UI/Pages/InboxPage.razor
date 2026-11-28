@@ -1,0 +1,367 @@
+@page "/inbox"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize(Roles = HouseholdRoles.Member)]
+@* Posteingang (M3.3): links die Dokumente, rechts Vorschau und Zuordnen. Auf dem Handy untereinander. *@
+@inject IStringLocalizer<SharedResource> L
+@inject CatalogText Catalog
+@inject InboxClient Inbox
+@inject ObjectClient Objects
+@inject AppInfoClient AppInfo
+@inject IDialogService Dialogs
+@inject ISnackbar Snackbar
+
+<PageTitle>@L["AppName"] – @L["InboxTitle"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudStack Row AlignItems="AlignItems.Center" Wrap="Wrap.Wrap">
+        <MudText Typo="Typo.h4" HtmlTag="h1">@L["InboxTitle"]</MudText>
+        <MudSpacer />
+        <MudSwitch T="bool" Value="_discarded" ValueChanged="ShowDiscardedAsync" Color="Color.Primary" Label="@L["InboxShowDiscarded"]" data-testid="inbox-discarded" />
+        @if (!_discarded)
+        {
+            <MudSwitch T="bool" @bind-Value="_household" Color="Color.Primary" Label="@L["InboxForHousehold"]" data-testid="inbox-household" />
+            <InputFile id="inbox-upload" class="mydocs-hidden-input" OnChange="UploadAsync" multiple data-testid="inbox-input" />
+            <MudButton HtmlTag="label" for="inbox-upload" Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.UploadFile"
+                       Disabled="_busy" data-testid="inbox-upload">@L["InboxUpload"]</MudButton>
+        }
+    </MudStack>
+    <MudText Typo="Typo.body2" Class="mydocs-muted">@L["InboxIntro", ReviewRules.InboxDueDays]</MudText>
+    @if (_busy)
+    {
+        <MudProgressLinear Indeterminate Color="Color.Primary" />
+    }
+
+    @if (_items is null)
+    {
+        <MudProgressLinear Indeterminate Color="Color.Primary" />
+    }
+    else if (_items.Count == 0)
+    {
+        <MudText Class="mydocs-muted" data-testid="inbox-empty">@(_discarded ? L["InboxDiscardedEmpty"] : L["InboxEmpty"])</MudText>
+    }
+    else
+    {
+        <MudGrid Spacing="3">
+            <MudItem xs="12" md="4">
+                <MudStack Spacing="1">
+                    @foreach (var item in _items)
+                    {
+                        <MudPaper Class="@($"pa-2 d-flex gap-2 align-center mydocs-clickable{(item.Id == _selected?.Id ? " mydocs-selected" : string.Empty)}")" Elevation="0" Outlined
+                                  @onclick="() => Select(item)" data-testid="inbox-item">
+                            @if (item.Current.HasThumbnail)
+                            {
+                                <img src="@DocumentClient.ThumbnailUrl(item.Id)" alt="" loading="lazy" class="mydocs-thumbnail" />
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@SourceIcon(item.Source)" Class="mydocs-muted" />
+                            }
+                            <MudStack Spacing="0" Class="flex-grow-1" Style="min-width: 0">
+                                <MudText Typo="Typo.body2" Style="overflow-wrap: anywhere"><b>@item.Title</b></MudText>
+                                <MudText Typo="Typo.caption" Class="mydocs-muted">
+                                    @L[$"DocumentSource_{item.Source}"] · @L["InboxReceived", item.CreatedAt.ToLocalTime().ToString("d", CultureInfo.CurrentCulture)]
+                                </MudText>
+                                @if (item.Current.Processing == ProcessingStates.Pending)
+                                {
+                                    <MudText Typo="Typo.caption" Color="Color.Info">@L["DocumentProcessing"]</MudText>
+                                }
+                            </MudStack>
+                            <MudChip T="string" Size="Size.Small" Variant="Variant.Outlined" Color="@(item.Household ? Color.Default : Color.Primary)">
+                                @(item.Household ? L["InboxHousehold"] : L["InboxPrivate"])
+                            </MudChip>
+                        </MudPaper>
+                    }
+                </MudStack>
+            </MudItem>
+            <MudItem xs="12" md="8">
+                @if (_selected is not { } selected)
+                {
+                    <MudText Class="mydocs-muted">@L["InboxSelect"]</MudText>
+                }
+                else
+                {
+                    <MudPaper Class="pa-4" Elevation="1" data-testid="inbox-detail">
+                        <MudStack Spacing="3">
+                            @if (selected.SourceDetail is { } detail)
+                            {
+                                <MudText Typo="Typo.caption" Class="mydocs-muted">@detail</MudText>
+                            }
+                            @if (selected.Current.PreviewType is { } previewType)
+                            {
+                                @if (Previews.IsImage(previewType))
+                                {
+                                    <img src="@DocumentClient.PreviewUrl(selected.Id)" alt="@selected.Title" style="max-width: 100%; max-height: 60vh; display: block; margin: 0 auto" />
+                                }
+                                else
+                                {
+                                    <iframe src="@DocumentClient.PreviewUrl(selected.Id)" title="@selected.Title" class="mydocs-preview-frame mydocs-inbox-frame" data-testid="inbox-preview"></iframe>
+                                }
+                            }
+                            else
+                            {
+                                <MudAlert Severity="Severity.Info" Dense>@L["InboxNoPreview"]</MudAlert>
+                            }
+                            <div>
+                                <MudButton Href="@DocumentClient.ContentUrl(selected.Id, download: true)" StartIcon="@Icons.Material.Filled.Download" Size="Size.Small">
+                                    @selected.Current.FileName
+                                </MudButton>
+                            </div>
+
+                            @if (_discarded)
+                            {
+                                <div>
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.RestoreFromTrash" OnClick="RestoreAsync" Disabled="_busy"
+                                               data-testid="inbox-restore">@L["InboxRestore"]</MudButton>
+                                </div>
+                            }
+                            else
+                            {
+                                <MudTextField T="string" @bind-Value="_title" Label="@L["DocumentTitle"]" Variant="Variant.Outlined" MaxLength="200"
+                                              UserAttributes="@(new() { ["data-testid"] = "inbox-title" })" />
+                                <MudGrid Spacing="2">
+                                    <MudItem xs="12" sm="6">
+                                        <MudSelect T="string" @bind-Value="_kind" Label="@L["DocumentKind"]" Variant="Variant.Outlined" Clearable>
+                                            @foreach (var kind in DocumentKinds.All)
+                                            {
+                                                <MudSelectItem T="string" Value="@kind">@L[$"DocumentKind_{kind}"]</MudSelectItem>
+                                            }
+                                        </MudSelect>
+                                    </MudItem>
+                                    <MudItem xs="12" sm="6">
+                                        <MudDatePicker Label="@L["DocumentDate"]" @bind-Date="_date" Variant="Variant.Outlined" Editable Clearable />
+                                    </MudItem>
+                                </MudGrid>
+                                <MudAutocomplete T="ObjectSummaryDto" Value="_pick" ValueChanged="AddObject" SearchFunc="SearchObjectsAsync" ToStringFunc="Describe"
+                                                 Label="@L["InboxEntries"]" HelperText="@L["InboxEntriesHelp"]" Variant="Variant.Outlined" ResetValueOnEmptyText CoerceText="false"
+                                                 MaxItems="20" data-testid="inbox-objects" />
+                                @if (_chosen.Count > 0)
+                                {
+                                    <MudChipSet T="Guid" AllClosable OnClose="RemoveObject">
+                                        @foreach (var item in _chosen)
+                                        {
+                                            <MudChip T="Guid" Value="item.Id" Color="Color.Primary" Variant="Variant.Outlined" data-testid="inbox-chosen">@Describe(item)</MudChip>
+                                        }
+                                    </MudChipSet>
+                                }
+                                <MudSwitch T="bool" @bind-Value="_withTask" Color="Color.Primary" Label="@L["InboxCreateTask"]" />
+                                @if (_withTask)
+                                {
+                                    <MudGrid Spacing="2">
+                                        <MudItem xs="12" sm="8">
+                                            <MudTextField T="string" @bind-Value="_taskTitle" Label="@L["InboxTaskTitle"]" Variant="Variant.Outlined" MaxLength="200" />
+                                        </MudItem>
+                                        <MudItem xs="12" sm="4">
+                                            <MudDatePicker Label="@L["InboxTaskDue"]" @bind-Date="_taskDue" Variant="Variant.Outlined" Editable Clearable />
+                                        </MudItem>
+                                    </MudGrid>
+                                }
+                                <MudStack Row Wrap="Wrap.Wrap" Spacing="2">
+                                    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.AssignmentTurnedIn" OnClick="AssignAsync"
+                                               Disabled="@(_busy || _chosen.Count == 0)" data-testid="inbox-assign">@L["InboxAssign"]</MudButton>
+                                    @if (selected.Household)
+                                    {
+                                        <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Outlined.Person" OnClick="() => SetHouseholdAsync(false)" Disabled="_busy">@L["InboxTakeOver"]</MudButton>
+                                    }
+                                    else
+                                    {
+                                        <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Outlined.Diversity3" OnClick="() => SetHouseholdAsync(true)" Disabled="_busy"
+                                                   data-testid="inbox-to-household">@L["InboxToHousehold"]</MudButton>
+                                    }
+                                    <MudSpacer />
+                                    <MudButton Variant="Variant.Text" Color="Color.Error" StartIcon="@Icons.Material.Outlined.Delete" OnClick="DiscardAsync" Disabled="_busy"
+                                               data-testid="inbox-discard">@L["InboxDiscard"]</MudButton>
+                                </MudStack>
+                            }
+                        </MudStack>
+                    </MudPaper>
+                }
+            </MudItem>
+        </MudGrid>
+    }
+</MudStack>
+
+@code {
+    private List<InboxItemDto>? _items;
+    private List<ObjectSummaryDto>? _objects;
+    private InboxItemDto? _selected;
+    private bool _busy, _discarded, _household, _withTask;
+    private string? _title, _kind, _taskTitle;
+    private DateTime? _date, _taskDue;
+    private ObjectSummaryDto? _pick;
+    private readonly List<ObjectSummaryDto> _chosen = [];
+    private int _maxMb = 100;
+
+    [SupplyParameterFromQuery(Name = "document")] public Guid? DocumentId { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+        try
+        {
+            _maxMb = (await AppInfo.GetAsync())?.MaxFileSizeMegabytes ?? _maxMb;
+        }
+        catch (HttpRequestException)
+        {
+        }
+    }
+
+    private async Task LoadAsync(Guid? select = null)
+    {
+        try
+        {
+            _items = await Inbox.ListAsync(_discarded);
+        }
+        catch (ApiException exception)
+        {
+            _items = [];
+            Snackbar.Add(L[$"DocumentError_{exception.Code}"], Severity.Error);
+        }
+
+        var wanted = select ?? _selected?.Id ?? DocumentId;
+        var next = _items.FirstOrDefault(i => i.Id == wanted) ?? _items.FirstOrDefault();
+        if (next?.Id != _selected?.Id || next is null)
+        {
+            Select(next);
+        }
+        else
+        {
+            _selected = next;
+        }
+    }
+
+    private void Select(InboxItemDto? item)
+    {
+        _selected = item;
+        _title = item?.Title;
+        _kind = item?.Kind;
+        _date = item?.DocumentDate?.ToDateTime(TimeOnly.MinValue);
+        _chosen.Clear();
+        _pick = null;
+        _withTask = false;
+        _taskTitle = null;
+        _taskDue = null;
+    }
+
+    private async Task ShowDiscardedAsync(bool value)
+    {
+        _discarded = value;
+        _selected = null;
+        _items = null;
+        await LoadAsync();
+    }
+
+    private async Task<IEnumerable<ObjectSummaryDto>> SearchObjectsAsync(string? text, CancellationToken ct)
+    {
+        _objects ??= await Objects.ListAsync(ct: ct);
+        var words = (text ?? string.Empty).Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return _objects.Where(o => _chosen.All(c => c.Id != o.Id)
+            && words.All(w => Describe(o).Contains(w, StringComparison.CurrentCultureIgnoreCase)));
+    }
+
+    private string Describe(ObjectSummaryDto? item) => item is null ? string.Empty : $"{item.Title} ({Catalog.Type(item.TypeKey)})";
+
+    private void AddObject(ObjectSummaryDto? item)
+    {
+        if (item is not null && _chosen.All(c => c.Id != item.Id))
+        {
+            _chosen.Add(item);
+        }
+
+        _pick = null;
+    }
+
+    private void RemoveObject(MudChip<Guid> chip) => _chosen.RemoveAll(c => c.Id == chip.Value);
+
+    private async Task UploadAsync(InputFileChangeEventArgs args)
+    {
+        var maxBytes = _maxMb * 1024L * 1024L;
+        await RunAsync(async () =>
+        {
+            var count = 0;
+            Guid? last = null;
+            foreach (var file in args.GetMultipleFiles(20))
+            {
+                if (file.Size > maxBytes)
+                {
+                    Snackbar.Add(L["DocumentError_too-large", file.Name, _maxMb], Severity.Warning);
+                    continue;
+                }
+
+                await using var stream = file.OpenReadStream(maxBytes);
+                last = (await Inbox.UploadAsync(stream, file.Name, file.ContentType, _household)).Id;
+                count++;
+            }
+
+            Snackbar.Add(L["InboxUploaded", count], Severity.Success);
+            await LoadAsync(last);
+        });
+    }
+
+    private async Task AssignAsync()
+    {
+        if (_selected is not { } selected)
+        {
+            return;
+        }
+
+        var request = new InboxAssignRequest(_title ?? string.Empty, _kind, _date is { } d ? DateOnly.FromDateTime(d) : null, [.. _chosen.Select(c => c.Id)],
+            _withTask ? _taskTitle ?? string.Empty : null, _withTask && _taskDue is { } due ? DateOnly.FromDateTime(due) : null);
+        await RunAsync(async () =>
+        {
+            var document = await Inbox.AssignAsync(selected.Id, request);
+            Snackbar.Add(L["InboxAssigned", document.Title], Severity.Success);
+            _selected = null;
+            await LoadAsync();
+        });
+    }
+
+    private Task SetHouseholdAsync(bool household) => RunAsync(async () =>
+    {
+        await Inbox.SetHouseholdAsync(_selected!.Id, household);
+        await LoadAsync();
+    });
+
+    private async Task DiscardAsync()
+    {
+        if (_selected is { } selected && await Dialogs.ShowMessageBoxAsync(L["InboxDiscard"], L["InboxDiscardConfirm", selected.Title].Value, L["InboxDiscard"], L["Cancel"]) == true)
+        {
+            await RunAsync(async () =>
+            {
+                await Inbox.DiscardAsync(selected.Id);
+                _selected = null;
+                await LoadAsync();
+            });
+        }
+    }
+
+    private Task RestoreAsync() => RunAsync(async () =>
+    {
+        await Inbox.RestoreAsync(_selected!.Id);
+        _selected = null;
+        await LoadAsync();
+    });
+
+    private async Task RunAsync(Func<Task> action)
+    {
+        _busy = true;
+        try
+        {
+            await action();
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"DocumentError_{exception.Code}"], Severity.Error);
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+
+    private static string SourceIcon(string source) => source switch
+    {
+        DocumentSources.Camera => Icons.Material.Outlined.PhotoCamera,
+        DocumentSources.Scan => Icons.Material.Outlined.Scanner,
+        DocumentSources.Mail => Icons.Material.Outlined.Email,
+        _ => Icons.Material.Outlined.Description,
+    };
+}

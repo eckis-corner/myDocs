@@ -27,9 +27,49 @@ public sealed record DocumentDto(Guid Id, string Title, DateOnly? DocumentDate, 
     IReadOnlyList<Guid> ObjectIds, bool CanEdit, DateTimeOffset UpdatedAt, DateTimeOffset? DeletedAt)
 {
     public DocumentVersionDto Current => Versions[0];
+
+    /// <summary>Dokumentart (<see cref="DocumentKinds"/>).</summary>
+    public string? Kind { get; init; }
 }
 
-public sealed record DocumentUpdateRequest(string Title, DateOnly? DocumentDate, string? Note);
+public sealed record DocumentUpdateRequest(string Title, DateOnly? DocumentDate, string? Note)
+{
+    /// <summary>Dokumentart; null lässt sie leer.</summary>
+    public string? Kind { get; init; }
+}
+
+/// <summary>Dokumentarten (20); Texte unter <c>DocumentKind_{Schlüssel}</c>. Später hängen Aufbewahrungsfristen daran (28).</summary>
+public static class DocumentKinds
+{
+    public static IReadOnlyList<string> All { get; } =
+    [
+        "invoice", "letter", "contract", "policy", "notice", "statement", "cancellation", "certificate", "receipt", "payslip", "other",
+    ];
+
+    public static bool IsValid(string? kind) => kind is null || All.Contains(kind);
+}
+
+/// <summary>Eingangskanäle (19); Texte unter <c>DocumentSource_{Schlüssel}</c>.</summary>
+public static class DocumentSources
+{
+    public const string Upload = "upload";
+    public const string Camera = "camera";
+    public const string Scan = "scan";
+    public const string Mail = "mail";
+}
+
+/// <summary>Ein Dokument im Posteingang (20).</summary>
+public sealed record InboxItemDto(Guid Id, string Title, string? Kind, DateOnly? DocumentDate, string Source, string? SourceDetail,
+    bool Household, DateTimeOffset CreatedAt, DocumentVersionDto Current, DateTimeOffset? DeletedAt);
+
+/// <summary>
+/// Zuordnen aus dem Posteingang: Angaben, mindestens ein Eintrag und auf Wunsch ein Vorgang dazu (zuständig ist,
+/// wer zuordnet).
+/// </summary>
+public sealed record InboxAssignRequest(string Title, string? Kind, DateOnly? DocumentDate, IReadOnlyList<Guid> ObjectIds, string? TaskTitle, DateOnly? TaskDueOn);
+
+/// <summary>In den Posteingang des Haushalts geben oder ihn selbst übernehmen.</summary>
+public sealed record InboxOwnerRequest(bool Household);
 
 /// <summary>Zuordnung zu Objekten (21); mindestens eines.</summary>
 public sealed record DocumentObjectsRequest(IReadOnlyList<Guid> ObjectIds);
@@ -43,6 +83,8 @@ public static class DocumentErrors
     public const string Forbidden = "forbidden";
     public const string NeedsObject = "needs-object";
     public const string TitleRequired = "title-required";
+    public const string InvalidKind = "invalid-kind";
+    public const string TaskTitleRequired = "task-title-required";
 }
 
 /// <summary>Was der Browser direkt anzeigen darf. Alles andere nur als Download, vor allem kein SVG und kein HTML.</summary>

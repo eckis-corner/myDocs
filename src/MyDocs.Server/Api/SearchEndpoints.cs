@@ -51,8 +51,13 @@ internal static class SearchEndpoints
         var visibleObjects = access.Visible(caller).Select(o => o.Id);
         // Dokumente: Angaben wie bei Einträgen, dazu der erkannte Text der aktuellen Version (M3.2). Für den langen Text
         // gelten Wortstämme und Teilwörter, aber keine Tippfehler-Ähnlichkeit (sie müsste jeden Text ganz durchgehen).
+        // Auch der eigene Posteingang und der des Haushalts (142).
+        var person = caller.PersonId;
+        var member = caller.IsMember;
         var documents = await db.Documents
-            .Where(d => !d.IsDeleted && (d.SearchText != null || d.ContentText != null) && db.DocumentObjects.Any(l => l.DocumentId == d.Id && visibleObjects.Contains(l.ObjectId))
+            .Where(d => !d.IsDeleted && (d.SearchText != null || d.ContentText != null)
+                && (db.DocumentObjects.Any(l => l.DocumentId == d.Id && visibleObjects.Contains(l.ObjectId))
+                    || (d.InInbox && member && (d.InboxPersonId == null || (person != null && d.InboxPersonId == person))))
                 && (EF.Property<NpgsqlTypes.NpgsqlTsVector>(d, "SearchVector").Matches(EF.Functions.WebSearchToTsQuery("german", query))
                     || EF.Functions.ILike(d.SearchText!, pattern)
                     || SearchFunctions.WordSimilarity(query, d.SearchText!) > Similarity
@@ -63,11 +68,16 @@ internal static class SearchEndpoints
                 d.Id,
                 d.Title,
                 d.SearchText,
-                Object = (from l in db.DocumentObjects
-                          join o in db.Objects on l.ObjectId equals o.Id
-                          where l.DocumentId == d.Id && visibleObjects.Contains(o.Id)
-                          orderby o.Title
-                          select new { o.Id, o.Title }).First(),
+                ObjectId = (from l in db.DocumentObjects
+                            join o in db.Objects on l.ObjectId equals o.Id
+                            where l.DocumentId == d.Id && visibleObjects.Contains(o.Id)
+                            orderby o.Title
+                            select (Guid?)o.Id).FirstOrDefault(),
+                ObjectTitle = (from l in db.DocumentObjects
+                               join o in db.Objects on l.ObjectId equals o.Id
+                               where l.DocumentId == d.Id && visibleObjects.Contains(o.Id)
+                               orderby o.Title
+                               select o.Title).FirstOrDefault(),
                 Rank = EF.Property<NpgsqlTypes.NpgsqlTsVector>(d, "SearchVector").Rank(EF.Functions.WebSearchToTsQuery("german", query))
                     + SearchFunctions.WordSimilarity(query, d.SearchText ?? string.Empty)
                     + (EF.Property<NpgsqlTypes.NpgsqlTsVector>(d, "ContentVector").Rank(EF.Functions.WebSearchToTsQuery("german", query)) / 2),
@@ -80,12 +90,12 @@ internal static class SearchEndpoints
 
         if (caller.AdminView)
         {
-            var touched = objects.Select(o => o.Id).Concat(documents.Select(d => d.Object.Id)).Distinct().ToList();
+            var touched = objects.Select(o => o.Id).Concat(documents.Where(d => d.ObjectId != null).Select(d => d.ObjectId!.Value)).Distinct().ToList();
             await access.RecordForeignAccessAsync(caller, await db.Objects.Where(o => touched.Contains(o.Id)).ToListAsync(ct), "search", ct);
         }
 
         var hits = objects.Select(o => (o.Rank, Hit: new SearchHitDto(SearchKinds.Entry, o.Id, o.Title, o.TypeKey, null, null, Snippet(o.SearchText, query))))
-            .Concat(documents.Select(d => (d.Rank, Hit: new SearchHitDto(SearchKinds.Document, d.Id, d.Title, null, d.Object.Id, d.Object.Title,
+            .Concat(documents.Select(d => (d.Rank, Hit: new SearchHitDto(SearchKinds.Document, d.Id, d.Title, null, d.ObjectId, d.ObjectTitle,
                 Snippet(d.SearchText, query) ?? ContentSnippet(contents.GetValueOrDefault(d.Id), query)))))
             .OrderByDescending(h => h.Rank).Take(Limit).Select(h => h.Hit).ToList();
         return TypedResults.Ok(hits);

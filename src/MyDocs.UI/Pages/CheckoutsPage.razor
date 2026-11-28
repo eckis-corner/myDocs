@@ -1,0 +1,101 @@
+@page "/desktop/checkouts"
+@attribute [Microsoft.AspNetCore.Authorization.Authorize]
+@* Desktop-Client (M4.2): ausgecheckte Dateien auf diesem Rechner, mit Stand des Uploads. *@
+@implements IDisposable
+@inject IStringLocalizer<SharedResource> L
+@inject IServiceProvider Services
+@inject ISnackbar Snackbar
+
+<PageTitle>@L["AppName"] – @L["CheckoutsTitle"]</PageTitle>
+
+<MudStack Spacing="3">
+    <MudText Typo="Typo.h4" HtmlTag="h1">@L["CheckoutsTitle"]</MudText>
+    <MudText Typo="Typo.body2" Class="mydocs-muted">@L["CheckoutsIntro"]</MudText>
+    @if (Desktop is null || Desktop.Checkouts.Count == 0)
+    {
+        <MudText Class="mydocs-muted" data-testid="checkouts-empty">@L["CheckoutsEmpty"]</MudText>
+    }
+    else
+    {
+        <MudPaper Elevation="1">
+            <MudSimpleTable Dense Elevation="0">
+                <tbody>
+                    @foreach (var checkout in Desktop.Checkouts)
+                    {
+                        <tr data-testid="checkout-row">
+                            <td>
+                                <MudStack Spacing="0">
+                                    <b>@checkout.Title</b>
+                                    <MudText Typo="Typo.caption" Class="mydocs-muted">@checkout.FileName · @checkout.CheckedOutAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture)</MudText>
+                                    @if (checkout.Pending)
+                                    {
+                                        <MudText Typo="Typo.caption" Color="Color.Warning">@L["CheckoutPending"]</MudText>
+                                    }
+                                    @if (checkout.Conflict)
+                                    {
+                                        <MudText Typo="Typo.caption" Color="Color.Error">@L["CheckoutConflict"]</MudText>
+                                    }
+                                </MudStack>
+                            </td>
+                            <td style="text-align: right; white-space: nowrap">
+                                <MudButton Size="Size.Small" StartIcon="@Icons.Material.Outlined.OpenInNew" OnClick="() => RunAsync(() => Desktop.EditAsync(checkout.DocumentId))">@L["CheckoutOpen"]</MudButton>
+                                <MudButton Size="Size.Small" Color="Color.Primary" StartIcon="@Icons.Material.Outlined.TaskAlt" OnClick="() => CheckInAsync(checkout)">@L["DocumentCheckIn"]</MudButton>
+                                <MudButton Size="Size.Small" Color="Color.Error" OnClick="() => RunAsync(() => Desktop.DiscardAsync(checkout.DocumentId))">@L["DocumentDiscardCheckout"]</MudButton>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </MudSimpleTable>
+        </MudPaper>
+    }
+</MudStack>
+
+@code {
+    private IDesktopPlatform? Desktop => Services.GetService<IDesktopPlatform>();
+
+    protected override void OnInitialized()
+    {
+        if (Desktop is { } desktop)
+        {
+            desktop.CheckoutsChanged += OnChanged;
+        }
+    }
+
+    private void OnChanged() => _ = InvokeAsync(StateHasChanged);
+
+    private Task CheckInAsync(CheckoutInfo checkout) => RunAsync(async () =>
+    {
+        if (await Desktop!.CheckInAsync(checkout.DocumentId))
+        {
+            Snackbar.Add(L["DocumentCheckedIn", checkout.Title], Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add(L["CheckInBlocked"], Severity.Warning);
+        }
+    });
+
+    private async Task RunAsync(Func<Task> action)
+    {
+        try
+        {
+            await action();
+        }
+        catch (ApiException exception)
+        {
+            Snackbar.Add(L[$"DocumentError_{exception.Code}"], Severity.Error);
+        }
+        catch (HttpRequestException)
+        {
+            Snackbar.Add(L["DesktopOffline"], Severity.Warning);
+        }
+    }
+
+    public void Dispose()
+    {
+        if (Desktop is { } desktop)
+        {
+            desktop.CheckoutsChanged -= OnChanged;
+        }
+    }
+}

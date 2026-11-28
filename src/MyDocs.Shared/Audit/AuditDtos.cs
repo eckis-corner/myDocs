@@ -27,6 +27,8 @@ public static class AuditActions
     public const string DocumentAssigned = "document-assigned";
     public const string MailRejected = "mail-rejected";
     public const string DeviceAdded = "device-added";
+    public const string DocumentCheckedOut = "document-checked-out";
+    public const string DocumentCheckedIn = "document-checked-in";
     public const string DeviceRevoked = "device-revoked";
     public const string AdminView = "admin-view";
     public const string TrashPurged = "trash-purged";

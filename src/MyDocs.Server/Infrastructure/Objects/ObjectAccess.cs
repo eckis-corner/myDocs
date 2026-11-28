@@ -21,6 +21,9 @@ public sealed class ObjectAccess(MyDocsDbContext db, IHttpContextAccessor http, 
     /// <summary>Heute nach der Uhr des Servers (in Tests einstellbar).</summary>
     public DateOnly Today => DateOnly.FromDateTime(time.GetUtcNow().UtcDateTime);
 
+    /// <summary>Jetzt nach der Uhr des Servers.</summary>
+    public DateTimeOffset Now => time.GetUtcNow();
+
     public async Task<Caller> CallerAsync(ClaimsPrincipal principal, CancellationToken ct)
     {
         var userId = Guid.Parse(principal.FindFirstValue(ClaimTypes.NameIdentifier)!);

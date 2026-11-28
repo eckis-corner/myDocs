@@ -112,6 +112,13 @@
   <data name="CameraTooMany" xml:space="preserve"><value>Höchstens {0} Seiten je Dokument.</value></data>
   <data name="CameraUp" xml:space="preserve"><value>Nach vorn</value></data>
   <data name="Cancel" xml:space="preserve"><value>Abbrechen</value></data>
+  <data name="CheckInBlocked" xml:space="preserve"><value>Noch nicht alles hochgeladen. Bitte warten, bis myDocs erreichbar ist.</value></data>
+  <data name="CheckoutConflict" xml:space="preserve"><value>Konfliktdokument</value></data>
+  <data name="CheckoutOpen" xml:space="preserve"><value>Öffnen</value></data>
+  <data name="CheckoutPending" xml:space="preserve"><value>Wartet auf Upload</value></data>
+  <data name="CheckoutsEmpty" xml:space="preserve"><value>Keine Dateien in Bearbeitung.</value></data>
+  <data name="CheckoutsIntro" xml:space="preserve"><value>Diese Dateien sind auf diesem Rechner ausgecheckt. Jede Speicherung wird eine neue Version; „Fertig“ lädt die letzte hoch und hebt die Sperre auf.</value></data>
+  <data name="CheckoutsTitle" xml:space="preserve"><value>In Bearbeitung</value></data>
   <data name="Close" xml:space="preserve"><value>Schließen</value></data>
   <data name="CommentAdd" xml:space="preserve"><value>Kommentar</value></data>
   <data name="CommentSend" xml:space="preserve"><value>Senden</value></data>
@@ -137,8 +144,12 @@
   <data name="DeadlineKind_expiry" xml:space="preserve"><value>läuft ab</value></data>
   <data name="DeadlineKind_task" xml:space="preserve"><value>Frist</value></data>
   <data name="Delete" xml:space="preserve"><value>Löschen</value></data>
+  <data name="DesktopCloseWithCheckouts" xml:space="preserve"><value>{0} Dateien sind noch in Bearbeitung. Trotzdem beenden? Änderungen werden beim nächsten Start hochgeladen, die Sperren bleiben bis zu 24 Stunden.</value></data>
   <data name="DesktopConnect" xml:space="preserve"><value>Mit myDocs verbinden</value></data>
   <data name="DesktopConnectText" xml:space="preserve"><value>Gib die Adresse eurer myDocs-Instanz ein. Die Anmeldung läuft im Browser mit Passwort und zweitem Faktor; danach gibst du dieses Gerät frei.</value></data>
+  <data name="DesktopNoticeConflict" xml:space="preserve"><value>Jemand hat das Dokument inzwischen geändert. Deine Fassung liegt als Konfliktdokument daneben.</value></data>
+  <data name="DesktopNoticeOffline" xml:space="preserve"><value>Keine Verbindung: Die Änderung wird hochgeladen, sobald myDocs wieder erreichbar ist.</value></data>
+  <data name="DesktopNoticeUploaded" xml:space="preserve"><value>Gespeichert: neue Version hochgeladen.</value></data>
   <data name="DesktopOffline" xml:space="preserve"><value>Keine Verbindung</value></data>
   <data name="DesktopOfflineText" xml:space="preserve"><value>myDocs ist gerade nicht erreichbar. Ausgecheckte Dateien kannst du weiter bearbeiten; sie werden hochgeladen, sobald die Verbindung wieder steht.</value></data>
   <data name="DesktopRetry" xml:space="preserve"><value>Erneut versuchen</value></data>
@@ -170,15 +181,21 @@
   <data name="DevicesIntro" xml:space="preserve"><value>Hier stehen die Desktop-Clients, die du angemeldet hast. Ein widerrufenes Gerät verliert sofort den Zugriff; ausgecheckte Dateien darauf bleiben, werden aber nicht mehr hochgeladen.</value></data>
   <data name="DevicesTitle" xml:space="preserve"><value>Geräte</value></data>
   <data name="DisplayName" xml:space="preserve"><value>Name</value></data>
+  <data name="DocumentCheckIn" xml:space="preserve"><value>Fertig: einchecken</value></data>
+  <data name="DocumentCheckedIn" xml:space="preserve"><value>„{0}“ ist eingecheckt.</value></data>
   <data name="DocumentDate" xml:space="preserve"><value>Datum des Dokuments</value></data>
   <data name="DocumentDeleteConfirm" xml:space="preserve"><value>„{0}“ löschen? Alle Versionen kommen in den Papierkorb.</value></data>
+  <data name="DocumentDiscardCheckout" xml:space="preserve"><value>Änderungen verwerfen</value></data>
+  <data name="DocumentEdit" xml:space="preserve"><value>Bearbeiten</value></data>
   <data name="DocumentError_forbidden" xml:space="preserve"><value>Dafür fehlt die Berechtigung.</value></data>
   <data name="DocumentError_http-413" xml:space="preserve"><value>Die Datei ist zu groß.</value></data>
   <data name="DocumentError_invalid-image" xml:space="preserve"><value>Eine Seite ist kein lesbares Bild.</value></data>
   <data name="DocumentError_invalid-kind" xml:space="preserve"><value>Diese Dokumentart gibt es nicht.</value></data>
+  <data name="DocumentError_locked" xml:space="preserve"><value>Jemand anderes bearbeitet das Dokument gerade.</value></data>
   <data name="DocumentError_needs-object" xml:space="preserve"><value>Ein Dokument gehört zu mindestens einem Eintrag.</value></data>
   <data name="DocumentError_no-file" xml:space="preserve"><value>Keine Datei erhalten.</value></data>
   <data name="DocumentError_not-found" xml:space="preserve"><value>Dieses Dokument gibt es nicht oder du darfst es nicht sehen.</value></data>
+  <data name="DocumentError_not-locked" xml:space="preserve"><value>Das Dokument ist nicht ausgecheckt.</value></data>
   <data name="DocumentError_task-title-required" xml:space="preserve"><value>Bitte einen Titel für den Vorgang eingeben.</value></data>
   <data name="DocumentError_title-required" xml:space="preserve"><value>Bitte eine Bezeichnung eingeben.</value></data>
   <data name="DocumentError_too-large" xml:space="preserve"><value>Die Datei ist zu groß (höchstens {1} MB).</value></data>
@@ -196,10 +213,13 @@
   <data name="DocumentKind_policy" xml:space="preserve"><value>Police / Versicherungsschein</value></data>
   <data name="DocumentKind_receipt" xml:space="preserve"><value>Beleg / Quittung</value></data>
   <data name="DocumentKind_statement" xml:space="preserve"><value>Abrechnung / Kontoauszug</value></data>
+  <data name="DocumentLockedBy" xml:space="preserve"><value>In Bearbeitung von {0} seit {1}</value></data>
+  <data name="DocumentLockedByMe" xml:space="preserve"><value>Von dir ausgecheckt seit {0}</value></data>
   <data name="DocumentNewVersion" xml:space="preserve"><value>Neue Version hochladen</value></data>
   <data name="DocumentPreview" xml:space="preserve"><value>Vorschau</value></data>
   <data name="DocumentProcessing" xml:space="preserve"><value>Wird verarbeitet …</value></data>
   <data name="DocumentProcessingFailed" xml:space="preserve"><value>Texterkennung und Vorschau fehlgeschlagen</value></data>
+  <data name="DocumentReleaseLock" xml:space="preserve"><value>Sperre aufheben</value></data>
   <data name="DocumentSource_camera" xml:space="preserve"><value>Kamera</value></data>
   <data name="DocumentSource_mail" xml:space="preserve"><value>Mail</value></data>
   <data name="DocumentSource_scan" xml:space="preserve"><value>Scanner</value></data>

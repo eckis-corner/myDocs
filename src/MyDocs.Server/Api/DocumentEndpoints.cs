@@ -123,6 +123,12 @@ internal static class DocumentEndpoints
             return Forbidden();
         }
 
+        // Wer ausgecheckt hat, lädt über den Check-out hoch; alle anderen warten, bis er eincheckt (17).
+        if (IsLocked(document, time.GetUtcNow()))
+        {
+            return ApiProblems.Of(DocumentErrors.Locked, StatusCodes.Status409Conflict);
+        }
+
         var upload = await ReadFileAsync(request, blobs, options.Value, ct);
         if (upload.Problem is { } problem)
         {
@@ -466,13 +472,20 @@ internal static class DocumentEndpoints
         }).ToList();
         var visible = VisibleObjects(access, caller).Select(o => o.Id);
         var objects = await db.DocumentObjects.Where(l => l.DocumentId == document.Id && visible.Contains(l.ObjectId)).Select(l => l.ObjectId).ToListAsync(ct);
+        var lockedBy = IsLocked(document, access.Now) ? await db.Users.Where(u => u.Id == document.LockedBy).Select(u => u.DisplayName).FirstOrDefaultAsync(ct) ?? "?" : null;
         return new DocumentDto(document.Id, document.Title, document.DocumentDate, document.Note, versions, objects,
             !document.IsDeleted && await CanEditAsync(document.Id, caller, access, db, ct), document.UpdatedAt, document.DeletedAt)
         {
             Kind = document.Kind,
             HasMacros = document.HasMacros,
+            LockedByName = lockedBy,
+            LockedAt = lockedBy is null ? null : document.LockedAt,
+            LockedByMe = lockedBy is not null && document.LockedBy == caller.UserId,
         };
     }
+
+    /// <summary>Gesperrt durch einen Check-out, dessen Frist noch läuft (156).</summary>
+    internal static bool IsLocked(Document document, DateTimeOffset now) => document.LockedBy is not null && document.LockExpiresAt > now;
 
     /// <summary>Eigentümer eines privaten Objekts, zu dem das Dokument gehört; er sieht die Einträge im Protokoll.</summary>
     internal static Task<Guid?> OwnerAsync(MyDocsDbContext db, Guid documentId, CancellationToken ct) =>

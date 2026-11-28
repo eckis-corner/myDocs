@@ -63,6 +63,13 @@ public sealed class Document
 
     /// <summary>Office-Datei mit Makros (49): markiert, nicht entfernt.</summary>
     public bool HasMacros { get; set; }
+
+    /// <summary>Ausgecheckt von (17, 156); gilt bis <see cref="LockExpiresAt"/>.</summary>
+    public Guid? LockedBy { get; set; }
+
+    public DateTimeOffset? LockedAt { get; set; }
+
+    public DateTimeOffset? LockExpiresAt { get; set; }
 }
 
 /// <summary>Übernommene Mail (148), damit sie nach einem Abbruch nicht zweimal in den Posteingang kommt.</summary>

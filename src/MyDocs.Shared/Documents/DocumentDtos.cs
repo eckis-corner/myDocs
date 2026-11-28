@@ -33,6 +33,28 @@ public sealed record DocumentDto(Guid Id, string Title, DateOnly? DocumentDate, 
 
     /// <summary>Office-Datei mit Makros: Vorsicht beim Öffnen (49).</summary>
     public bool HasMacros { get; init; }
+
+    /// <summary>Wer das Dokument gerade im Desktop-Client bearbeitet (17), seit wann, und ob man es selbst ist.</summary>
+    public string? LockedByName { get; init; }
+
+    public DateTimeOffset? LockedAt { get; init; }
+
+    public bool LockedByMe { get; init; }
+}
+
+/// <summary>Check-out (17, 156): ausgecheckte Version und wie lange die Sperre hält.</summary>
+public sealed record CheckoutDto(DocumentDto Document, int BaseVersion, DateTimeOffset ExpiresAt);
+
+/// <summary>
+/// Ergebnis eines Uploads aus dem Check-out. Bei <see cref="Conflict"/> gab es inzwischen eine neuere Version oder die
+/// Sperre war weg; die Datei liegt dann als eigenes Dokument vor, an dem weitergearbeitet wird.
+/// </summary>
+public sealed record CheckoutUploadResult(DocumentDto Document, bool Conflict, int BaseVersion);
+
+public static class CheckoutRules
+{
+    /// <summary>So lange hält eine Sperre ohne Lebenszeichen des Clients (Upload oder Heartbeat).</summary>
+    public static readonly TimeSpan LockLifetime = TimeSpan.FromHours(24);
 }
 
 public sealed record DocumentUpdateRequest(string Title, DateOnly? DocumentDate, string? Note)
@@ -99,6 +121,8 @@ public static class DocumentErrors
     public const string TaskTitleRequired = "task-title-required";
     public const string InvalidImage = "invalid-image";
     public const string TooManyPages = "too-many-pages";
+    public const string Locked = "locked";
+    public const string NotLocked = "not-locked";
 }
 
 /// <summary>Was der Browser direkt anzeigen darf. Alles andere nur als Download, vor allem kein SVG und kein HTML.</summary>

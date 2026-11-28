@@ -25,6 +25,8 @@ internal static class Program
         builder.Services.AddSingleton<DesktopSettingsStore>();
         builder.Services.AddSingleton(SecretStores.ForCurrentPlatform());
         builder.Services.AddSingleton<DeviceSession>();
+        builder.Services.AddSingleton(services => new MyDocs.Desktop.Core.Checkout.CheckoutEngine(paths,
+            () => services.GetRequiredService<DeviceSession>().CreateApiClient(), TimeProvider.System));
         builder.Services.AddSingleton<DesktopPlatform>();
         builder.Services.AddSingleton<IDesktopPlatform>(services => services.GetRequiredService<DesktopPlatform>());
         builder.Services.AddMyDocsUi();
@@ -48,8 +50,28 @@ internal static class Program
             app.MainWindow.SetIconFile(Path.Combine(AppContext.BaseDirectory, "wwwroot", "icon.png"));
         }
 
+        app.MainWindow.SetNotificationsEnabled(true);
+        platform.Notify = (title, message) => app.MainWindow.SendNotification(title, message);
+        using var background = new CancellationTokenSource();
+        _ = Task.Run(() => platform.RunBackgroundAsync(background.Token));
+
+        // Kein Tray-Symbol (Photino kennt keins, 157): Wer mit ausgecheckten Dateien schließt, wird gefragt.
+        app.MainWindow.RegisterWindowClosingHandler((sender, _) =>
+        {
+            var open = platform.Checkouts.Count;
+            if (open == 0)
+            {
+                return false;
+            }
+
+            var texts = app.Services.GetRequiredService<Microsoft.Extensions.Localization.IStringLocalizer<MyDocs.UI.Resources.SharedResource>>();
+            var answer = app.MainWindow.ShowMessage("myDocs", texts["DesktopCloseWithCheckouts", open], Photino.NET.PhotinoDialogButtons.YesNo, Photino.NET.PhotinoDialogIcon.Question);
+            return answer != Photino.NET.PhotinoDialogResult.Yes;
+        });
+
         AppDomain.CurrentDomain.UnhandledException += (_, error) =>
             app.MainWindow.ShowMessage("myDocs", error.ExceptionObject.ToString() ?? "Fehler", Photino.NET.PhotinoDialogButtons.Ok, Photino.NET.PhotinoDialogIcon.Error);
         app.Run();
+        background.Cancel();
     }
 }

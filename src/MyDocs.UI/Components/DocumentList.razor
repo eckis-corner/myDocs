@@ -64,6 +64,14 @@
                                         <text> · @L["DocumentVersions", document.Versions.Count]</text>
                                     }
                                 </MudText>
+                                @if (document.LockedByName is { } lockedBy)
+                                {
+                                    <MudText Typo="Typo.caption" Color="@(document.LockedByMe ? Color.Primary : Color.Warning)" data-testid="document-locked">
+                                        @(document.LockedByMe
+                                            ? L["DocumentLockedByMe", document.LockedAt?.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) ?? string.Empty]
+                                            : L["DocumentLockedBy", lockedBy, document.LockedAt?.ToLocalTime().ToString("g", CultureInfo.CurrentCulture) ?? string.Empty])
+                                    </MudText>
+                                }
                                 @if (document.HasMacros)
                                 {
                                     <MudText Typo="Typo.caption" Color="Color.Warning" data-testid="document-macros">@L["DocumentHasMacros"]</MudText>
@@ -86,6 +94,13 @@
                                     <MudIconButton HtmlTag="label" for="@($"version-{document.Id}")" Icon="@Icons.Material.Outlined.Upload" aria-label="@L["DocumentNewVersion"]" Size="Size.Small" />
                                 </MudTooltip>
                             }
+                            @if (Desktop is not null && CanEdit && document.CanEdit && (document.LockedByName is null || document.LockedByMe))
+                            {
+                                <MudTooltip Text="@L["DocumentEdit"]">
+                                    <MudIconButton Icon="@Icons.Material.Outlined.EditNote" Size="Size.Small" aria-label="@L["DocumentEdit"]" OnClick="() => RunAsync(() => Desktop.EditAsync(document.Id))"
+                                                   data-testid="document-edit" />
+                                </MudTooltip>
+                            }
                             <MudTooltip Text="@L["Download"]">
                                 <MudIconButton Icon="@(Links.IsDesktop ? Icons.Material.Outlined.OpenInNew : Icons.Material.Filled.Download)" Href="@Links.Download(document.Id)" OnClick="() => OpenAsync(document, null)" aria-label="@L["Download"]" Size="Size.Small" />
                             </MudTooltip>
@@ -99,6 +114,14 @@
                                     <MudMenuItem Icon="@Icons.Material.Outlined.History" Href="@Links.Download(document.Id, version.Number)" OnClick="() => OpenAsync(document, version)">
                                         @L["DocumentVersionDownload", version.Number, version.CreatedAt.ToLocalTime().ToString("g", CultureInfo.CurrentCulture), version.CreatedByName]
                                     </MudMenuItem>
+                                }
+                                @if (Desktop is not null && Desktop.Checkouts.Any(c => c.DocumentId == document.Id))
+                                {
+                                    <MudMenuItem Icon="@Icons.Material.Outlined.TaskAlt" OnClick="() => CheckInAsync(document)">@L["DocumentCheckIn"]</MudMenuItem>
+                                }
+                                else if (document.LockedByName is not null && (document.LockedByMe || _isAdmin))
+                                {
+                                    <MudMenuItem Icon="@Icons.Material.Outlined.LockOpen" OnClick="() => RunAsync(() => Documents.CheckInAsync(document.Id))" data-testid="document-release">@L["DocumentReleaseLock"]</MudMenuItem>
                                 }
                                 @if (CanEdit && document.CanEdit)
                                 {
@@ -122,8 +145,29 @@
 
     [Parameter] public bool CanEdit { get; set; }
 
+    [CascadingParameter] private Task<Microsoft.AspNetCore.Components.Authorization.AuthenticationState>? Authentication { get; set; }
+
+    [Inject] private IServiceProvider Services { get; set; } = default!;
+
+    private IDesktopPlatform? Desktop => Services.GetService<IDesktopPlatform>();
+
+    private bool _isAdmin;
+
+    private Task CheckInAsync(DocumentDto document) => RunAsync(async () =>
+    {
+        if (await Desktop!.CheckInAsync(document.Id))
+        {
+            Snackbar.Add(L["DocumentCheckedIn", document.Title], Severity.Success);
+        }
+        else
+        {
+            Snackbar.Add(L["CheckInBlocked"], Severity.Warning);
+        }
+    });
+
     protected override async Task OnParametersSetAsync()
     {
+        _isAdmin = Authentication is not null && (await Authentication).User.IsInRole(HouseholdRoles.Admin);
         try
         {
             _documents = await Documents.ListAsync(ObjectId);
@@ -232,10 +276,20 @@
         {
             Snackbar.Add(L[$"DocumentError_{exception.Code}"], Severity.Error);
         }
+        catch (HttpRequestException)
+        {
+            Snackbar.Add(L["DesktopOffline"], Severity.Warning);
+        }
         finally
         {
             _busy = false;
-            _documents = await Documents.ListAsync(ObjectId);
+            try
+            {
+                _documents = await Documents.ListAsync(ObjectId);
+            }
+            catch (HttpRequestException)
+            {
+            }
         }
     }
 

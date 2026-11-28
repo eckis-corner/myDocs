@@ -832,6 +832,18 @@ namespace MyDocs.Server.Data.Migrations
                         .HasColumnType("character varying(30)")
                         .HasColumnName("kind");
 
+                    b.Property<DateTimeOffset?>("LockExpiresAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("lock_expires_at");
+
+                    b.Property<DateTimeOffset?>("LockedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("locked_at");
+
+                    b.Property<Guid?>("LockedBy")
+                        .HasColumnType("uuid")
+                        .HasColumnName("locked_by");
+
                     b.Property<string>("Note")
                         .HasMaxLength(2000)
                         .HasColumnType("character varying(2000)")

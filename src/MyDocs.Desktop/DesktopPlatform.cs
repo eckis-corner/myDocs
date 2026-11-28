@@ -1,6 +1,9 @@
 using System.Text.RegularExpressions;
 using MyDocs.Desktop.Core;
+using Microsoft.Extensions.Localization;
 using MyDocs.Desktop.Core.Auth;
+using MyDocs.Desktop.Core.Checkout;
+using MyDocs.UI.Resources;
 using MyDocs.UI.Services;
 
 namespace MyDocs.Desktop;
@@ -10,8 +13,77 @@ namespace MyDocs.Desktop;
 /// Dateien mit der Standard-App, Abmelden durch Widerruf des Geräts. Ist der Server nicht erreichbar, zeigt der Client
 /// „Offline“ statt der Anmeldung (38).
 /// </summary>
-public sealed partial class DesktopPlatform(DeviceSession session, DesktopPaths paths) : IDesktopPlatform
+public sealed partial class DesktopPlatform : IDesktopPlatform
 {
+    private readonly DeviceSession session;
+    private readonly DesktopPaths paths;
+    private readonly CheckoutEngine checkouts;
+    private readonly IStringLocalizer<SharedResource> texts;
+
+    public DesktopPlatform(DeviceSession session, DesktopPaths paths, CheckoutEngine checkouts, IStringLocalizer<SharedResource> texts)
+    {
+        this.session = session;
+        this.paths = paths;
+        this.checkouts = checkouts;
+        this.texts = texts;
+        checkouts.Changed += () => CheckoutsChanged?.Invoke();
+        checkouts.Notice += notice => Notify?.Invoke(notice.Title, notice.Kind switch
+        {
+            CheckoutNoticeKind.Uploaded => texts["DesktopNoticeUploaded"],
+            CheckoutNoticeKind.Conflict => texts["DesktopNoticeConflict"],
+            _ => texts["DesktopNoticeOffline"],
+        });
+    }
+
+    /// <summary>Benachrichtigung des Systems (vom Fenster gesetzt).</summary>
+    public Action<string, string>? Notify { get; set; }
+
+    public IReadOnlyList<CheckoutInfo> Checkouts =>
+        [.. checkouts.Entries.OrderBy(e => e.CheckedOutAt).Select(e => new CheckoutInfo(e.DocumentId, e.Title, e.FileName, e.CheckedOutAt, e.Pending, e.Conflict, e.LastError))];
+
+    public event Action? CheckoutsChanged;
+
+    public async Task EditAsync(Guid documentId)
+    {
+        var entry = await checkouts.CheckOutAsync(documentId, CancellationToken.None);
+        SystemShell.Open(entry.Path);
+    }
+
+    public async Task<bool> CheckInAsync(Guid documentId)
+    {
+        try
+        {
+            await checkouts.CheckInAsync(documentId, CancellationToken.None);
+            return true;
+        }
+        catch (CheckInBlockedException)
+        {
+            return false;
+        }
+    }
+
+    public Task DiscardAsync(Guid documentId) => checkouts.DiscardAsync(documentId, CancellationToken.None);
+
+    /// <summary>Im Hintergrund: Vorgemerktes alle 30 Sekunden nachladen, Sperren alle 10 Minuten verlängern.</summary>
+    public async Task RunBackgroundAsync(CancellationToken ct)
+    {
+        await checkouts.ResumeAsync(ct);
+        var rounds = 0;
+        using var timer = new PeriodicTimer(TimeSpan.FromSeconds(30));
+        while (await timer.WaitForNextTickAsync(ct))
+        {
+            if (session.State != ConnectionState.Connected)
+            {
+                continue;
+            }
+
+            await checkouts.SyncAllAsync(ct);
+            if (++rounds % 20 == 0)
+            {
+                await checkouts.RenewAllAsync(ct);
+            }
+        }
+    }
     public const string Scheme = "mydocs";
 
     /// <summary>Nur diese Pfade beantwortet das Schema; alles andere bleibt leer.</summary>

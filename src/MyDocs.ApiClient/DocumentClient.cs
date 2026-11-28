@@ -24,6 +24,35 @@ public sealed class DocumentClient(HttpClient http)
 
     public Task DeleteAsync(Guid id, CancellationToken ct = default) => http.SendAsync(HttpMethod.Delete, $"api/documents/{id}", ct);
 
+    /// <summary>Check-out (Desktop-Client): Sperre setzen und die ausgecheckte Versionsnummer erfahren.</summary>
+    public Task<CheckoutDto> CheckOutAsync(Guid id, CancellationToken ct = default) => http.PostForAsync<CheckoutDto>($"api/documents/{id}/checkout", ct);
+
+    public Task RenewCheckoutAsync(Guid id, CancellationToken ct = default) => http.SendAsync(HttpMethod.Put, $"api/documents/{id}/checkout", ct);
+
+    /// <summary>Einchecken bzw. Sperre aufheben (Person mit der Sperre oder Administrator).</summary>
+    public Task CheckInAsync(Guid id, CancellationToken ct = default) => http.SendAsync(HttpMethod.Delete, $"api/documents/{id}/checkout", ct);
+
+    public async Task<CheckoutUploadResult> UploadCheckoutAsync(Guid id, int baseVersion, Stream content, string fileName, string contentType, CancellationToken ct = default)
+    {
+        using var form = new MultipartFormDataContent();
+        var file = new StreamContent(content);
+        file.Headers.ContentType = MediaTypeHeaderValue.TryParse(contentType, out var type) ? type : new MediaTypeHeaderValue("application/octet-stream");
+        form.Add(file, "file", fileName);
+        using var message = new HttpRequestMessage(HttpMethod.Post, new Uri($"api/documents/{id}/checkout/versions?baseVersion={baseVersion}", UriKind.Relative)) { Content = form };
+        using var response = await http.SendAsync(message, ct);
+        await ApiException.EnsureSuccessAsync(response, ct);
+        return (await System.Net.Http.Json.HttpContentJsonExtensions.ReadFromJsonAsync<CheckoutUploadResult>(response.Content, ct))!;
+    }
+
+    /// <summary>Inhalt einer Version in eine Datei schreiben.</summary>
+    public async Task DownloadAsync(Guid id, int? version, string path, CancellationToken ct = default)
+    {
+        using var response = await http.GetAsync(new Uri(ContentUrl(id, version, download: true), UriKind.Relative), HttpCompletionOption.ResponseHeadersRead, ct);
+        await ApiException.EnsureSuccessAsync(response, ct);
+        await using var file = File.Create(path);
+        await response.Content.CopyToAsync(file, ct);
+    }
+
     /// <summary>Adresse des Inhalts (für Vorschau und Download direkt im Browser, mit dem Sitzungs-Cookie).</summary>
     public static string ContentUrl(Guid id, int? version = null, bool download = false)
     {

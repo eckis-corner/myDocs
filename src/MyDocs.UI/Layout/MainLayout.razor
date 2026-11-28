@@ -38,6 +38,10 @@
                 <MudNavLink Href="" Match="NavLinkMatch.All" Icon="@Icons.Material.Outlined.Dashboard">@L["NavHome"]</MudNavLink>
                 <MudNavLink Href="search" Icon="@Icons.Material.Outlined.Search" data-testid="nav-search">@L["SearchTitle"]</MudNavLink>
                 <MudNavLink Href="tasks" Icon="@Icons.Material.Outlined.TaskAlt" data-testid="nav-tasks">@L["TasksTitle"]</MudNavLink>
+                @if (ServiceProvider.GetService<MyDocs.UI.Services.IDesktopPlatform>() is not null)
+                {
+                    <MudNavLink Href="desktop/checkouts" Icon="@Icons.Material.Outlined.EditNote" data-testid="nav-checkouts">@L["CheckoutsTitle"]</MudNavLink>
+                }
                 <AuthorizeView Roles="@HouseholdRoles.Member">
                     <MudNavLink Href="inbox" Icon="@Icons.Material.Outlined.Inbox" data-testid="nav-inbox">@L["InboxTitle"]</MudNavLink>
                 </AuthorizeView>

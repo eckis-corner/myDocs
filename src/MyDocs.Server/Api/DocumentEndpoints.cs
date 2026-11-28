@@ -9,6 +9,7 @@ using MyDocs.Server.Infrastructure;
 using MyDocs.Server.Infrastructure.Audit;
 using MyDocs.Server.Infrastructure.Files;
 using MyDocs.Server.Infrastructure.Objects;
+using MyDocs.Server.Infrastructure.Processing;
 using MyDocs.Server.Infrastructure.Search;
 using MyDocs.Shared.Audit;
 using MyDocs.Shared.Documents;
@@ -32,6 +33,8 @@ internal static class DocumentEndpoints
         group.MapPut("/{id:guid}", UpdateAsync);
         group.MapPost("/{id:guid}/versions", AddVersionAsync).DisableAntiforgery().WithMetadata(new RequestSizeLimitAttribute(maxRequestBytes));
         group.MapGet("/{id:guid}/content", ContentAsync);
+        group.MapGet("/{id:guid}/preview", PreviewAsync);
+        group.MapGet("/{id:guid}/thumbnail", ThumbnailAsync);
         group.MapPut("/{id:guid}/objects", LinkAsync);
         group.MapDelete("/{id:guid}", DeleteAsync);
         group.MapPost("/{id:guid}/restore", RestoreAsync);
@@ -66,7 +69,7 @@ internal static class DocumentEndpoints
     }
 
     private static async Task<IResult> UploadAsync(Guid id, HttpRequest request, ClaimsPrincipal principal, ObjectAccess access, MyDocsDbContext db,
-        BlobStore blobs, AuditLog audit, IOptions<MyDocsOptions> options, TimeProvider time, CancellationToken ct)
+        BlobStore blobs, ProcessingScheduler queue, AuditLog audit, IOptions<MyDocsOptions> options, TimeProvider time, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
         if (await access.Visible(caller).FirstOrDefaultAsync(o => o.Id == id, ct) is not { } item)
@@ -97,6 +100,8 @@ internal static class DocumentEndpoints
         db.Documents.Add(document);
         db.DocumentObjects.Add(new DocumentObject { DocumentId = document.Id, ObjectId = item.Id });
         db.DocumentVersions.Add(Version(document.Id, 1, upload, caller.UserId, now));
+        await queue.EnqueueAsync(upload.Hash, upload.FileName, ct);
+        document.ContentText = await queue.TextAsync(upload.Hash, ct);
         await SearchIndex.UpdateAsync(db, document, ct);
         audit.Add(AuditActions.DocumentUploaded, caller.UserId, item.OwnerPersonId, item.Id, document.Id, document.Title, upload.FileName);
         await db.SaveChangesAsync(ct);
@@ -104,7 +109,7 @@ internal static class DocumentEndpoints
     }
 
     private static async Task<IResult> AddVersionAsync(Guid id, HttpRequest request, ClaimsPrincipal principal, ObjectAccess access, MyDocsDbContext db,
-        BlobStore blobs, AuditLog audit, IOptions<MyDocsOptions> options, TimeProvider time, CancellationToken ct)
+        BlobStore blobs, ProcessingScheduler queue, AuditLog audit, IOptions<MyDocsOptions> options, TimeProvider time, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
         if (await FindVisibleAsync(id, caller, access, db, ct) is not { IsDeleted: false } document)
@@ -126,6 +131,9 @@ internal static class DocumentEndpoints
         var number = await db.DocumentVersions.Where(v => v.DocumentId == id).MaxAsync(v => v.Number, ct) + 1;
         var now = time.GetUtcNow();
         db.DocumentVersions.Add(Version(id, number, upload, caller.UserId, now));
+        await queue.EnqueueAsync(upload.Hash, upload.FileName, ct);
+        // Der Text gehört zur aktuellen Version; ist der neue Inhalt noch nicht verarbeitet, gilt bis dahin keiner.
+        document.ContentText = await queue.TextAsync(upload.Hash, ct);
         document.UpdatedAt = now;
         await SearchIndex.UpdateAsync(db, document, ct);
         audit.Add(AuditActions.DocumentVersionAdded, caller.UserId, await OwnerAsync(db, id, ct), documentId: id, title: document.Title, details: $"{number}: {upload.FileName}");
@@ -137,33 +145,85 @@ internal static class DocumentEndpoints
         MyDocsDbContext db, BlobStore blobs, AuditLog audit, HttpResponse response, CancellationToken ct)
     {
         var caller = await access.CallerAsync(principal, ct);
-        if (await FindVisibleAsync(id, caller, access, db, ct) is not { } document)
-        {
-            return NotFound();
-        }
-
-        var linked = VisibleObjects(access, caller).Where(o => db.DocumentObjects.Any(l => l.DocumentId == id && l.ObjectId == o.Id));
-        await access.RecordForeignAccessAsync(caller, await linked.ToListAsync(ct), "download", ct);
-
-        var query = db.DocumentVersions.Where(v => v.DocumentId == id);
-        var file = version is { } number
-            ? await query.FirstOrDefaultAsync(v => v.Number == number, ct)
-            : await query.OrderByDescending(v => v.Number).FirstOrDefaultAsync(ct);
-        if (file is null)
+        if (await OpenAsync(id, version, caller, access, db, audit, "download", ct) is not { } file)
         {
             return NotFound();
         }
 
         // Nur ausgewählte Typen zeigt der Browser direkt; alles andere ist ein Download ohne Vorschau.
         var inline = download != true && Previews.InlineTypes.Contains(file.ContentType);
+        return Stream(response, blobs, file.BlobHash, file.Size, inline ? file.ContentType : "application/octet-stream", file.FileName, inline);
+    }
+
+    /// <summary>
+    /// Vorschau im Browser (101, 24): das PDF aus dem Worker (Office-Dateien, Scans mit Textebene), sonst das Original,
+    /// wenn der Browser es gefahrlos zeigen kann.
+    /// </summary>
+    private static async Task<IResult> PreviewAsync(Guid id, int? version, ClaimsPrincipal principal, ObjectAccess access,
+        MyDocsDbContext db, BlobStore blobs, AuditLog audit, HttpResponse response, CancellationToken ct)
+    {
+        var caller = await access.CallerAsync(principal, ct);
+        if (await OpenAsync(id, version, caller, access, db, audit, "preview", ct) is not { } file)
+        {
+            return NotFound();
+        }
+
+        var pdf = await db.BlobDerivatives.AsNoTracking().FirstOrDefaultAsync(d => d.SourceHash == file.BlobHash && d.Kind == DerivativeKinds.Pdf, ct);
+        if (pdf is not null)
+        {
+            return Stream(response, blobs, pdf.BlobHash, pdf.Size, "application/pdf", Path.ChangeExtension(file.FileName, ".pdf"), inline: true);
+        }
+
+        return Previews.InlineTypes.Contains(file.ContentType)
+            ? Stream(response, blobs, file.BlobHash, file.Size, file.ContentType, file.FileName, inline: true)
+            : NotFound();
+    }
+
+    /// <summary>Vorschaubild der ersten Seite (PNG); wie Listen ohne Eintrag im Protokoll.</summary>
+    private static async Task<IResult> ThumbnailAsync(Guid id, int? version, ClaimsPrincipal principal, ObjectAccess access,
+        MyDocsDbContext db, BlobStore blobs, HttpResponse response, CancellationToken ct)
+    {
+        var caller = await access.CallerAsync(principal, ct);
+        if (await FindVisibleAsync(id, caller, access, db, ct) is null || await FindVersionAsync(db, id, version, ct) is not { } file)
+        {
+            return NotFound();
+        }
+
+        var thumbnail = await db.BlobDerivatives.AsNoTracking().FirstOrDefaultAsync(d => d.SourceHash == file.BlobHash && d.Kind == DerivativeKinds.Thumbnail, ct);
+        return thumbnail is null ? NotFound() : Stream(response, blobs, thumbnail.BlobHash, thumbnail.Size, "image/png", "thumbnail.png", inline: true);
+    }
+
+    /// <summary>Öffnen einer Version (Download oder Vorschau): Rechte, Protokoll des Eigentümers und Admin-Einsicht (31, 106).</summary>
+    private static async Task<DocumentVersion?> OpenAsync(Guid id, int? version, Caller caller, ObjectAccess access, MyDocsDbContext db, AuditLog audit, string context, CancellationToken ct)
+    {
+        if (await FindVisibleAsync(id, caller, access, db, ct) is not { } document || await FindVersionAsync(db, id, version, ct) is not { } file)
+        {
+            return null;
+        }
+
+        var linked = VisibleObjects(access, caller).Where(o => db.DocumentObjects.Any(l => l.DocumentId == id && l.ObjectId == o.Id));
+        await access.RecordForeignAccessAsync(caller, await linked.ToListAsync(ct), context, ct);
+        await audit.WriteAsync(AuditActions.DocumentDownloaded, caller.UserId, await OwnerAsync(db, id, ct), documentId: id, title: document.Title,
+            details: $"{file.Number}: {file.FileName}{(context == "preview" ? " (Vorschau)" : string.Empty)}", ct: ct);
+        return file;
+    }
+
+    private static Task<DocumentVersion?> FindVersionAsync(MyDocsDbContext db, Guid id, int? version, CancellationToken ct)
+    {
+        var query = db.DocumentVersions.AsNoTracking().Where(v => v.DocumentId == id);
+        return version is { } number
+            ? query.FirstOrDefaultAsync(v => v.Number == number, ct)
+            : query.OrderByDescending(v => v.Number).FirstOrDefaultAsync(ct);
+    }
+
+    private static Microsoft.AspNetCore.Http.HttpResults.PushStreamHttpResult Stream(HttpResponse response, BlobStore blobs, string hash, long size, string contentType, string fileName, bool inline)
+    {
         var disposition = new ContentDispositionHeaderValue(inline ? "inline" : "attachment");
-        disposition.SetHttpFileName(file.FileName);
+        disposition.SetHttpFileName(fileName);
         response.Headers.ContentDisposition = disposition.ToString();
         response.Headers.CacheControl = "private, no-store";
-        response.ContentLength = file.Size;
-        await audit.WriteAsync(AuditActions.DocumentDownloaded, caller.UserId, await OwnerAsync(db, id, ct), documentId: id, title: document.Title,
-            details: $"{file.Number}: {file.FileName}", ct: ct);
-        return TypedResults.Stream(output => blobs.CopyToAsync(file.BlobHash, output, ct), inline ? file.ContentType : "application/octet-stream");
+        response.ContentLength = size;
+        return TypedResults.Stream(output => blobs.CopyToAsync(hash, output, response.HttpContext.RequestAborted), contentType);
     }
 
     private static async Task<IResult> UpdateAsync(Guid id, DocumentUpdateRequest request, ClaimsPrincipal principal, ObjectAccess access,
@@ -358,12 +418,22 @@ internal static class DocumentEndpoints
 
     private static async Task<DocumentDto> ToDtoAsync(Document document, Caller caller, ObjectAccess access, MyDocsDbContext db, CancellationToken ct)
     {
-        var versions = await (from v in db.DocumentVersions
-                              join u in db.Users on v.CreatedBy equals u.Id into users
-                              from user in users.DefaultIfEmpty()
-                              where v.DocumentId == document.Id
-                              orderby v.Number descending
-                              select new DocumentVersionDto(v.Number, v.FileName, v.ContentType, v.Size, v.CreatedAt, user != null ? user.DisplayName : "?")).ToListAsync(ct);
+        var rows = await (from v in db.DocumentVersions
+                          join u in db.Users on v.CreatedBy equals u.Id into users
+                          from user in users.DefaultIfEmpty()
+                          where v.DocumentId == document.Id
+                          orderby v.Number descending
+                          select new { v.Number, v.FileName, v.ContentType, v.Size, v.CreatedAt, v.BlobHash, Name = user != null ? user.DisplayName : "?" }).ToListAsync(ct);
+        var hashes = rows.Select(r => r.BlobHash).Distinct().ToList();
+        var states = await db.ProcessingJobs.Where(j => hashes.Contains(j.SourceHash)).ToDictionaryAsync(j => j.SourceHash, j => j.State, ct);
+        var derived = (await db.BlobDerivatives.Where(d => hashes.Contains(d.SourceHash)).Select(d => new { d.SourceHash, d.Kind }).ToListAsync(ct))
+            .Select(d => (d.SourceHash, d.Kind)).ToHashSet();
+        var versions = rows.Select(r => new DocumentVersionDto(r.Number, r.FileName, r.ContentType, r.Size, r.CreatedAt, r.Name)
+        {
+            Processing = states.GetValueOrDefault(r.BlobHash, ProcessingStates.Done),
+            PreviewType = derived.Contains((r.BlobHash, DerivativeKinds.Pdf)) ? "application/pdf" : Previews.InlineTypes.Contains(r.ContentType) ? r.ContentType : null,
+            HasThumbnail = derived.Contains((r.BlobHash, DerivativeKinds.Thumbnail)),
+        }).ToList();
         var visible = VisibleObjects(access, caller).Select(o => o.Id);
         var objects = await db.DocumentObjects.Where(l => l.DocumentId == document.Id && visible.Contains(l.ObjectId)).Select(l => l.ObjectId).ToListAsync(ct);
         return new DocumentDto(document.Id, document.Title, document.DocumentDate, document.Note, versions, objects,

@@ -1,6 +1,6 @@
 # myDocs – Docker Compose für die Synology (Container Manager → Projekt).
 # TLS übernimmt der vorhandene Nginx Proxy Manager; die App lauscht nur auf MYDOCS_PORT.
-# Der Worker für OCR und Vorschau (mydocs-worker) kommt mit M3 dazu.
+# Der Worker (OCR, Office-Vorschau, Vorschaubilder) hängt nur im internen Netz „worker“ ohne Internet.
 name: mydocs
 
 services:
@@ -15,12 +15,29 @@ services:
       MyDocs__DataDirectory: /data
       # Sicherungsschlüssel (32 Byte Base64); ohne ihn keine automatische Sicherung
       MyDocs__BackupKey: ${MYDOCS_BACKUP_KEY:-}
+      MyDocs__WorkerUrl: http://worker:8080
       TZ: ${TZ:-Europe/Berlin}
+    networks:
+      - default
+      - worker
     ports:
       - "${MYDOCS_PORT:-8090}:8080"
     volumes:
       - ${MYDOCS_DATA_DIR:-./data}/app:/data
     mem_limit: 512m
+
+  # Zustandslos: kein Volume, keine Schlüssel, keine Datenbank. Dateien liegen nur während der Arbeit im tmpfs.
+  worker:
+    image: ghcr.io/eckis-corner/mydocs-worker:${MYDOCS_VERSION:-latest}
+    restart: unless-stopped
+    networks:
+      - worker
+    read_only: true
+    tmpfs:
+      - /tmp:size=768m
+    environment:
+      TZ: ${TZ:-Europe/Berlin}
+    mem_limit: 1536m
 
   db:
     image: postgres:17-alpine
@@ -38,3 +55,8 @@ services:
       timeout: 5s
       retries: 10
     mem_limit: 512m
+
+networks:
+  # Intern: Der Worker erreicht nur die App, nicht das Internet (Office-Dateien laden keine fremden Inhalte nach).
+  worker:
+    internal: true

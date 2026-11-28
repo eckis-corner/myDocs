@@ -42,6 +42,9 @@ public sealed class Document
     public NpgsqlTypes.NpgsqlTsVector? SearchVector { get; set; }
 
     public DateTimeOffset? DeletedAt { get; set; }
+
+    /// <summary>Erkannter Text der aktuellen Version (OCR bzw. Textebene, M3); null, solange nichts erkannt ist.</summary>
+    public string? ContentText { get; set; }
 }
 
 /// <summary>Unveränderliche Fassung eines Dokuments.</summary>

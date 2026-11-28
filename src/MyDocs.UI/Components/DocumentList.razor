@@ -36,9 +36,19 @@
                 @foreach (var document in _documents)
                 {
                     <tr data-testid="document-row">
+                        <td style="width: 56px">
+                            @if (document.Current.HasThumbnail)
+                            {
+                                <img src="@DocumentClient.ThumbnailUrl(document.Id)" alt="" loading="lazy" class="mydocs-thumbnail" data-testid="document-thumbnail" />
+                            }
+                            else
+                            {
+                                <MudIcon Icon="@Icons.Material.Outlined.Description" Class="mydocs-muted" />
+                            }
+                        </td>
                         <td>
                             <MudStack Spacing="0">
-                                @if (Previews.InlineTypes.Contains(document.Current.ContentType))
+                                @if (document.Current.PreviewType is not null)
                                 {
                                     <MudLink OnClick="() => PreviewAsync(document)">@document.Title</MudLink>
                                 }
@@ -53,6 +63,14 @@
                                         <text> · @L["DocumentVersions", document.Versions.Count]</text>
                                     }
                                 </MudText>
+                                @if (document.Current.Processing == ProcessingStates.Pending)
+                                {
+                                    <MudText Typo="Typo.caption" Color="Color.Info" data-testid="document-processing">@L["DocumentProcessing"]</MudText>
+                                }
+                                else if (document.Current.Processing == ProcessingStates.Failed)
+                                {
+                                    <MudText Typo="Typo.caption" Color="Color.Warning" data-testid="document-processing-failed">@L["DocumentProcessingFailed"]</MudText>
+                                }
                             </MudStack>
                         </td>
                         <td style="text-align: right; white-space: nowrap">
@@ -166,10 +184,10 @@
     {
         var parameters = new DialogParameters<DocumentPreviewDialog>
         {
-            { d => d.Url, DocumentClient.ContentUrl(document.Id) },
+            { d => d.Url, DocumentClient.PreviewUrl(document.Id) },
             { d => d.DownloadUrl, DocumentClient.ContentUrl(document.Id, download: true) },
             { d => d.Title, document.Title },
-            { d => d.ContentType, document.Current.ContentType },
+            { d => d.ContentType, document.Current.PreviewType ?? document.Current.ContentType },
         };
         await Dialogs.ShowAsync<DocumentPreviewDialog>(document.Title, parameters, new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true, CloseButton = true });
     }

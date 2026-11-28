@@ -35,6 +35,9 @@ public sealed class ServerFixture : WebApplicationFactory<Program>, IAsyncLifeti
     /// <summary>Verschickte Push-Nachrichten an ntfy.</summary>
     public RecordingPushSender Push { get; } = new();
 
+    /// <summary>Worker für OCR und Vorschau; den Container gibt es in den Tests nicht.</summary>
+    public FakeWorker Worker { get; } = new();
+
     /// <summary>Zugangsdaten des Administrators aus <see cref="EnsureAdminAsync"/>.</summary>
     public const string AdminEmail = "admin@example.test";
 
@@ -104,6 +107,7 @@ public sealed class ServerFixture : WebApplicationFactory<Program>, IAsyncLifeti
             services.AddSingleton<TimeProvider>(Clock);
             services.AddSingleton<IMailTransport>(Mail);
             services.AddSingleton<IPushSender>(Push);
+            services.AddSingleton<MyDocs.Server.Infrastructure.Processing.IDocumentWorker>(Worker);
         });
     }
 

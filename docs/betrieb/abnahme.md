@@ -1,6 +1,6 @@
-# Abnahme von M1 und M2 auf der Synology
+# Abnahme von M1 bis M3 auf der Synology
 
-Checkliste für die Meilensteine M1 (Teil 1–8) und M2 (Teil 9–12) auf der DS1520+ ([meilensteine.md](../meilensteine.md)). Erst danach kommen echte Daten (67). Zum Abhaken: `[ ]` durch `[x]` ersetzen. Wenn etwas nicht wie beschrieben funktioniert: notieren, was du getan hast und was passiert ist, dann weiter mit dem nächsten Punkt.
+Checkliste für die Meilensteine M1 (Teil 1–8), M2 (Teil 9–12) und M3 (ab Teil 13) auf der DS1520+ ([meilensteine.md](../meilensteine.md)). Erst danach kommen echte Daten (67). Zum Abhaken: `[ ]` durch `[x]` ersetzen. Wenn etwas nicht wie beschrieben funktioniert: notieren, was du getan hast und was passiert ist, dann weiter mit dem nächsten Punkt.
 
 Gebraucht werden drei Konten mit eigenen Mail-Adressen: **A** (Administrator), **B** (Mitglied) und **C** (Gast). Für Teil 1–8 müssen die Adressen nicht echt sein; für die Abnahme von M2 (Teil 9–12) brauchen A und B echte Postfächer.
 
@@ -48,7 +48,7 @@ Gebraucht werden drei Konten mit eigenen Mail-Adressen: **A** (Administrator), *
 ## 5. Dokumente
 
 - [ ] PDF hochgeladen: Vorschau im Browser; Bild hochgeladen: Vorschau
-- [ ] Word- oder Excel-Datei hochgeladen: nur Download, keine Vorschau
+- [ ] Word- oder Excel-Datei hochgeladen: Der Download liefert die Originaldatei, die Vorschau ein PDF (ab M3)
 - [ ] Neue Version derselben Datei hochgeladen: „2 Versionen“, die alte lässt sich herunterladen
 - [ ] Eine Datei mit 50–100 MB hochgeladen (prüft die Grenze im Nginx Proxy Manager)
 - [ ] Per SSH: `ls /volume1/docker/mydocs/data/app/files/*/` zeigt nur Dateien mit langen Hex-Namen; `strings` auf eine Datei zeigt keinen lesbaren Inhalt
@@ -103,6 +103,18 @@ Gebraucht werden drei Konten mit eigenen Mail-Adressen: **A** (Administrator), *
 - [ ] Ein Vorgang von B mit Fälligkeit gestern: Zur gewählten Stunde kommt die Zusammenfassung, am selben Tag kein zweites Mal
 - [ ] Ohne fällige Vorgänge kommt keine Zusammenfassung
 - [ ] Mit ntfy: Die Push-Nachricht nennt nur Zahlen, keine Titel
+
+## 13. Verarbeitung und Volltext (M3.1, M3.2)
+
+- [ ] Verwaltung → Einstellungen → Verarbeitung: „Der Worker ist bereit.“, „0 fehlgeschlagen“
+- [ ] Ein Brief, mit dem Handy fotografiert und als JPEG hochgeladen: kurz „Wird verarbeitet …“, dann Vorschaubild; die Vorschau ist ein PDF, gerade ausgerichtet
+- [ ] Ein Scan als PDF ohne Text (vom Scanner): Die Suche nach einem Wort aus dem Brief findet das Dokument und zeigt die Stelle
+- [ ] Eine Word- und eine Excel-Datei: Vorschaubild und Vorschau als PDF, der Download ist die Originaldatei
+- [ ] Ein PDF mit Text (etwa eine Rechnung als Download): Suche nach der Rechnungsnummer findet es
+- [ ] Suche nach einem Wort im Plural, das im Brief im Singular steht (etwa „Versicherungen“): wird gefunden
+- [ ] B lädt ein Dokument an einen privaten Eintrag: A findet ein Wort daraus **nicht** (ohne Admin-Einsicht)
+- [ ] Per SSH: `sudo docker exec mydocs-worker-1 ls /tmp` ist nach der Verarbeitung leer; `sudo docker exec mydocs-worker-1 python3 -c "import urllib.request; urllib.request.urlopen('https://example.com', timeout=5)"` scheitert (kein Internet)
+- [ ] Worker stoppen, ein Dokument hochladen: Es wird gespeichert und bleibt „Wird verarbeitet …“; Worker starten: nach spätestens 10 Minuten fertig
 
 ## Ergebnis
 

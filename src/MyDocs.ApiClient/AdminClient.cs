@@ -35,4 +35,8 @@ public sealed class AdminClient(HttpClient http)
 
     public Task TestNtfyAsync(string topic, CancellationToken ct = default) =>
         http.SendAsync<NtfyTestRequest>(HttpMethod.Post, "api/admin/settings/test-ntfy", new NtfyTestRequest(topic), ct);
+
+    public Task<ProcessingStatusDto> ProcessingStatusAsync(CancellationToken ct = default) => http.GetAsync<ProcessingStatusDto>("api/admin/processing", ct);
+
+    public Task<int> RetryProcessingAsync(CancellationToken ct = default) => http.PostForAsync<int>("api/admin/processing/retry", ct);
 }

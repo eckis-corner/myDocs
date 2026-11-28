@@ -121,6 +121,14 @@ builder.Services.AddHttpClient(MyDocs.Server.Infrastructure.Mail.NtfyPushSender.
 builder.Services.AddScoped<MyDocs.Server.Infrastructure.Mail.IPushSender, MyDocs.Server.Infrastructure.Mail.NtfyPushSender>();
 builder.Services.AddScoped<MyDocs.Server.Infrastructure.Notifications.Notifier>();
 builder.Services.AddHostedService<MyDocs.Server.Infrastructure.Notifications.NotificationService>();
+// Verarbeitung im Worker (M3.1): OCR kann bei langen Scans dauern.
+builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Processing.ProcessingSignal>();
+builder.Services.AddScoped<MyDocs.Server.Infrastructure.Processing.ProcessingScheduler>();
+builder.Services.AddScoped<MyDocs.Server.Infrastructure.Processing.DocumentProcessor>();
+builder.Services.AddHttpClient(MyDocs.Server.Infrastructure.Processing.HttpDocumentWorker.HttpClientName, client => client.Timeout = TimeSpan.FromMinutes(35));
+builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Processing.IDocumentWorker, MyDocs.Server.Infrastructure.Processing.HttpDocumentWorker>();
+builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Processing.ProcessingService>();
+builder.Services.AddHostedService(services => services.GetRequiredService<MyDocs.Server.Infrastructure.Processing.ProcessingService>());
 // Uploads bis zur Grenze aus den Einstellungen (78) plus Platz für den Multipart-Rahmen.
 var maxRequestBytes = (options.MaxFileSizeMegabytes + 1) * 1024L * 1024L;
 builder.Services.AddAuthorizationBuilder()
@@ -181,6 +189,7 @@ app.MapTaskEndpoints();
 app.MapDashboardEndpoints();
 app.MapAdminBackupEndpoints();
 app.MapSettingsEndpoints();
+app.MapAdminProcessingEndpoints();
 
 app.MapStaticAssets();
 // Die Seiten sind nur die leere Hülle (kein Prerendering); [Authorize] prüft der Client. Geschützt sind die Daten:

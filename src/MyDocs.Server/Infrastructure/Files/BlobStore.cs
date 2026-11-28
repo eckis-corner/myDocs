@@ -71,6 +71,57 @@ public sealed class BlobStore(MyDocsDbContext db, MasterKey master, IOptions<MyD
         }
     }
 
+    /// <summary>Die ersten Bytes des Klartexts, etwa um die Art der Datei zu erkennen.</summary>
+    public async Task<byte[]> ReadPrefixAsync(string hash, int count, CancellationToken ct)
+    {
+        using var prefix = new PrefixStream(count);
+        try
+        {
+            await CopyToAsync(hash, prefix, ct);
+        }
+        catch (PrefixStream.FullException)
+        {
+            // Genug gelesen; der Rest wird nicht entschlüsselt.
+        }
+
+        return prefix.ToArray();
+    }
+
+    /// <summary>
+    /// Nimmt Verweise auf Blobs zurück (99). Fällt ein Zähler auf null, verschwinden Eintrag, Ableitungen, Text und
+    /// Auftrag; die Ableitungen geben ihre Blobs ebenso frei. Liefert die Dateien, die nach dem Speichern zu löschen sind.
+    /// </summary>
+    public async Task<List<string>> ReleaseAsync(IReadOnlyDictionary<string, int> references, CancellationToken ct)
+    {
+        var unused = new List<string>();
+        var pending = new Dictionary<string, int>(references);
+        while (pending.Count > 0)
+        {
+            var next = new Dictionary<string, int>();
+            foreach (var blob in await db.Blobs.Where(b => pending.Keys.Contains(b.Hash)).ToListAsync(ct))
+            {
+                blob.RefCount -= pending[blob.Hash];
+                if (blob.RefCount > 0)
+                {
+                    continue;
+                }
+
+                foreach (var derivative in await db.BlobDerivatives.Where(d => d.SourceHash == blob.Hash).ToListAsync(ct))
+                {
+                    db.BlobDerivatives.Remove(derivative);
+                    next[derivative.BlobHash] = next.GetValueOrDefault(derivative.BlobHash) + 1;
+                }
+
+                db.Blobs.Remove(blob);
+                unused.Add(blob.Hash);
+            }
+
+            pending = next;
+        }
+
+        return unused;
+    }
+
     internal string PathOf(string hash) => Path.Combine(Root, hash[..2], hash);
 
     /// <summary>Entfernt die verschlüsselte Datei, nachdem ihr Eintrag gelöscht ist.</summary>
@@ -127,6 +178,70 @@ public sealed class BlobStore(MyDocsDbContext db, MasterKey master, IOptions<MyD
         public override void SetLength(long value) => throw new NotSupportedException();
 
         public override void Write(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+    }
+}
+
+/// <summary>Nimmt nur die ersten Bytes auf und bricht dann ab.</summary>
+internal sealed class PrefixStream(int capacity) : Stream
+{
+    private readonly MemoryStream _buffer = new();
+
+    public sealed class FullException : Exception;
+
+    public byte[] ToArray() => _buffer.ToArray();
+
+    public override bool CanRead => false;
+
+    public override bool CanSeek => false;
+
+    public override bool CanWrite => true;
+
+    public override long Length => _buffer.Length;
+
+    public override long Position { get => _buffer.Length; set => throw new NotSupportedException(); }
+
+    public override void Write(byte[] buffer, int offset, int count) => Write(buffer.AsSpan(offset, count));
+
+    public override void Write(ReadOnlySpan<byte> buffer)
+    {
+        var room = capacity - (int)_buffer.Length;
+        _buffer.Write(buffer[..Math.Min(room, buffer.Length)]);
+        if (_buffer.Length >= capacity)
+        {
+            throw new FullException();
+        }
+    }
+
+    public override Task WriteAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken)
+    {
+        Write(buffer.AsSpan(offset, count));
+        return Task.CompletedTask;
+    }
+
+    public override ValueTask WriteAsync(ReadOnlyMemory<byte> buffer, CancellationToken cancellationToken = default)
+    {
+        Write(buffer.Span);
+        return ValueTask.CompletedTask;
+    }
+
+    public override void Flush()
+    {
+    }
+
+    public override int Read(byte[] buffer, int offset, int count) => throw new NotSupportedException();
+
+    public override long Seek(long offset, SeekOrigin origin) => throw new NotSupportedException();
+
+    public override void SetLength(long value) => throw new NotSupportedException();
+
+    protected override void Dispose(bool disposing)
+    {
+        if (disposing)
+        {
+            _buffer.Dispose();
+        }
+
+        base.Dispose(disposing);
     }
 }
 

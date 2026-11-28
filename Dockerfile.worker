@@ -1,0 +1,31 @@
+# syntax=docker/dockerfile:1
+# mydocs-worker – OCR, Office-Vorschau und Vorschaubilder (24, 136). Image für linux/amd64 (Synology DS1520+).
+# Build: docker build -f Dockerfile.worker -t mydocs-worker .
+# Der Worker braucht keine Pakete aus GitHub Packages und keine Anmeldung.
+
+FROM mcr.microsoft.com/dotnet/sdk:10.0 AS build
+WORKDIR /src
+COPY global.json Directory.Build.props .editorconfig ./
+COPY src/MyDocs.Worker/ src/MyDocs.Worker/
+ARG VERSION=0.1.0
+RUN dotnet publish src/MyDocs.Worker/MyDocs.Worker.csproj -c Release -o /app \
+        -p:Version=${VERSION} -p:UseAppHost=false -p:ManagePackageVersionsCentrally=false
+
+FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+# OCRmyPDF mit Tesseract (Deutsch, Englisch), unpaper zum Säubern, img2pdf, Poppler (pdftotext, pdftoppm) und
+# LibreOffice ohne Oberfläche; Schriften mit den Maßen von Arial, Times, Calibri und Cambria für treue Office-PDFs.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ocrmypdf tesseract-ocr-deu tesseract-ocr-eng unpaper img2pdf poppler-utils \
+        libreoffice-writer-nogui libreoffice-calc-nogui libreoffice-impress-nogui \
+        fonts-dejavu-core fonts-liberation2 fonts-crosextra-carlito fonts-crosextra-caladea \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+ENV ASPNETCORE_HTTP_PORTS=8080 \
+    ASPNETCORE_ENVIRONMENT=Production \
+    DOTNET_gcServer=0
+COPY --from=build /app .
+USER $APP_UID
+EXPOSE 8080
+ENTRYPOINT ["dotnet", "MyDocs.Worker.dll"]

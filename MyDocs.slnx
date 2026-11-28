@@ -5,6 +5,7 @@
     <Project Path="src/MyDocs.Shared/MyDocs.Shared.csproj" />
     <Project Path="src/MyDocs.UI/MyDocs.UI.csproj" />
     <Project Path="src/MyDocs.Web/MyDocs.Web.csproj" />
+    <Project Path="src/MyDocs.Worker/MyDocs.Worker.csproj" />
   </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/MyDocs.Tests/MyDocs.Tests.csproj" />

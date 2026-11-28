@@ -49,11 +49,15 @@ internal static class SearchEndpoints
             .OrderByDescending(o => o.Rank).ThenBy(o => o.Title).Take(Limit).ToListAsync(ct);
 
         var visibleObjects = access.Visible(caller).Select(o => o.Id);
+        // Dokumente: Angaben wie bei Einträgen, dazu der erkannte Text der aktuellen Version (M3.2). Für den langen Text
+        // gelten Wortstämme und Teilwörter, aber keine Tippfehler-Ähnlichkeit (sie müsste jeden Text ganz durchgehen).
         var documents = await db.Documents
-            .Where(d => !d.IsDeleted && d.SearchText != null && db.DocumentObjects.Any(l => l.DocumentId == d.Id && visibleObjects.Contains(l.ObjectId))
+            .Where(d => !d.IsDeleted && (d.SearchText != null || d.ContentText != null) && db.DocumentObjects.Any(l => l.DocumentId == d.Id && visibleObjects.Contains(l.ObjectId))
                 && (EF.Property<NpgsqlTypes.NpgsqlTsVector>(d, "SearchVector").Matches(EF.Functions.WebSearchToTsQuery("german", query))
-                    || EF.Functions.ILike(d.SearchText, pattern)
-                    || SearchFunctions.WordSimilarity(query, d.SearchText) > Similarity))
+                    || EF.Functions.ILike(d.SearchText!, pattern)
+                    || SearchFunctions.WordSimilarity(query, d.SearchText!) > Similarity
+                    || EF.Property<NpgsqlTypes.NpgsqlTsVector>(d, "ContentVector").Matches(EF.Functions.WebSearchToTsQuery("german", query))
+                    || EF.Functions.ILike(d.ContentText!, pattern)))
             .Select(d => new
             {
                 d.Id,
@@ -64,9 +68,15 @@ internal static class SearchEndpoints
                           where l.DocumentId == d.Id && visibleObjects.Contains(o.Id)
                           orderby o.Title
                           select new { o.Id, o.Title }).First(),
-                Rank = EF.Property<NpgsqlTypes.NpgsqlTsVector>(d, "SearchVector").Rank(EF.Functions.WebSearchToTsQuery("german", query)) + SearchFunctions.WordSimilarity(query, d.SearchText!),
+                Rank = EF.Property<NpgsqlTypes.NpgsqlTsVector>(d, "SearchVector").Rank(EF.Functions.WebSearchToTsQuery("german", query))
+                    + SearchFunctions.WordSimilarity(query, d.SearchText ?? string.Empty)
+                    + (EF.Property<NpgsqlTypes.NpgsqlTsVector>(d, "ContentVector").Rank(EF.Functions.WebSearchToTsQuery("german", query)) / 2),
             })
             .OrderByDescending(d => d.Rank).ThenBy(d => d.Title).Take(Limit).ToListAsync(ct);
+
+        // Fundstelle im erkannten Text nur für die Treffer, nicht für alle Dokumente laden.
+        var ids = documents.Where(d => Snippet(d.SearchText, query) is null).Select(d => d.Id).ToList();
+        var contents = await db.Documents.Where(d => ids.Contains(d.Id)).Select(d => new { d.Id, d.ContentText }).ToDictionaryAsync(d => d.Id, d => d.ContentText, ct);
 
         if (caller.AdminView)
         {
@@ -75,7 +85,8 @@ internal static class SearchEndpoints
         }
 
         var hits = objects.Select(o => (o.Rank, Hit: new SearchHitDto(SearchKinds.Entry, o.Id, o.Title, o.TypeKey, null, null, Snippet(o.SearchText, query))))
-            .Concat(documents.Select(d => (d.Rank, Hit: new SearchHitDto(SearchKinds.Document, d.Id, d.Title, null, d.Object.Id, d.Object.Title, Snippet(d.SearchText, query)))))
+            .Concat(documents.Select(d => (d.Rank, Hit: new SearchHitDto(SearchKinds.Document, d.Id, d.Title, null, d.Object.Id, d.Object.Title,
+                Snippet(d.SearchText, query) ?? ContentSnippet(contents.GetValueOrDefault(d.Id), query)))))
             .OrderByDescending(h => h.Rank).Take(Limit).Select(h => h.Hit).ToList();
         return TypedResults.Ok(hits);
     }
@@ -87,5 +98,30 @@ internal static class SearchEndpoints
         var words = query.Split(' ', StringSplitOptions.RemoveEmptyEntries);
         var line = lines.Skip(1).FirstOrDefault(l => words.Any(w => l.Contains(w, StringComparison.CurrentCultureIgnoreCase)));
         return line is null ? null : line.Length > 160 ? line[..160] + "…" : line;
+    }
+
+    /// <summary>
+    /// Stelle im erkannten Text: das erste Vorkommen eines Suchworts, bei Wortstämmen auch seines Anfangs, mit etwas
+    /// Umgebung auf einer Zeile.
+    /// </summary>
+    internal static string? ContentSnippet(string? text, string query)
+    {
+        if (string.IsNullOrEmpty(text))
+        {
+            return null;
+        }
+
+        var words = query.Split(' ', StringSplitOptions.RemoveEmptyEntries).Select(w => w.Trim('"', '-', '+')).Where(w => w.Length >= 2).ToList();
+        var candidates = words.Concat(words.Where(w => w.Length > 5).Select(w => w[..(w.Length - 2)]));
+        var index = candidates.Select(w => text.IndexOf(w, StringComparison.CurrentCultureIgnoreCase)).Where(i => i >= 0).DefaultIfEmpty(-1).Min();
+        if (index < 0)
+        {
+            return null;
+        }
+
+        var start = Math.Max(0, index - 60);
+        var end = Math.Min(text.Length, index + 100);
+        var snippet = string.Join(' ', text[start..end].Split((char[])['\n', '\r', '\t', ' '], StringSplitOptions.RemoveEmptyEntries));
+        return (start > 0 ? "…" : string.Empty) + snippet + (end < text.Length ? "…" : string.Empty);
     }
 }

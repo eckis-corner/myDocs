@@ -124,6 +124,9 @@
   <data name="DocumentError_title-required" xml:space="preserve"><value>Bitte eine Bezeichnung eingeben.</value></data>
   <data name="DocumentError_too-large" xml:space="preserve"><value>Die Datei ist zu groß (höchstens {1} MB).</value></data>
   <data name="DocumentNewVersion" xml:space="preserve"><value>Neue Version hochladen</value></data>
+  <data name="DocumentPreview" xml:space="preserve"><value>Vorschau</value></data>
+  <data name="DocumentProcessing" xml:space="preserve"><value>Wird verarbeitet …</value></data>
+  <data name="DocumentProcessingFailed" xml:space="preserve"><value>Texterkennung und Vorschau fehlgeschlagen</value></data>
   <data name="DocumentTitle" xml:space="preserve"><value>Bezeichnung</value></data>
   <data name="DocumentUpload" xml:space="preserve"><value>Hochladen</value></data>
   <data name="DocumentVersionAdded" xml:space="preserve"><value>Neue Version gespeichert.</value></data>
@@ -303,6 +306,14 @@ diese Vorgänge sind seit 14 Tagen überfällig und gehen jetzt an den ganzen Ha
   <data name="PersonLogin" xml:space="preserve"><value>Konto</value></data>
   <data name="PersonNameFromAccount" xml:space="preserve"><value>Der Name kommt aus dem Konto; ändern kann ihn der Administrator.</value></data>
   <data name="Print" xml:space="preserve"><value>Drucken</value></data>
+  <data name="ProcessingCounts" xml:space="preserve"><value>{0} warten · {1} fertig · {2} fehlgeschlagen</value></data>
+  <data name="ProcessingIntro" xml:space="preserve"><value>Der Worker erkennt Text in Scans und Fotos, erzeugt Vorschauen für Office-Dateien und Vorschaubilder. Die Originale bleiben unverändert.</value></data>
+  <data name="ProcessingRetried" xml:space="preserve"><value>{0} Dateien werden erneut verarbeitet.</value></data>
+  <data name="ProcessingRetry" xml:space="preserve"><value>Fehlgeschlagene erneut verarbeiten</value></data>
+  <data name="ProcessingTitle" xml:space="preserve"><value>Verarbeitung</value></data>
+  <data name="ProcessingWorkerDown" xml:space="preserve"><value>Der Worker ist nicht erreichbar.</value></data>
+  <data name="ProcessingWorkerMissing" xml:space="preserve"><value>Kein Worker eingerichtet (MyDocs__WorkerUrl). Dokumente werden gespeichert, aber nicht verarbeitet.</value></data>
+  <data name="ProcessingWorkerOk" xml:space="preserve"><value>Der Worker ist bereit.</value></data>
   <data name="Push_digest_body" xml:space="preserve"><value>{0} überfällig, {1} in den nächsten 7 Tagen</value></data>
   <data name="Push_digest_title" xml:space="preserve"><value>myDocs: {0} Vorgänge</value></data>
   <data name="Push_test_body" xml:space="preserve"><value>Push-Nachrichten von myDocs kommen an.</value></data>

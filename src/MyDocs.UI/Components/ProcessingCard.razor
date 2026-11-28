@@ -1,0 +1,68 @@
+@* Verwaltung → Einstellungen: Stand des Workers und der Aufträge (M3.1), nur Zahlen. *@
+@using MyDocs.Shared.Admin
+@inject IStringLocalizer<SharedResource> L
+@inject AdminClient Admin
+@inject ISnackbar Snackbar
+
+<MudPaper Class="pa-4" Elevation="1" data-testid="processing-card">
+    <MudStack Spacing="2">
+        <MudText Typo="Typo.subtitle1" HtmlTag="h2"><b>@L["ProcessingTitle"]</b></MudText>
+        <MudText Typo="Typo.body2" Class="mydocs-muted">@L["ProcessingIntro"]</MudText>
+        @if (_status is { } status)
+        {
+            @if (!status.Configured)
+            {
+                <MudAlert Severity="Severity.Warning" Dense>@L["ProcessingWorkerMissing"]</MudAlert>
+            }
+            else if (!status.Reachable)
+            {
+                <MudAlert Severity="Severity.Error" Dense data-testid="processing-down">@L["ProcessingWorkerDown"]</MudAlert>
+            }
+            else
+            {
+                <MudAlert Severity="Severity.Success" Dense>@L["ProcessingWorkerOk"]</MudAlert>
+            }
+
+            <MudText Typo="Typo.body2" data-testid="processing-counts">@L["ProcessingCounts", status.Pending, status.Done, status.Failed]</MudText>
+            @if (status.Failed > 0)
+            {
+                <div>
+                    <MudButton Variant="Variant.Outlined" StartIcon="@Icons.Material.Outlined.Replay" OnClick="RetryAsync" Disabled="_busy" data-testid="processing-retry">@L["ProcessingRetry"]</MudButton>
+                </div>
+            }
+        }
+    </MudStack>
+</MudPaper>
+
+@code {
+    private ProcessingStatusDto? _status;
+    private bool _busy;
+
+    protected override Task OnInitializedAsync() => LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            _status = await Admin.ProcessingStatusAsync();
+        }
+        catch (Exception exception) when (exception is ApiException or HttpRequestException)
+        {
+            _status = null;
+        }
+    }
+
+    private async Task RetryAsync()
+    {
+        _busy = true;
+        try
+        {
+            Snackbar.Add(L["ProcessingRetried", await Admin.RetryProcessingAsync()], Severity.Success);
+            await LoadAsync();
+        }
+        finally
+        {
+            _busy = false;
+        }
+    }
+}

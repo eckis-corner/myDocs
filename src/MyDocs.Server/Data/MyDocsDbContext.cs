@@ -36,6 +36,12 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
 
     public DbSet<DocumentObject> DocumentObjects => Set<DocumentObject>();
 
+    public DbSet<ProcessingJob> ProcessingJobs => Set<ProcessingJob>();
+
+    public DbSet<BlobDerivative> BlobDerivatives => Set<BlobDerivative>();
+
+    public DbSet<BlobText> BlobTexts => Set<BlobText>();
+
     public DbSet<AuditEntry> AuditLog => Set<AuditEntry>();
 
     public DbSet<WorkTask> Tasks => Set<WorkTask>();
@@ -130,6 +136,11 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
             entity.Property(x => x.Title).HasMaxLength(200);
             entity.Property(x => x.Note).HasMaxLength(2000);
             SearchColumns(entity);
+            // Erkannter Text der aktuellen Version (25, M3.2): eigener Volltextindex, Trigramme nur für Teilwörter.
+            entity.Property<NpgsqlTypes.NpgsqlTsVector?>("ContentVector")
+                .HasComputedColumnSql("to_tsvector('german', coalesce(content_text, ''))", stored: true);
+            entity.HasIndex("ContentVector").HasMethod("gin");
+            entity.HasIndex(x => x.ContentText).HasMethod("gin").HasOperators("gin_trgm_ops");
         });
 
         builder.Entity<DocumentVersion>(entity =>
@@ -149,6 +160,40 @@ public sealed class MyDocsDbContext(DbContextOptions<MyDocsDbContext> options)
             entity.HasIndex(x => x.ObjectId);
             entity.HasOne<Document>().WithMany().HasForeignKey(x => x.DocumentId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne<DocObject>().WithMany().HasForeignKey(x => x.ObjectId).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<ProcessingJob>(entity =>
+        {
+            entity.ToTable("processing_jobs");
+            entity.HasKey(x => x.SourceHash);
+            entity.Property(x => x.SourceHash).HasMaxLength(64);
+            entity.Property(x => x.FileName).HasMaxLength(255);
+            entity.Property(x => x.State).HasMaxLength(20);
+            entity.Property(x => x.Kind).HasMaxLength(20);
+            entity.Property(x => x.Error).HasMaxLength(500);
+            entity.HasIndex(x => new { x.State, x.NextAttemptAt });
+            entity.HasOne<Blob>().WithMany().HasForeignKey(x => x.SourceHash).OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<BlobDerivative>(entity =>
+        {
+            entity.ToTable("blob_derivatives");
+            entity.HasKey(x => new { x.SourceHash, x.Kind });
+            entity.Property(x => x.SourceHash).HasMaxLength(64);
+            entity.Property(x => x.Kind).HasMaxLength(20);
+            entity.Property(x => x.BlobHash).HasMaxLength(64);
+            entity.Property(x => x.ContentType).HasMaxLength(100);
+            entity.HasIndex(x => x.BlobHash);
+            entity.HasOne<Blob>().WithMany().HasForeignKey(x => x.SourceHash).OnDelete(DeleteBehavior.Cascade);
+            entity.HasOne<Blob>().WithMany().HasForeignKey(x => x.BlobHash).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        builder.Entity<BlobText>(entity =>
+        {
+            entity.ToTable("blob_texts");
+            entity.HasKey(x => x.SourceHash);
+            entity.Property(x => x.SourceHash).HasMaxLength(64);
+            entity.HasOne<Blob>().WithMany().HasForeignKey(x => x.SourceHash).OnDelete(DeleteBehavior.Cascade);
         });
 
         builder.Entity<WorkTask>(entity =>

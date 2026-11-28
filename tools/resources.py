@@ -244,6 +244,22 @@ TEXTS: dict[str, tuple[str, str]] = {
     "DocumentError_needs-object": ("Ein Dokument gehört zu mindestens einem Eintrag.", "A document belongs to at least one entry."),
     "DocumentError_title-required": ("Bitte eine Bezeichnung eingeben.", "Please enter a title."),
     "DocumentError_http-413": ("Die Datei ist zu groß.", "The file is too large."),
+    # Verarbeitung im Worker (M3.1)
+    "DocumentProcessing": ("Wird verarbeitet …", "Processing …"),
+    "DocumentProcessingFailed": ("Texterkennung und Vorschau fehlgeschlagen", "Text recognition and preview failed"),
+    "DocumentPreview": ("Vorschau", "Preview"),
+    "ProcessingTitle": ("Verarbeitung", "Processing"),
+    "ProcessingIntro": (
+        "Der Worker erkennt Text in Scans und Fotos, erzeugt Vorschauen für Office-Dateien und Vorschaubilder. Die Originale bleiben unverändert.",
+        "The worker recognises text in scans and photos and creates previews for Office files and thumbnails. Originals stay unchanged.",
+    ),
+    "ProcessingWorkerMissing": ("Kein Worker eingerichtet (MyDocs__WorkerUrl). Dokumente werden gespeichert, aber nicht verarbeitet.",
+                                "No worker configured (MyDocs__WorkerUrl). Documents are stored but not processed."),
+    "ProcessingWorkerDown": ("Der Worker ist nicht erreichbar.", "The worker cannot be reached."),
+    "ProcessingWorkerOk": ("Der Worker ist bereit.", "The worker is ready."),
+    "ProcessingCounts": ("{0} warten · {1} fertig · {2} fehlgeschlagen", "{0} waiting · {1} done · {2} failed"),
+    "ProcessingRetry": ("Fehlgeschlagene erneut verarbeiten", "Process failed ones again"),
+    "ProcessingRetried": ("{0} Dateien werden erneut verarbeitet.", "{0} files are being processed again."),
     # Suche (M1.6)
     "SearchTitle": ("Suche", "Search"),
     "SearchPlaceholder": ("Suchen …", "Search …"),

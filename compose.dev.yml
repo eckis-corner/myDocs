@@ -12,6 +12,14 @@ services:
       secrets:
         - nuget_auth
 
+  worker:
+    image: mydocs-worker:dev
+    build:
+      context: .
+      dockerfile: Dockerfile.worker
+      args:
+        VERSION: 0.1.0-dev
+
   db:
     environment:
       POSTGRES_PASSWORD: mydocs

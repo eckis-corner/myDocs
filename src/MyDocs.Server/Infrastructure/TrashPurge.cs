@@ -54,17 +54,7 @@ public sealed partial class TrashPurge(IServiceProvider services, TimeProvider t
         db.DocumentVersions.RemoveRange(versions);
         db.Documents.RemoveRange(documents);
         var hashes = versions.GroupBy(v => v.BlobHash).ToDictionary(g => g.Key, g => g.Count());
-        var unused = new List<string>();
-        foreach (var blob in await db.Blobs.Where(b => hashes.Keys.Contains(b.Hash)).ToListAsync(ct))
-        {
-            blob.RefCount -= hashes[blob.Hash];
-            if (blob.RefCount <= 0)
-            {
-                db.Blobs.Remove(blob);
-                unused.Add(blob.Hash);
-            }
-        }
-
+        var unused = await blobs.ReleaseAsync(hashes, ct);
         if (objects.Count + documents.Count > 0)
         {
             audit.Add(AuditActions.TrashPurged, actor: Guid.Empty, details: $"{objects.Count} Einträge, {documents.Count} Dokumente");

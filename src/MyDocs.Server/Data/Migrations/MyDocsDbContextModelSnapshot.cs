@@ -422,6 +422,65 @@ namespace MyDocs.Server.Data.Migrations
                     b.ToTable("blobs", (string)null);
                 });
 
+            modelBuilder.Entity("MyDocs.Server.Data.BlobDerivative", b =>
+                {
+                    b.Property<string>("SourceHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("source_hash");
+
+                    b.Property<string>("Kind")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<string>("BlobHash")
+                        .IsRequired()
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("blob_hash");
+
+                    b.Property<string>("ContentType")
+                        .IsRequired()
+                        .HasMaxLength(100)
+                        .HasColumnType("character varying(100)")
+                        .HasColumnName("content_type");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<long>("Size")
+                        .HasColumnType("bigint")
+                        .HasColumnName("size");
+
+                    b.HasKey("SourceHash", "Kind")
+                        .HasName("pk_blob_derivatives");
+
+                    b.HasIndex("BlobHash")
+                        .HasDatabaseName("ix_blob_derivatives_blob_hash");
+
+                    b.ToTable("blob_derivatives", (string)null);
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.BlobText", b =>
+                {
+                    b.Property<string>("SourceHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("source_hash");
+
+                    b.Property<string>("Text")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("text");
+
+                    b.HasKey("SourceHash")
+                        .HasName("pk_blob_texts");
+
+                    b.ToTable("blob_texts", (string)null);
+                });
+
             modelBuilder.Entity("MyDocs.Server.Data.Comment", b =>
                 {
                     b.Property<Guid>("Id")
@@ -613,6 +672,16 @@ namespace MyDocs.Server.Data.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.Property<string>("ContentText")
+                        .HasColumnType("text")
+                        .HasColumnName("content_text");
+
+                    b.Property<NpgsqlTsVector>("ContentVector")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("tsvector")
+                        .HasColumnName("content_vector")
+                        .HasComputedColumnSql("to_tsvector('german', coalesce(content_text, ''))", true);
+
                     b.Property<DateTimeOffset>("CreatedAt")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("created_at");
@@ -660,6 +729,17 @@ namespace MyDocs.Server.Data.Migrations
 
                     b.HasKey("Id")
                         .HasName("pk_documents");
+
+                    b.HasIndex("ContentText")
+                        .HasDatabaseName("ix_documents_content_text");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("ContentText"), "gin");
+                    NpgsqlIndexBuilderExtensions.HasOperators(b.HasIndex("ContentText"), new[] { "gin_trgm_ops" });
+
+                    b.HasIndex("ContentVector")
+                        .HasDatabaseName("ix_documents_content_vector");
+
+                    NpgsqlIndexBuilderExtensions.HasMethod(b.HasIndex("ContentVector"), "gin");
 
                     b.HasIndex("SearchText")
                         .HasDatabaseName("ix_documents_search_text");
@@ -974,6 +1054,60 @@ namespace MyDocs.Server.Data.Migrations
                     b.ToTable("persons", (string)null);
                 });
 
+            modelBuilder.Entity("MyDocs.Server.Data.ProcessingJob", b =>
+                {
+                    b.Property<string>("SourceHash")
+                        .HasMaxLength(64)
+                        .HasColumnType("character varying(64)")
+                        .HasColumnName("source_hash");
+
+                    b.Property<int>("Attempts")
+                        .HasColumnType("integer")
+                        .HasColumnName("attempts");
+
+                    b.Property<DateTimeOffset?>("CompletedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("completed_at");
+
+                    b.Property<DateTimeOffset>("CreatedAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("created_at");
+
+                    b.Property<string>("Error")
+                        .HasMaxLength(500)
+                        .HasColumnType("character varying(500)")
+                        .HasColumnName("error");
+
+                    b.Property<string>("FileName")
+                        .IsRequired()
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)")
+                        .HasColumnName("file_name");
+
+                    b.Property<string>("Kind")
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("kind");
+
+                    b.Property<DateTimeOffset>("NextAttemptAt")
+                        .HasColumnType("timestamp with time zone")
+                        .HasColumnName("next_attempt_at");
+
+                    b.Property<string>("State")
+                        .IsRequired()
+                        .HasMaxLength(20)
+                        .HasColumnType("character varying(20)")
+                        .HasColumnName("state");
+
+                    b.HasKey("SourceHash")
+                        .HasName("pk_processing_jobs");
+
+                    b.HasIndex("State", "NextAttemptAt")
+                        .HasDatabaseName("ix_processing_jobs_state_next_attempt_at");
+
+                    b.ToTable("processing_jobs", (string)null);
+                });
+
             modelBuilder.Entity("MyDocs.Server.Data.SystemSetting", b =>
                 {
                     b.Property<string>("Key")
@@ -1238,6 +1372,33 @@ namespace MyDocs.Server.Data.Migrations
                         .HasConstraintName("fk_user_tokens_users_user_id");
                 });
 
+            modelBuilder.Entity("MyDocs.Server.Data.BlobDerivative", b =>
+                {
+                    b.HasOne("MyDocs.Server.Data.Blob", null)
+                        .WithMany()
+                        .HasForeignKey("BlobHash")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired()
+                        .HasConstraintName("fk_blob_derivatives_blobs_blob_hash");
+
+                    b.HasOne("MyDocs.Server.Data.Blob", null)
+                        .WithMany()
+                        .HasForeignKey("SourceHash")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_blob_derivatives_blobs_source_hash");
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.BlobText", b =>
+                {
+                    b.HasOne("MyDocs.Server.Data.Blob", null)
+                        .WithMany()
+                        .HasForeignKey("SourceHash")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_blob_texts_blobs_source_hash");
+                });
+
             modelBuilder.Entity("MyDocs.Server.Data.Comment", b =>
                 {
                     b.HasOne("MyDocs.Server.Data.DocObject", null)
@@ -1352,6 +1513,16 @@ namespace MyDocs.Server.Data.Migrations
                         .HasForeignKey("MyDocs.Server.Data.Person", "UserId")
                         .OnDelete(DeleteBehavior.SetNull)
                         .HasConstraintName("fk_persons_users_user_id");
+                });
+
+            modelBuilder.Entity("MyDocs.Server.Data.ProcessingJob", b =>
+                {
+                    b.HasOne("MyDocs.Server.Data.Blob", null)
+                        .WithMany()
+                        .HasForeignKey("SourceHash")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_processing_jobs_blobs_source_hash");
                 });
 
             modelBuilder.Entity("MyDocs.Server.Data.TaskObject", b =>

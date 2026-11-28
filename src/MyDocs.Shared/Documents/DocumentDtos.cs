@@ -1,6 +1,26 @@
 namespace MyDocs.Shared.Documents;
 
-public sealed record DocumentVersionDto(int Number, string FileName, string ContentType, long Size, DateTimeOffset CreatedAt, string CreatedByName);
+public sealed record DocumentVersionDto(int Number, string FileName, string ContentType, long Size, DateTimeOffset CreatedAt, string CreatedByName)
+{
+    /// <summary>Stand der Verarbeitung im Worker (<see cref="ProcessingStates"/>).</summary>
+    public string Processing { get; init; } = ProcessingStates.Pending;
+
+    /// <summary>
+    /// Typ der Vorschau im Browser: <c>application/pdf</c> für das PDF aus dem Worker, sonst der Typ des Originals,
+    /// wenn er in <see cref="Previews.InlineTypes"/> steht; null ohne Vorschau.
+    /// </summary>
+    public string? PreviewType { get; init; }
+
+    public bool HasThumbnail { get; init; }
+}
+
+/// <summary>Stand der Verarbeitung (24): wartet, fertig (auch wenn ein Schritt nicht ging) oder aufgegeben.</summary>
+public static class ProcessingStates
+{
+    public const string Pending = "pending";
+    public const string Done = "done";
+    public const string Failed = "failed";
+}
 
 /// <summary>Dokument mit allen Versionen (neueste zuerst), seinen Objekten und den Rechten des Aufrufers.</summary>
 public sealed record DocumentDto(Guid Id, string Title, DateOnly? DocumentDate, string? Note, IReadOnlyList<DocumentVersionDto> Versions,

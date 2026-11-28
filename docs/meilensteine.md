@@ -73,6 +73,10 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 ## M3 – Posteingang und Worker (19–26, 49)
 
+**M3.1 Worker ✅ (28.11.2026):** Container `mydocs-worker` ohne Schlüssel im internen Netz, Aufträge je Inhalt, OCR zu PDF/A, Office-Vorschau, Vorschaubilder, Wiederholung und Status in den Einstellungen (136–140). Mit den echten Werkzeugen geprüft (Office, Bild, Scan-PDF), auch in der CI.
+
+**M3.2 Volltext über den Dokumenttext ✅ (28.11.2026):** erkannter Text mit eigenem Index, Wortstämme und Teilwörter, Fundstelle in den Treffern (141). 158 Tests grün, dazu 3 gegen den echten Worker.
+
 1. Container `mydocs-worker`, Auftragstabelle, OCRmyPDF zu PDF/A, LibreOffice-Vorschau, Vorschaubilder
 2. Volltextsuche über den Dokumenttext (`german`, `pg_trgm`)
 3. Posteingang mit Zuordnung, Dokumentart und Datum

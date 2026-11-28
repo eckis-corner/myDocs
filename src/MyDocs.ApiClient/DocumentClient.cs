@@ -41,6 +41,11 @@ public sealed class DocumentClient(HttpClient http)
         return $"api/documents/{id}/content{(query.Count > 0 ? "?" + string.Join('&', query) : string.Empty)}";
     }
 
+    /// <summary>Vorschau: PDF aus dem Worker oder das Original, wenn der Browser es zeigen darf.</summary>
+    public static string PreviewUrl(Guid id, int? version = null) => $"api/documents/{id}/preview{(version is { } v ? $"?version={v}" : string.Empty)}";
+
+    public static string ThumbnailUrl(Guid id, int? version = null) => $"api/documents/{id}/thumbnail{(version is { } v ? $"?version={v}" : string.Empty)}";
+
     private async Task<DocumentDto> PostFileAsync(string path, Stream content, string fileName, string contentType, CancellationToken ct)
     {
         using var form = new MultipartFormDataContent();

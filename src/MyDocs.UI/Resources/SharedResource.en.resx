@@ -124,6 +124,9 @@
   <data name="DocumentError_title-required" xml:space="preserve"><value>Please enter a title.</value></data>
   <data name="DocumentError_too-large" xml:space="preserve"><value>The file is too large (at most {1} MB).</value></data>
   <data name="DocumentNewVersion" xml:space="preserve"><value>Upload new version</value></data>
+  <data name="DocumentPreview" xml:space="preserve"><value>Preview</value></data>
+  <data name="DocumentProcessing" xml:space="preserve"><value>Processing …</value></data>
+  <data name="DocumentProcessingFailed" xml:space="preserve"><value>Text recognition and preview failed</value></data>
   <data name="DocumentTitle" xml:space="preserve"><value>Title</value></data>
   <data name="DocumentUpload" xml:space="preserve"><value>Upload</value></data>
   <data name="DocumentVersionAdded" xml:space="preserve"><value>New version saved.</value></data>
@@ -303,6 +306,14 @@ these tasks have been overdue for 14 days and now go to the whole household:
   <data name="PersonLogin" xml:space="preserve"><value>Account</value></data>
   <data name="PersonNameFromAccount" xml:space="preserve"><value>The name comes from the account; the administrator can change it.</value></data>
   <data name="Print" xml:space="preserve"><value>Print</value></data>
+  <data name="ProcessingCounts" xml:space="preserve"><value>{0} waiting · {1} done · {2} failed</value></data>
+  <data name="ProcessingIntro" xml:space="preserve"><value>The worker recognises text in scans and photos and creates previews for Office files and thumbnails. Originals stay unchanged.</value></data>
+  <data name="ProcessingRetried" xml:space="preserve"><value>{0} files are being processed again.</value></data>
+  <data name="ProcessingRetry" xml:space="preserve"><value>Process failed ones again</value></data>
+  <data name="ProcessingTitle" xml:space="preserve"><value>Processing</value></data>
+  <data name="ProcessingWorkerDown" xml:space="preserve"><value>The worker cannot be reached.</value></data>
+  <data name="ProcessingWorkerMissing" xml:space="preserve"><value>No worker configured (MyDocs__WorkerUrl). Documents are stored but not processed.</value></data>
+  <data name="ProcessingWorkerOk" xml:space="preserve"><value>The worker is ready.</value></data>
   <data name="Push_digest_body" xml:space="preserve"><value>{0} overdue, {1} in the next 7 days</value></data>
   <data name="Push_digest_title" xml:space="preserve"><value>myDocs: {0} tasks</value></data>
   <data name="Push_test_body" xml:space="preserve"><value>Push messages from myDocs arrive.</value></data>

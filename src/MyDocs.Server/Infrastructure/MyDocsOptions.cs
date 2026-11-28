@@ -34,4 +34,10 @@ public sealed class MyDocsOptions
 
     /// <summary>Größte Datei in Megabyte (78); später vom Administrator einstellbar.</summary>
     public int MaxFileSizeMegabytes { get; set; } = 100;
+
+    /// <summary>
+    /// Adresse des Workers im internen Netz (24), etwa <c>http://worker:8080</c>. Leer: Dokumente werden gespeichert,
+    /// aber nicht verarbeitet, bis ein Worker da ist.
+    /// </summary>
+    public string? WorkerUrl { get; set; }
 }

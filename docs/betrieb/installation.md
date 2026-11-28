@@ -2,7 +2,7 @@
 
 Für DSM 7.2 und neuer mit **Container Manager** (Synology DS1520+, x86-64), neben myLife. Für andere Docker-Hosts gelten dieselben Schritte sinngemäß.
 
-> **Stand M2:** Einrichtung, Anmeldung mit Authenticator-App oder Passkey, Benutzer und Haushalt, Einträge aus dem Katalog, Dokumente mit Versionen, Suche, Protokoll, Admin-Einsicht, Papierkorb, tägliche Sicherung; dazu Lebenszyklus, Vorgänge, Wiedervorlage mit Eskalation, Startseite und Benachrichtigungen per Mail und ntfy. Noch nicht: Posteingang und OCR (M3), Desktop-Client (M4), Abgleich mit myLife (M5). Vor echten Daten die Abnahme durchgehen: [abnahme.md](abnahme.md).
+> **Stand M3.2:** Einrichtung, Anmeldung mit Authenticator-App oder Passkey, Benutzer und Haushalt, Einträge aus dem Katalog, Dokumente mit Versionen, Suche, Protokoll, Admin-Einsicht, Papierkorb, tägliche Sicherung; Lebenszyklus, Vorgänge, Wiedervorlage mit Eskalation, Startseite und Benachrichtigungen per Mail und ntfy; dazu der Worker für Texterkennung, Office-Vorschau und Vorschaubilder mit Volltextsuche im Dokumenttext. Noch nicht: Posteingang, Kamera, Scan-Ordner und Mail-Eingang (Rest von M3), Desktop-Client (M4), Abgleich mit myLife (M5). Vor echten Daten die Abnahme durchgehen: [abnahme.md](abnahme.md).
 
 ## 1. Ordner anlegen
 
@@ -47,11 +47,15 @@ sudo chown -R 1654:1654 /volume1/docker/mydocs/data/app
 2. Projektname `mydocs`, Pfad `/volume1/docker/mydocs`
 3. Quelle: **Vorhandene docker-compose.yml verwenden**
 4. Web-Portal-Einstellungen überspringen (das übernimmt der Nginx Proxy Manager)
-5. Fertigstellen. Der Container Manager lädt `ghcr.io/eckis-corner/mydocs` und `postgres:17-alpine` und startet beide.
+5. Fertigstellen. Der Container Manager lädt `ghcr.io/eckis-corner/mydocs`, `ghcr.io/eckis-corner/mydocs-worker` und `postgres:17-alpine` und startet alle drei.
+
+Zusammen brauchen die drei Container bis zu 2,5 GB Arbeitsspeicher: App 512 MB, Datenbank 512 MB, Worker 1,5 GB (davon bis 768 MB für Arbeitsdateien im Speicher, damit Klartext nie auf die Platte kommt). Der Worker hat kein Volume, keine Schlüssel und keinen Zugang zum Internet; er erreicht nur die App über das interne Netz `worker`.
 
 Kontrolle im LAN: `http://<IP-der-Synology>:8090/health/ready` liefert `Healthy`.
 
-> Meldet der Download des Images `unauthorized`, ist das Paket auf GitHub noch privat: GitHub → Profil → Packages → `mydocs` → Package settings → Change visibility → Public.
+> Meldet der Download eines Images `unauthorized`, ist das Paket auf GitHub noch privat: GitHub → Profil → Packages → `mydocs` bzw. `mydocs-worker` → Package settings → Change visibility → Public.
+
+Kontrolle des Workers: **Verwaltung → Einstellungen → Verarbeitung** zeigt „Der Worker ist bereit.“ Beim ersten Start mit Worker werden alle schon vorhandenen Dokumente einmal verarbeitet; das kann bei vielen Scans einige Zeit dauern.
 
 Beim ersten Start legt myDocs den **Hauptschlüssel** `data/app/keys/master.key` an (Abschnitt 7). Er verschlüsselt alle Dokumente.
 
@@ -153,7 +157,9 @@ sudo docker compose pull
 sudo docker compose up -d
 ```
 
-oder im Container Manager: Projekt stoppen, Image `ghcr.io/eckis-corner/mydocs` aktualisieren, Projekt starten. Datenbank-Migrationen laufen beim Start automatisch.
+oder im Container Manager: Projekt stoppen, die Images `ghcr.io/eckis-corner/mydocs` und `ghcr.io/eckis-corner/mydocs-worker` aktualisieren, Projekt starten. Datenbank-Migrationen laufen beim Start automatisch.
+
+**Update auf M3:** Die neue `docker-compose.yml` aus dem Repository übernehmen; sie enthält den Worker und das interne Netz. Danach wie oben `pull` und `up -d`.
 
 ## 9. Lokale Entwicklung und eigener Build
 
@@ -163,7 +169,17 @@ docker compose -f docker-compose.yml -f compose.dev.yml up -d db   # nur die Dat
 dotnet run --project src/MyDocs.Server                             # http://localhost:5072
 ```
 
-Ein eigenes Image braucht die Anmeldung an GitHub Packages für `MyCommon.*` (siehe `nuget.config`):
+Den Worker lokal starten und in der App eintragen (ohne ihn speichert myDocs Dokumente, verarbeitet sie aber nicht):
+
+```bash
+docker build -f Dockerfile.worker -t mydocs-worker:dev .
+docker run --rm -d --name mydocs-worker --read-only --tmpfs /tmp:size=768m -p 127.0.0.1:18080:8080 mydocs-worker:dev
+MyDocs__WorkerUrl=http://localhost:18080 dotnet run --project src/MyDocs.Server
+# Tests gegen die echten Werkzeuge:
+MYDOCS_WORKER_URL=http://localhost:18080 dotnet test --project tests/MyDocs.Tests -- --filter-class MyDocs.Tests.WorkerIntegrationTests
+```
+
+Ein eigenes Image der App braucht die Anmeldung an GitHub Packages für `MyCommon.*` (siehe `nuget.config`):
 
 ```bash
 export NuGetPackageSourceCredentials_eckiscorner="Username=<github-name>;Password=<token mit read:packages>"

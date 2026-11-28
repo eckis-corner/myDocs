@@ -280,6 +280,12 @@ Fortlaufend nummeriert. Jede Rückfrage behält ihre Nummer, die Antwort steht d
 | ---: | --- | --- |
 | 146 | Kamera | Seite **Posteingang → Kamera** (`/inbox/camera`): „Seite fotografieren“ öffnet am Handy die Rückkamera (`capture="environment"`), „Fotos wählen“ nimmt vorhandene Bilder. Jede Seite lässt sich verschieben, in 90-Grad-Schritten drehen und an jedem Rand um bis zu 45 % grob zuschneiden. Der Browser gibt jede Seite als JPEG aus (längere Kante höchstens 3000 Pixel, Qualität 0,85); die Bilder bleiben bis dahin nur im Speicher des Browsers. Der **Server baut daraus das PDF** selbst, ohne die Bilder neu zu kodieren, jede Seite so groß, dass sie in A4 passt; das ist das Original. Gerade richten, Drehen nach Text und OCR macht der Worker wie bei jedem Scan (138). Höchstens 50 Seiten, zusammen höchstens so groß wie eine Datei (78); nur Graustufen- und RGB-JPEG. Das Dokument heißt „Kamera <Datum> <Uhrzeit>“ und landet im eigenen Posteingang oder, per Schalter, in dem des Haushalts. |
 
+## Runde 19 (28.11.2026, M3.5 Scan-Ordner)
+
+| Nr. | Thema | Entscheidung |
+| ---: | --- | --- |
+| 147 | Scan-Ordner | Ein Ordner der Synology wird als `/scan` eingebunden (`MYDOCS_SCAN_DIR`) und alle 30 Sekunden durchgesehen. Dateien **direkt darin** kommen in den Posteingang des **Haushalts**; ein **Unterordner, der wie die E-Mail-Adresse eines Kontos heißt**, geht in dessen privaten Posteingang (Groß- und Kleinschreibung egal). So bekommt jede Person am Scanner ein eigenes Ziel, ohne Einstellung in myDocs. Übernommen wird eine Datei, wenn Größe und Änderungszeit bei zwei Durchläufen gleich sind; danach **wird sie gelöscht**, damit kein Klartext liegen bleibt. Nur PDF und Bilder (JPEG, PNG, TIFF), erkannt am Inhalt, bis zur größten Datei (78); anderes kommt nach `_fehler`. Unbekannte Unterordner, versteckte Dateien und die Ordner der Synology (`@eaDir`, `#recycle`) bleiben unberührt. Lässt sich eine übernommene Datei nicht löschen, steht das im Protokoll des Containers und sie wird nicht ein zweites Mal übernommen. Der Papierkorb der Freigabe muss aus sein. |
+
 ## Offen
 
 | Thema | Was fehlt |

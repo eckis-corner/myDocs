@@ -81,6 +81,8 @@ Stand: 27.11.2026. Nach jedem Meilenstein wird angehalten und abgenommen. Die Nu
 
 **M3.4 Kamera ✅ (28.11.2026):** Seiten fotografieren oder wählen, sortieren, drehen, grob zuschneiden; der Server baut das PDF, der Worker richtet gerade und erkennt den Text (146). Das PDF der App ist gegen Poppler und OCRmyPDF geprüft. 174 Tests grün.
 
+**M3.5 Scan-Ordner ✅ (28.11.2026):** Freigabe als `/scan`, Haushalt im Ordner, privat im Unterordner mit der E-Mail-Adresse, Übernahme nach Ende des Schreibens, danach gelöscht (147). 177 Tests grün.
+
 1. Container `mydocs-worker`, Auftragstabelle, OCRmyPDF zu PDF/A, LibreOffice-Vorschau, Vorschaubilder
 2. Volltextsuche über den Dokumenttext (`german`, `pg_trgm`)
 3. Posteingang mit Zuordnung, Dokumentart und Datum

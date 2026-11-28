@@ -377,6 +377,8 @@ diese Vorgänge sind seit 14 Tagen überfällig und gehen jetzt an den ganzen Ha
   <data name="ProcessingIntro" xml:space="preserve"><value>Der Worker erkennt Text in Scans und Fotos, erzeugt Vorschauen für Office-Dateien und Vorschaubilder. Die Originale bleiben unverändert.</value></data>
   <data name="ProcessingRetried" xml:space="preserve"><value>{0} Dateien werden erneut verarbeitet.</value></data>
   <data name="ProcessingRetry" xml:space="preserve"><value>Fehlgeschlagene erneut verarbeiten</value></data>
+  <data name="ProcessingScanActive" xml:space="preserve"><value>Der Scan-Ordner wird beobachtet.</value></data>
+  <data name="ProcessingScanMissing" xml:space="preserve"><value>Kein Scan-Ordner eingerichtet (MyDocs__ScanDirectory).</value></data>
   <data name="ProcessingTitle" xml:space="preserve"><value>Verarbeitung</value></data>
   <data name="ProcessingWorkerDown" xml:space="preserve"><value>Der Worker ist nicht erreichbar.</value></data>
   <data name="ProcessingWorkerMissing" xml:space="preserve"><value>Kein Worker eingerichtet (MyDocs__WorkerUrl). Dokumente werden gespeichert, aber nicht verarbeitet.</value></data>

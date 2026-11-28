@@ -16,6 +16,8 @@ services:
       # Sicherungsschlüssel (32 Byte Base64); ohne ihn keine automatische Sicherung
       MyDocs__BackupKey: ${MYDOCS_BACKUP_KEY:-}
       MyDocs__WorkerUrl: http://worker:8080
+      # Scan-Ordner (M3.5): Freigabe, in die der Scanner schreibt; leer lassen, wenn es keinen gibt.
+      MyDocs__ScanDirectory: /scan
       TZ: ${TZ:-Europe/Berlin}
     networks:
       - default
@@ -24,6 +26,7 @@ services:
       - "${MYDOCS_PORT:-8090}:8080"
     volumes:
       - ${MYDOCS_DATA_DIR:-./data}/app:/data
+      - ${MYDOCS_SCAN_DIR:-./data/scan}:/scan
     mem_limit: 512m
 
   # Zustandslos: kein Volume, keine Schlüssel, keine Datenbank. Dateien liegen nur während der Arbeit im tmpfs.

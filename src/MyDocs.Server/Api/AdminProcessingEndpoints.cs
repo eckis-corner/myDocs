@@ -18,11 +18,14 @@ internal static class AdminProcessingEndpoints
         return app;
     }
 
-    private static async Task<IResult> StatusAsync(MyDocsDbContext db, IDocumentWorker worker, CancellationToken ct)
+    private static async Task<IResult> StatusAsync(MyDocsDbContext db, IDocumentWorker worker, MyDocs.Server.Infrastructure.Inbox.ScanFolderService scan, CancellationToken ct)
     {
         var counts = await db.ProcessingJobs.GroupBy(j => j.State).Select(g => new { g.Key, Count = g.Count() }).ToDictionaryAsync(g => g.Key, g => g.Count, ct);
         return TypedResults.Ok(new ProcessingStatusDto(worker.IsConfigured, await worker.IsHealthyAsync(ct),
-            counts.GetValueOrDefault(ProcessingStates.Pending), counts.GetValueOrDefault(ProcessingStates.Failed), counts.GetValueOrDefault(ProcessingStates.Done)));
+            counts.GetValueOrDefault(ProcessingStates.Pending), counts.GetValueOrDefault(ProcessingStates.Failed), counts.GetValueOrDefault(ProcessingStates.Done))
+        {
+            ScanFolderActive = scan.IsActive,
+        });
     }
 
     private static async Task<IResult> RetryAsync(ProcessingScheduler queue, CancellationToken ct) => TypedResults.Ok(await queue.RetryFailedAsync(ct));

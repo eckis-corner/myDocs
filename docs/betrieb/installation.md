@@ -2,7 +2,7 @@
 
 Für DSM 7.2 und neuer mit **Container Manager** (Synology DS1520+, x86-64), neben myLife. Für andere Docker-Hosts gelten dieselben Schritte sinngemäß.
 
-> **Stand M3.4:** Einrichtung, Anmeldung mit Authenticator-App oder Passkey, Benutzer und Haushalt, Einträge aus dem Katalog, Dokumente mit Versionen, Suche, Protokoll, Admin-Einsicht, Papierkorb, tägliche Sicherung; Lebenszyklus, Vorgänge, Wiedervorlage mit Eskalation, Startseite und Benachrichtigungen per Mail und ntfy; dazu der Worker für Texterkennung, Office-Vorschau und Vorschaubilder mit Volltextsuche im Dokumenttext und der Posteingang mit Kamera. Noch nicht: Scan-Ordner und Mail-Eingang (Rest von M3), Desktop-Client (M4), Abgleich mit myLife (M5). Vor echten Daten die Abnahme durchgehen: [abnahme.md](abnahme.md).
+> **Stand M3.5:** Einrichtung, Anmeldung mit Authenticator-App oder Passkey, Benutzer und Haushalt, Einträge aus dem Katalog, Dokumente mit Versionen, Suche, Protokoll, Admin-Einsicht, Papierkorb, tägliche Sicherung; Lebenszyklus, Vorgänge, Wiedervorlage mit Eskalation, Startseite und Benachrichtigungen per Mail und ntfy; dazu der Worker für Texterkennung, Office-Vorschau und Vorschaubilder mit Volltextsuche im Dokumenttext und der Posteingang mit Kamera und Scan-Ordner. Noch nicht: Mail-Eingang (Rest von M3), Desktop-Client (M4), Abgleich mit myLife (M5). Vor echten Daten die Abnahme durchgehen: [abnahme.md](abnahme.md).
 
 ## 1. Ordner anlegen
 
@@ -28,6 +28,7 @@ In der File Station im freigegebenen Ordner `docker` den Ordner `mydocs` anlegen
 | `MYDOCS_PORT` | Freier Port auf der Synology, z. B. `8090` (myLife nutzt einen anderen, etwa `8089`) |
 | `MYDOCS_DATA_DIR` | `./data` (relativ zum Projektordner) |
 | `MYDOCS_BACKUP_KEY` | Schlüssel der täglichen Sicherung: per SSH `openssl rand -base64 32`. **Ausdrucken und getrennt von der NAS aufbewahren**; ohne ihn lässt sich keine Sicherung zurückspielen. Leer = keine automatische Sicherung. |
+| `MYDOCS_SCAN_DIR` | Ordner, in den der Scanner schreibt, z. B. `/volume1/scan/mydocs` (Abschnitt 6b). Ohne Scanner `./data/scan` lassen. |
 | `TZ` | `Europe/Berlin` |
 
 ## 3. Rechte für den App-Ordner setzen (einmalig, per SSH)
@@ -98,6 +99,27 @@ Passwort und Token liegen verschlüsselt in der Datenbank und erscheinen nie wie
 Jede Person stellt unter **Benutzermenü → Benachrichtigungen** ein, wann ihre **tägliche Zusammenfassung** kommt (voreingestellt 7 Uhr, abschaltbar), in welcher Sprache und an welches eigene ntfy-Thema. Ist ein Vorgang 14 Tage überfällig, geht sofort eine Mail an alle Mitglieder, die ihn sehen dürfen.
 
 Auf derselben Seite stehen die **größte Datei** (höchstens der Wert der Installation, 100 MB) und **Uhrzeit und Generationen der Sicherung**. Sie ersetzen die Umgebungsvariablen aus Abschnitt 7, sobald einmal gespeichert ist.
+
+## 6b. Scan-Ordner
+
+Der Scanner (oder das Multifunktionsgerät) legt Scans per SMB oder FTP in einem Ordner der Synology ab; myDocs holt sie alle 30 Sekunden in den Posteingang und **löscht sie dort**.
+
+1. Systemsteuerung → Gemeinsamer Ordner: einen Ordner `scan` anlegen (falls es ihn nicht gibt) und darin den Unterordner `mydocs`. **Papierkorb für diesen Ordner ausschalten**, sonst bleiben gelöschte Scans als Klartext im `#recycle` liegen.
+2. Per SSH dem Benutzer der App Schreibrechte geben:
+
+   ```bash
+   sudo chown -R 1654:1654 /volume1/scan/mydocs
+   sudo chmod 2775 /volume1/scan/mydocs
+   ```
+
+   Der Scanner braucht ein eigenes Konto der Synology mit Schreibrecht auf diesen Ordner.
+3. In der `.env`: `MYDOCS_SCAN_DIR=/volume1/scan/mydocs`, dann das Projekt neu starten.
+4. Am Scanner Ziele anlegen:
+   - `\\<Synology>\scan\mydocs` → **Posteingang des Haushalts**
+   - `\\<Synology>\scan\mydocs\<E-Mail-Adresse des Kontos>`, etwa `…\mydocs\bea@example.de` → **privater Posteingang** dieser Person. Den Unterordner einmal anlegen; er muss genau wie die Anmeldeadresse heißen. **Danach den `chown`-Befehl aus Schritt 2 wiederholen**, sonst darf myDocs die Scans darin nicht löschen.
+5. Kontrolle: **Verwaltung → Einstellungen → Verarbeitung** zeigt „Der Scan-Ordner wird beobachtet.“
+
+Übernommen werden PDF und Bilder (JPEG, PNG, TIFF). Andere Dateien und zu große kommen in den Unterordner `_fehler`; dort löscht man sie von Hand.
 
 ## 7. Hauptschlüssel und Sicherung
 

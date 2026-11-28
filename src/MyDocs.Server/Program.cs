@@ -129,6 +129,9 @@ builder.Services.AddHttpClient(MyDocs.Server.Infrastructure.Processing.HttpDocum
 builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Processing.IDocumentWorker, MyDocs.Server.Infrastructure.Processing.HttpDocumentWorker>();
 builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Processing.ProcessingService>();
 builder.Services.AddHostedService(services => services.GetRequiredService<MyDocs.Server.Infrastructure.Processing.ProcessingService>());
+// Scan-Ordner (M3.5)
+builder.Services.AddSingleton<MyDocs.Server.Infrastructure.Inbox.ScanFolderService>();
+builder.Services.AddHostedService(services => services.GetRequiredService<MyDocs.Server.Infrastructure.Inbox.ScanFolderService>());
 // Uploads bis zur Grenze aus den Einstellungen (78) plus Platz für den Multipart-Rahmen.
 var maxRequestBytes = (options.MaxFileSizeMegabytes + 1) * 1024L * 1024L;
 builder.Services.AddAuthorizationBuilder()

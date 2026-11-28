@@ -40,4 +40,10 @@ public sealed class MyDocsOptions
     /// aber nicht verarbeitet, bis ein Worker da ist.
     /// </summary>
     public string? WorkerUrl { get; set; }
+
+    /// <summary>
+    /// Scan-Ordner (147), im Container <c>/scan</c>. Leer: kein Scan-Ordner. Dateien darin gehen in den Posteingang des
+    /// Haushalts, in Unterordnern mit der E-Mail-Adresse eines Kontos in dessen eigenen.
+    /// </summary>
+    public string? ScanDirectory { get; set; }
 }

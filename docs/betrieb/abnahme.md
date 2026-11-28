@@ -134,6 +134,15 @@ Gebraucht werden drei Konten mit eigenen Mail-Adressen: **A** (Administrator), *
 - [ ] Die Suche nach einem Wort aus dem Brief findet das Dokument
 - [ ] Am Computer: **Fotos wählen** mit mehreren Bildern auf einmal
 
+## 16. Scan-Ordner (M3.5)
+
+- [ ] Verwaltung → Einstellungen → Verarbeitung: „Der Scan-Ordner wird beobachtet.“
+- [ ] Einen Brief ins Ziel des Haushalts scannen: Nach spätestens einer Minute liegt er im Posteingang des Haushalts („Scanner“), die Datei ist aus dem Ordner verschwunden
+- [ ] Einen mehrseitigen Brief scannen: Er kommt als ein Dokument mit allen Seiten an, nicht vorzeitig
+- [ ] In das Ziel von B scannen: Er liegt im privaten Posteingang von B, A sieht ihn nicht
+- [ ] Eine Textdatei in den Ordner legen: Sie landet in `_fehler`
+- [ ] Im Papierkorb der Freigabe `scan` liegt nichts (Papierkorb aus)
+
 ## Ergebnis
 
 - [ ] Alle Punkte erledigt oder die Abweichungen notiert und an Claude weitergegeben

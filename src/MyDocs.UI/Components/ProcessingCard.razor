@@ -23,6 +23,7 @@
                 <MudAlert Severity="Severity.Success" Dense>@L["ProcessingWorkerOk"]</MudAlert>
             }
 
+            <MudText Typo="Typo.body2" data-testid="scan-folder">@(status.ScanFolderActive ? L["ProcessingScanActive"] : L["ProcessingScanMissing"])</MudText>
             <MudText Typo="Typo.body2" data-testid="processing-counts">@L["ProcessingCounts", status.Pending, status.Done, status.Failed]</MudText>
             @if (status.Failed > 0)
             {

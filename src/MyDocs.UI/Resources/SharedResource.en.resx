@@ -377,6 +377,8 @@ these tasks have been overdue for 14 days and now go to the whole household:
   <data name="ProcessingIntro" xml:space="preserve"><value>The worker recognises text in scans and photos and creates previews for Office files and thumbnails. Originals stay unchanged.</value></data>
   <data name="ProcessingRetried" xml:space="preserve"><value>{0} files are being processed again.</value></data>
   <data name="ProcessingRetry" xml:space="preserve"><value>Process failed ones again</value></data>
+  <data name="ProcessingScanActive" xml:space="preserve"><value>The scan folder is being watched.</value></data>
+  <data name="ProcessingScanMissing" xml:space="preserve"><value>No scan folder configured (MyDocs__ScanDirectory).</value></data>
   <data name="ProcessingTitle" xml:space="preserve"><value>Processing</value></data>
   <data name="ProcessingWorkerDown" xml:space="preserve"><value>The worker cannot be reached.</value></data>
   <data name="ProcessingWorkerMissing" xml:space="preserve"><value>No worker configured (MyDocs__WorkerUrl). Documents are stored but not processed.</value></data>

@@ -21,6 +21,9 @@ public sealed class ServerFixture : WebApplicationFactory<Program>, IAsyncLifeti
 
     public string DataDirectory => _dataDirectory;
 
+    /// <summary>Scan-Ordner der Test-Instanz; Tests legen ihn selbst an.</summary>
+    public string ScanDirectory => Path.Combine(_dataDirectory, "scan");
+
     /// <summary>Sicherungsschlüssel der Test-Instanz (32 Byte, Base64).</summary>
     public const string BackupKey = "bXlEb2NzLVRlc3QtU2ljaGVydW5nc3NjaGx1ZXNzZWw=";
 
@@ -100,6 +103,7 @@ public sealed class ServerFixture : WebApplicationFactory<Program>, IAsyncLifeti
         builder.UseSetting("ConnectionStrings:MyDocs", _database.GetConnectionString());
         builder.UseSetting("MyDocs:DataDirectory", _dataDirectory);
         builder.UseSetting("MyDocs:BackupKey", BackupKey);
+        builder.UseSetting("MyDocs:ScanDirectory", ScanDirectory);
         // Die Tests melden sich viel öfter an als ein Mensch; das Limit gegen Durchprobieren würde sonst greifen.
         builder.UseSetting("MyDocs:AuthRequestsPerMinute", "10000");
         builder.ConfigureTestServices(services =>

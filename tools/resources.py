@@ -335,6 +335,8 @@ TEXTS: dict[str, tuple[str, str]] = {
     "ProcessingCounts": ("{0} warten · {1} fertig · {2} fehlgeschlagen", "{0} waiting · {1} done · {2} failed"),
     "ProcessingRetry": ("Fehlgeschlagene erneut verarbeiten", "Process failed ones again"),
     "ProcessingRetried": ("{0} Dateien werden erneut verarbeitet.", "{0} files are being processed again."),
+    "ProcessingScanActive": ("Der Scan-Ordner wird beobachtet.", "The scan folder is being watched."),
+    "ProcessingScanMissing": ("Kein Scan-Ordner eingerichtet (MyDocs__ScanDirectory).", "No scan folder configured (MyDocs__ScanDirectory)."),
     # Suche (M1.6)
     "SearchTitle": ("Suche", "Search"),
     "SearchPlaceholder": ("Suchen …", "Search …"),
